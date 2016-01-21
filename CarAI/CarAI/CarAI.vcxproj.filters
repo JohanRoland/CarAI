@@ -36,9 +36,6 @@
     <ClCompile Include="speechRecognition.cpp">
       <Filter>Source Files\speechRecognition</Filter>
     </ClCompile>
-    <ClCompile Include="RecorderSynthesiser.cpp">
-      <Filter>Source Files\speechRecognition</Filter>
-    </ClCompile>
     <ClCompile Include="faceRecognition.cpp">
       <Filter>Source Files\faceRecognition</Filter>
     </ClCompile>
@@ -48,14 +45,17 @@
     <ClCompile Include="carInterface.cpp">
       <Filter>Source Files\Result\Feature</Filter>
     </ClCompile>
-    <ClCompile Include="sheduler.cpp">
-      <Filter>Source Files\Result\Feature</Filter>
-    </ClCompile>
-    <ClCompile Include="textSynthesiser.cpp">
-      <Filter>Source Files\Result\Feature</Filter>
-    </ClCompile>
     <ClCompile Include="database.cpp">
       <Filter>Source Files\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="recorderSynthesizer.cpp">
+      <Filter>Source Files\speechRecognition</Filter>
+    </ClCompile>
+    <ClCompile Include="textSynthesizer.cpp">
+      <Filter>Source Files\Result\Feature</Filter>
+    </ClCompile>
+    <ClCompile Include="scheduler.cpp">
+      <Filter>Source Files\Result\Feature</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

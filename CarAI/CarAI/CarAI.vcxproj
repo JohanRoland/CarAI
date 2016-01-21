@@ -68,11 +68,11 @@
     <ClCompile Include="database.cpp" />
     <ClCompile Include="faceRecognition.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="RecorderSynthesiser.cpp" />
+    <ClCompile Include="recorderSynthesizer.cpp" />
     <ClCompile Include="result.cpp" />
-    <ClCompile Include="sheduler.cpp" />
+    <ClCompile Include="scheduler.cpp" />
     <ClCompile Include="speechRecognition.cpp" />
-    <ClCompile Include="textSynthesiser.cpp" />
+    <ClCompile Include="textSynthesizer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
