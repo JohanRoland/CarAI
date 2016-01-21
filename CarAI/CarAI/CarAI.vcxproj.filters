@@ -13,5 +13,49 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\speechRecognition">
+      <UniqueIdentifier>{ad4d300b-32a9-488c-9b3a-4c8c3f523d17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\faceRecognition">
+      <UniqueIdentifier>{27ee25bd-1611-48ea-8f49-1747338ca4dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Result">
+      <UniqueIdentifier>{f83679e7-b231-4997-a7de-5e3310cdc278}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Result\Feature">
+      <UniqueIdentifier>{20b27010-e332-47ec-b411-929142ca2bf8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Database">
+      <UniqueIdentifier>{3df7b08f-a821-4301-b1cf-d9a20dd9bbe5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="speechRecognition.cpp">
+      <Filter>Source Files\speechRecognition</Filter>
+    </ClCompile>
+    <ClCompile Include="RecorderSynthesiser.cpp">
+      <Filter>Source Files\speechRecognition</Filter>
+    </ClCompile>
+    <ClCompile Include="faceRecognition.cpp">
+      <Filter>Source Files\faceRecognition</Filter>
+    </ClCompile>
+    <ClCompile Include="result.cpp">
+      <Filter>Source Files\Result</Filter>
+    </ClCompile>
+    <ClCompile Include="carInterface.cpp">
+      <Filter>Source Files\Result\Feature</Filter>
+    </ClCompile>
+    <ClCompile Include="sheduler.cpp">
+      <Filter>Source Files\Result\Feature</Filter>
+    </ClCompile>
+    <ClCompile Include="textSynthesiser.cpp">
+      <Filter>Source Files\Result\Feature</Filter>
+    </ClCompile>
+    <ClCompile Include="database.cpp">
+      <Filter>Source Files\Database</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

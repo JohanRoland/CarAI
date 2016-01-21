@@ -64,6 +64,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="carInterface.cpp" />
+    <ClCompile Include="database.cpp" />
+    <ClCompile Include="faceRecognition.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="RecorderSynthesiser.cpp" />
+    <ClCompile Include="result.cpp" />
+    <ClCompile Include="sheduler.cpp" />
+    <ClCompile Include="speechRecognition.cpp" />
+    <ClCompile Include="textSynthesiser.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

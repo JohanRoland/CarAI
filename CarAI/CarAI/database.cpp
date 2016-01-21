@@ -1,0 +1,5 @@
+/*
+Stores information that needs to be shared between the moduals.
+
+
+*/
