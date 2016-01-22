@@ -22,9 +22,13 @@ int main(int argc, char * argv[])
 	if (argc > 0)
 	{
 		string str = argv[1];
-		if (str.compare("1") == 1)
+		if (str.compare("1") == 0)
 		{
 			debug = 1;
+		}
+		if (str.compare("2") == 0)
+		{
+			debug = 2;
 		}
 	}
 
@@ -33,6 +37,10 @@ int main(int argc, char * argv[])
 		cout << "Speech Debug" << endl;
 		cin.get();
 	}
-
+	if (debug == 2)
+	{
+		cout << "Image Debug" << endl;
+		cin.get();
+	}
 
 }
