@@ -45,6 +45,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDir)\packages\OpenCV.2.4.10\build\native\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -76,6 +77,7 @@
     <ClCompile Include="textSynthesizer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="faceRecognition.h" />
     <ClInclude Include="speechRecognition.h" />
   </ItemGroup>
   <ItemGroup>
