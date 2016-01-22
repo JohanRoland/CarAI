@@ -19,7 +19,7 @@ using namespace std;
 int main(int argc, char * argv[])
 {
 	int debug = 0;
-	if (argc > 0)
+	if (argc > 1)
 	{
 		string str = argv[1];
 		if (str.compare("1") == 0)
