@@ -35,6 +35,8 @@ int main(int argc, char * argv[])
 	if (debug == 1)
 	{
 		cout << "Speech Debug" << endl;
+		speechRecognition asr;
+		asr.test();
 		cin.get();
 	}
 	if (debug == 2)
