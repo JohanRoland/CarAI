@@ -28,6 +28,9 @@
     <Filter Include="Source Files\Database">
       <UniqueIdentifier>{3df7b08f-a821-4301-b1cf-d9a20dd9bbe5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\speechRecognition">
+      <UniqueIdentifier>{ea61c814-a689-43ca-8ec9-541a3bfcb9ce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -57,5 +60,10 @@
     <ClCompile Include="scheduler.cpp">
       <Filter>Source Files\Result\Feature</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="speechRecognition.h">
+      <Filter>Header Files\speechRecognition</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
