@@ -10,8 +10,6 @@ should be sent.
 */
 
 #include "faceRecognition.h"
-
-
 #include <iostream>
 #include <stdio.h>
 
@@ -19,7 +17,7 @@ using namespace std;
 using namespace cv;
 
 
-//RNG rng(12345);
+RNG rng(12345);
 
 /** Global variables */
 String face_cascade_name = "haarcascade_frontalface_alt.xml";
@@ -33,20 +31,19 @@ faceRecognition::faceRecognition()
 }
 int faceRecognition::findFace()
 {
-	CvCapture* capture;
 	Mat frame;
-
+	
 	//-- 1. Load the cascades
 	if (!face_cascade.load(face_cascade_name)) { printf("--(!)Error loading\n"); return -1; };
 	if (!eyes_cascade.load(eyes_cascade_name)) { printf("--(!)Error loading\n"); return -1; };
 
 	//-- 2. Read the video stream
-	capture = cvCaptureFromCAM(-1);
-	if (capture)
+	VideoCapture capture(-1);
+	if (capture.isOpened())
 	{
 		while (true)
 		{
-			frame = cvQueryFrame(capture);
+			capture.read(frame);
 
 			//-- 3. Apply the classifier to the frame
 			if (!frame.empty())
