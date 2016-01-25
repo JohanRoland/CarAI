@@ -9,7 +9,11 @@ import org.opencv.imgproc.*;
 import org.opencv.videoio.*;
 import org.opencv.imgcodecs.*;
 
-
+/**
+ *  Main class for CarAI
+ * @author Axhav
+ *
+ */
 public class Main
 {
 	static Window win; 
