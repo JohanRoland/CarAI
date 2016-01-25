@@ -71,12 +71,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\sphinxbase\sphinxbase\include;$(SolutionDir)\sphinxbase\pocketsphinx\include;C:\Users\Knarkapan\Source\Repos\CarAI\CarAI\packages\OpenCV_3_x86_v100.3.0\build\native\include;C:\Users\Knarkapan\Source\Repos\CarAI\CarAI\packages\OpenCV_3_x86_v100.3.0\build\native\include\opencv;C:\Users\Knarkapan\Source\Repos\CarAI\CarAI\packages\OpenCV_3_x86_v100.3.0\build\native\include\opencv2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\sphinxbase\sphinxbase\include;$(SolutionDir)\sphinxbase\pocketsphinx\include;$(SulutionDir)\\packages\OpenCV_3_x86_v100.3.0\build\native\include;$(SulutionDir)\\packages\OpenCV_3_x86_v100.3.0\build\native\include\opencv;$(SulutionDir)\\packages\OpenCV_3_x86_v100.3.0\build\native\include\opencv2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>../sphinxbase/pocketsphinx/bin/Debug/pocketsphinx.lib;../sphinxbase/sphinxbase/bin/Debug/sphinxbase.lib;$(SolutionDir)packages/OpenCV_3_x86_v100.3.0/build/native/lib/Win32/v100/Debug/*;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>../sphinxbase/pocketsphinx/bin/Debug/pocketsphinx.lib;../sphinxbase/sphinxbase/bin/Debug/sphinxbase.lib;../packages/OpenCV_3_x86_v100.3.0/build/native/lib/Win32/v100/Release/*;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
