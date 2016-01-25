@@ -63,7 +63,7 @@ public class Main
     		Point center = new Point(face.x+face.width*0.5,face.y+face.height*0.5);
     		Imgproc.ellipse(frame, center, new Size(face.width*0.5,face.height*0.5), 0, 0, 360, new Scalar(255,0,255), 4, 8, 0);
     	
-    		Mat faceROI = frame_gray.submat(face);
+    		/*Mat faceROI = frame_gray.submat(face);
     		MatOfRect eyes = new MatOfRect();
     		
     		eyes_cascade.detectMultiScale(faceROI, eyes);
@@ -73,7 +73,7 @@ public class Main
     			Point center2 = new Point(face.x+eye.x+eye.width*0.5,face.y+eye.y+eye.height*0.5);
     			int radius = (int)Math.round((eye.width + eye.height)*0.25);
     			Imgproc.circle(frame, center2, radius, new Scalar(255,0,0));
-    		}
+    		}*/
     		
     	}
     	win.updateImage(frame);
