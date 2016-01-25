@@ -14,7 +14,9 @@ class faceRecognition
 {
 public:	
 	faceRecognition();
+	void camera();
 	int findFace();
+
 private:
 	void detectAndDisplay(cv::Mat frame);
 };

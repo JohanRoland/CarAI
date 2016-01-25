@@ -44,7 +44,7 @@ int main(int argc, char * argv[])
 	if (debug == 2)
 	{
 		faceRecognition faceRec;
-		faceRec.findFace();
+		faceRec.camera();
 		cout << "Image Debug" << endl;
 		cin.get();
 	}

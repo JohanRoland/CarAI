@@ -29,6 +29,55 @@ string window_name = "Capture - Face detection";
 faceRecognition::faceRecognition()
 {
 }
+void faceRecognition::camera()
+{
+	String face_cascade_name = "haarcascade_frontalface_alt.xml";
+	String eye_cascade_name = "haarcascade_eye_tree_eyeglasses.xml";
+	CascadeClassifier face_cascade;
+	CascadeClassifier eyes_cascade;
+	String window_name = "Capture - Face detection";
+	VideoCapture cap(0);
+
+	if (!face_cascade.load(face_cascade_name))
+		printf("--(!)Error loading\n");
+
+	if (!eyes_cascade.load(eye_cascade_name))
+		printf("--(!)Error loading\n");
+
+	if (!cap.isOpened())
+	{
+		cerr << "Capture Device ID " << 0 << "cannot be opened." << endl;
+	}
+	else
+	{
+		Mat frame;
+		vector<Rect> faces;
+		vector<Rect> eyes;
+		Mat original;
+		Mat frame_gray;
+		Mat face;
+		Mat processedFace;
+		namedWindow(window_name, CV_WINDOW_AUTOSIZE);
+		for (;;)
+		{
+			cap.read(frame);
+			original = frame.clone();
+			cvtColor(original, frame_gray, CV_BGR2GRAY);
+			//equalizeHist(frame_gray, frame_gray);
+			face_cascade.detectMultiScale(frame_gray, faces, 2, 0,
+				0 | CASCADE_SCALE_IMAGE, Size(200, 200));
+				if (faces.size() > 0)
+					rectangle(original, faces[0], Scalar(0, 0, 255), 2, 8, 0);
+
+		
+			imshow(window_name, original);
+			if (waitKey(20) == 27)
+				break;
+		}
+
+
+	}
+}
 int faceRecognition::findFace()
 {
 	Mat frame;
@@ -38,12 +87,14 @@ int faceRecognition::findFace()
 	if (!eyes_cascade.load(eyes_cascade_name)) { printf("--(!)Error loading\n"); return -1; };
 
 	//-- 2. Read the video stream
-	VideoCapture capture(-1);
+	VideoCapture capture(-1);//"Capture_20160123.avi");
+
 	if (capture.isOpened())
 	{
 		while (true)
 		{
-			capture.read(frame);
+			if (!capture.read(frame))
+				return NULL;
 
 			//-- 3. Apply the classifier to the frame
 			if (!frame.empty())
