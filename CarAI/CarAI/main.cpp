@@ -12,6 +12,8 @@ Result is run in main with the input of the output of ether faceRecognition or  
 #include <iostream>
 #include <string>
 
+
+#include "faceRecognition.h"
 #include "speechRecognition.h"
 
 using namespace std;
@@ -41,6 +43,8 @@ int main(int argc, char * argv[])
 	}
 	if (debug == 2)
 	{
+		faceRecognition faceRec;
+		faceRec.findFace();
 		cout << "Image Debug" << endl;
 		cin.get();
 	}

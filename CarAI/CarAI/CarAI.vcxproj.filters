@@ -65,6 +65,9 @@
     <ClInclude Include="speechRecognition.h">
       <Filter>Header Files\speechRecognition</Filter>
     </ClInclude>
+    <ClInclude Include="faceRecognition.h">
+      <Filter>Source Files\faceRecognition</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
