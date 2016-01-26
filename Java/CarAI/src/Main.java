@@ -17,11 +17,15 @@ public class Main
     			System.out.println("SpeechRecognition Debug");
     			System.out.println("TO BE IMPLEMENTED");
     		}
-    		if(args[0].equals("2"))
+    		else if(args[0].equals("2"))
     		{
     			System.out.println("FaceRecognition debug");
     			FaceRecognition f = new FaceRecognition();
     	    	f.start();
+    		}
+    		else 
+    		{
+    			System.out.println("No argument provided");
     		}
     	}
     	
