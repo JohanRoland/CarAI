@@ -1,6 +1,11 @@
 package FaceRecognition;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
@@ -85,6 +90,60 @@ public class FaceRecognition
     	}
     	win.updateImage(frame);
     	//ShowImage(frame,"Window");
+    }
+    
+    public Csv loadCsv(String path)
+    {
+    	ArrayList<Mat> imgs = new ArrayList<Mat>();
+    	ArrayList<Integer> labels = new ArrayList<Integer>();
+    	
+    	try{
+    		List<String> ls = Files.readAllLines(Paths.get(path));
+    		
+    		for(String l : ls)
+    		{
+    			String[] t = l.split(";");
+    			if (t.length > 0)
+    			{
+    				imgs.add(Imgcodecs.imread(t[0]));
+    				labels.add(Integer.parseInt(t[1]));
+    				
+    			}
+    			else
+    			{
+    				System.out.println("Error reading line " + l);
+    			}
+    		}
+    	}
+    	catch(Exception e)
+    	{
+    		System.out.println("Error reading Csv File");
+    		System.exit(-1);
+    	}
+    	
+    	return new Csv(imgs,labels);
+    }
+    
+    public class Csv
+    {
+    	private ArrayList<Mat> imgs = new ArrayList<Mat>();
+    	private ArrayList<Integer> labels = new ArrayList<Integer>();
+    	
+    	public Csv(ArrayList<Mat> img, ArrayList<Integer> lbs)
+    	{
+    		imgs = img;
+    		labels = lbs;
+    	}
+    	
+    	public ArrayList<Mat> getImgs()
+    	{
+    		return imgs;
+    	}
+    	
+    	public ArrayList<Integer> getLabels()
+    	{
+    		return labels;
+    	}
     }
     
     private class Window extends JFrame
