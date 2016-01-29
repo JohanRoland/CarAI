@@ -14,13 +14,20 @@ import org.opencv.objdetect.*;
 import org.opencv.imgproc.*;
 import org.opencv.videoio.*;
 import org.opencv.imgcodecs.*;
+import org.opencv.face.*;
+
 
 public class FaceRecognition
 {
 	Window win; 
 	CascadeClassifier face_cascade;
     CascadeClassifier eyes_cascade;
+    LBPHFaceRecognizer fr;
     Mat frame;
+    
+    int imWidht,imHeight;
+    
+    String pathToCsv = "D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\bin\\test.csv";
     public FaceRecognition() {
     	System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 	    frame = new Mat();
@@ -36,8 +43,22 @@ public class FaceRecognition
 	    
 	    eyes_cascade = new CascadeClassifier("C://opencv//build//etc//haarcascades//haarcascade_eye_tree_eyeglasses.xml");
 	    
+	    Csv cs = loadCsv(pathToCsv);
 	    
-    
+	    imWidht =  cs.getImgs().get(0).width();
+	    imHeight =  cs.getImgs().get(0).height();
+	    
+	    Mat lab = new Mat();
+	    
+	    for(int i = 0; i < cs.getLabels().size(); i++)
+	    {
+	    	lab.put(i, 0, cs.getLabels().get(i));
+	    }
+	    
+	    
+	    fr=  Face.createLBPHFaceRecognizer();
+	    fr.train(cs.getImgs(), lab);
+	    
     }
     
     public void start()
@@ -74,7 +95,15 @@ public class FaceRecognition
     	{
     		Point center = new Point(face.x+face.width*0.5,face.y+face.height*0.5);
     		Imgproc.ellipse(frame, center, new Size(face.width*0.5,face.height*0.5), 0, 0, 360, new Scalar(255,0,255), 4, 8, 0);
-    	
+    		Mat face_resized = frame.submat(face);
+    		int prediction = fr.predict(face_resized);
+    		
+    		String textBox = "Prediction = " + prediction; 
+    		
+    		int pos_x = (int)Math.max(face.tl().x-10,0);
+    		int pos_y = (int)Math.max(face.tl().y-10,0);
+    		
+    		Imgproc.putText(frame, textBox, new Point(pos_x,pos_y), 0, 1.0, new Scalar(0,255,0));
     		/*Mat faceROI = frame_gray.submat(face);
     		MatOfRect eyes = new MatOfRect();
     		
