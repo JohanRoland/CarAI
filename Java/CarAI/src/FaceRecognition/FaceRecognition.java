@@ -40,14 +40,8 @@ public class FaceRecognition
 	    win = new Window();
 	    
 	    face_cascade = new CascadeClassifier("C://opencv//build//etc//haarcascades//haarcascade_frontalface_alt.xml");
-	    face_cascade.load("C://opencv//build//etc//haarcascades//haarcascade_frontalface_alt.xml");
-	    
-	    if(face_cascade.empty())
-	    {
-	    	System.out.println("error loading Face cascade");
-	    }
-	    
-	    eyes_cascade = new CascadeClassifier("C://opencv//build//etc//haarcascades//haarcascade_eye_tree_eyeglasses.xml");
+	    // Eyes cascade not worht it
+	    //eyes_cascade = new CascadeClassifier("C://opencv//build//etc//haarcascades//haarcascade_eye_tree_eyeglasses.xml");
 	    
 	    pers = new HashMap<Integer,Person>();
 	    
@@ -67,7 +61,9 @@ public class FaceRecognition
 	    fr.train(cs.getImgs(), lab);
 	    
     }
-    
+    /**
+     * Start a continuous facecaptureing process
+     */
     public void start()
     {
     	VideoCapture vc = new VideoCapture(0);
@@ -88,7 +84,10 @@ public class FaceRecognition
 	    		
 	    }
     }
-    
+    /**
+     * Helper function to detect faces in an capture frame
+     * @param frame Frame cam source
+     */
     private void detectAndDisplay(Mat frame)
     {
     	MatOfRect faces = new MatOfRect(); 
@@ -130,10 +129,11 @@ public class FaceRecognition
     		
     	}
     	win.updateImage(frame);
-    	//ShowImage(frame,"Window");
     }
+    
     /**
-     * 
+     * Loading a Csv file where the face detection samples are stored
+     * @param path Path to file
      */
     public Csv loadCsv(String path)
     {
@@ -179,6 +179,10 @@ public class FaceRecognition
     	return new Csv(imgs,labels);
     }
     
+    /**
+     * Writes an hasmap of persons to the CSV file
+     * @param ps Hasmap of persons
+     */
     private void writeToCsv(HashMap<Integer,Person> ps)
     {
     	int i = 0; 
@@ -208,6 +212,11 @@ public class FaceRecognition
     	
     }
     
+    /**
+     * Helper class for persons
+     * @author William
+     *
+     */
     public class Person
     {
     	private int label; 
@@ -221,11 +230,19 @@ public class FaceRecognition
     		imgs = new ArrayList<String>();
     	}
     	
+    	/**
+    	 * add a new image source path to a person
+    	 * @param i source path
+    	 */
     	public void addImage(String i)
     	{
     		imgs.add(i);
     	}
     	
+    	/**
+    	 * Add a new reference image to a person, will write the image to a coresponding folder and add the file to the source list
+    	 * @param i image frame of a face
+    	 */
     	public void newImage(Mat i)
     	{
     		File f = new File(".");
@@ -238,6 +255,10 @@ public class FaceRecognition
     		imgs.add(pth+"\\bin\\data\\"+name+"\\"+name+imgs.size() + ".jpg");
     	}
     	
+    	/**
+    	 * Export as String parsed for being added to a csv file
+    	 * @return 
+    	 */
     	public String exportToCsv()
     	{
     		String exp = "";
@@ -250,6 +271,11 @@ public class FaceRecognition
     	
     }
     
+    /**
+     * Helper class for describing a csv file
+     * @author William
+     *
+     */
     public class Csv
     {
     	private ArrayList<Mat> imgs = new ArrayList<Mat>();
@@ -261,17 +287,30 @@ public class FaceRecognition
     		labels = lbs;
     	}
     	
+    	/**
+    	 * 
+    	 * @return get all images stored in the csv file
+     	 */
     	public ArrayList<Mat> getImgs()
     	{
     		return imgs;
     	}
     	
+    	/**
+    	 * 
+    	 * @return all the labels in the csv file
+    	 */
     	public ArrayList<Integer> getLabels()
     	{
     		return labels;
     	}
     }
     
+    /**
+     * Helper class to create an debug window
+     * @author William
+     *
+     */
     private class Window extends JFrame implements ActionListener 
     {
     	JLabel imgsrc; 
@@ -315,6 +354,10 @@ public class FaceRecognition
     		}
     	}
     	
+    	/**
+    	 * update the displayed image of the debug window
+    	 * @param img inputted frame
+    	 */
     	public void updateImage(Mat img)
     	{
     		MatOfByte matOfByte = new MatOfByte();
