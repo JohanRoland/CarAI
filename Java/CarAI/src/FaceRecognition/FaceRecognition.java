@@ -48,7 +48,7 @@ public class FaceRecognition
 	    imWidht =  cs.getImgs().get(0).width();
 	    imHeight =  cs.getImgs().get(0).height();
 	    
-	    Mat lab = new Mat();
+	    Mat lab = new Mat(1,1, CvType.CV_32SC1 );
 	    
 	    for(int i = 0; i < cs.getLabels().size(); i++)
 	    {
@@ -120,7 +120,9 @@ public class FaceRecognition
     	win.updateImage(frame);
     	//ShowImage(frame,"Window");
     }
-    
+    /**
+     * 
+     */
     public Csv loadCsv(String path)
     {
     	ArrayList<Mat> imgs = new ArrayList<Mat>();
