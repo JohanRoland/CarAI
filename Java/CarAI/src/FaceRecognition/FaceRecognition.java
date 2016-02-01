@@ -230,6 +230,10 @@ public class FaceRecognition
     	{
     		File f = new File(".");
     		String pth = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
+    		if(imgs.size() == 0)
+    		{
+    			new File(pth+"\\bin\\data\\"+name).mkdir();
+    		}
     		Imgcodecs.imwrite(pth+"\\bin\\data\\"+name+"\\"+name+imgs.size() + ".jpg", i);
     		imgs.add(pth+"\\bin\\data\\"+name+"\\"+name+imgs.size() + ".jpg");
     	}
@@ -274,7 +278,8 @@ public class FaceRecognition
     	JButton saveFace;
     	JPanel contentPane = new JPanel(new BorderLayout());
     	JPanel subPane = new JPanel();
-    	JTextField text = new JTextField("",20); 
+    	JTextField ltext = new JTextField("",20);
+    	JTextField ntext = new JTextField("",20); 
     	public Window()
     	{
     		saveFace = new JButton("Save Face");
@@ -282,22 +287,32 @@ public class FaceRecognition
     		saveFace.addActionListener(this);
     		this.setSize(800, 600);
     		imgsrc = new JLabel();
-    		
+    		    		
     		subPane.add(saveFace);
-    		subPane.add(text);
+    		
+    		subPane.add(new InfoText("Label"));
+    		subPane.add(ltext);
+    		subPane.add(new InfoText("Name"));
+    		subPane.add(ntext);
     		
     		
     		contentPane.add(imgsrc,BorderLayout.CENTER);
     		contentPane.add(subPane,BorderLayout.SOUTH);
     		
     		this.setContentPane(contentPane);
-    		//this.getContentPane().add(imgsrc);
-    		//this.getContentPane().add(saveFace);
-            //this.pack();
             this.setVisible(true);
             this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             this.setTitle("Title");
             this.setLocation(100, 200);
+    	}
+    	
+    	private class InfoText extends JTextField
+    	{
+    		public InfoText(String s)
+    		{
+    			this.setText(s);
+    			this.setEditable(false);
+    		}
     	}
     	
     	public void updateImage(Mat img)
@@ -323,7 +338,12 @@ public class FaceRecognition
     	{
     		if("saveImage".equals(e.getActionCommand()))
     		{
-    			int t = Integer.parseInt(text.getText());
+    			
+    			int t = Integer.parseInt(ltext.getText());
+    			if(!pers.containsKey(t))
+    			{
+    				pers.put(pers.keySet().size(), new Person(t,ntext.getText()));
+    			}
     			pers.get(t).newImage(FaceImage);
     			writeToCsv(pers);
     			//Imgcodecs.imwrite("william2.jpg", FaceImage);
