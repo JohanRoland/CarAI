@@ -30,12 +30,16 @@ public class FaceRecognition
     Mat frame;
     Mat FaceImage;
     int imWidht,imHeight;
-    //ArrayList<Person> pers2;
     HashMap<Integer,Person> pers; 
     
-    String pathToCsv = "D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\bin\\test.csv";
+    String pathToProj; 
+    
     public FaceRecognition() {
     	System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+    	
+    	File f = new File(".");
+		pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
+    	
 	    frame = new Mat();
 	    win = new Window();
 	    
@@ -45,7 +49,7 @@ public class FaceRecognition
 	    
 	    pers = new HashMap<Integer,Person>();
 	    
-	    Csv cs = loadCsv(pathToCsv);
+	    Csv cs = loadCsv(pathToProj+"\\bin\\test.csv");
 	    
 	    imWidht =  cs.getImgs().get(0).width();
 	    imHeight =  cs.getImgs().get(0).height();
@@ -61,6 +65,7 @@ public class FaceRecognition
 	    fr.train(cs.getImgs(), lab);
 	    
     }
+    
     /**
      * Start a continuous facecaptureing process
      */
@@ -103,7 +108,7 @@ public class FaceRecognition
     		Imgproc.ellipse(frame, center, new Size(face.width*0.5,face.height*0.5), 0, 0, 360, new Scalar(255,0,255), 4, 8, 0);
     		Mat face_resized = frame_gray.submat(face);
     		FaceImage = face_resized;
-    		//int prediction = fr.predict(face_resized);
+
     		int[] pred = new int[1];
     		double[] conf = new double[1]; 
     		fr.predict(face_resized, pred, conf);
@@ -114,6 +119,8 @@ public class FaceRecognition
     		int pos_y = (int)Math.max(face.tl().y-10,0);
     		
     		Imgproc.putText(frame, textBox, new Point(pos_x,pos_y), 0, 1.0, new Scalar(0,255,0));
+    		
+    		// Keeping it for reference 
     		
     		/*Mat faceROI = frame_gray.submat(face);
     		MatOfRect eyes = new MatOfRect();
@@ -245,14 +252,12 @@ public class FaceRecognition
     	 */
     	public void newImage(Mat i)
     	{
-    		File f = new File(".");
-    		String pth = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
     		if(imgs.size() == 0)
     		{
-    			new File(pth+"\\bin\\data\\"+name).mkdir();
+    			new File(pathToProj+"\\bin\\data\\"+name).mkdir();
     		}
-    		Imgcodecs.imwrite(pth+"\\bin\\data\\"+name+"\\"+name+imgs.size() + ".jpg", i);
-    		imgs.add(pth+"\\bin\\data\\"+name+"\\"+name+imgs.size() + ".jpg");
+    		Imgcodecs.imwrite(pathToProj+"\\bin\\data\\"+name+"\\"+name+imgs.size() + ".jpg", i);
+    		imgs.add(pathToProj+"\\bin\\data\\"+name+"\\"+name+imgs.size() + ".jpg");
     	}
     	
     	/**
