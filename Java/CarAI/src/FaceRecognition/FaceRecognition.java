@@ -1,4 +1,6 @@
 package FaceRecognition;
+import java.awt.BorderLayout;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
@@ -24,7 +26,7 @@ public class FaceRecognition
     CascadeClassifier eyes_cascade;
     LBPHFaceRecognizer fr;
     Mat frame;
-    
+    Mat FaceImage;
     int imWidht,imHeight;
     
     String pathToCsv = "D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\bin\\test.csv";
@@ -95,7 +97,8 @@ public class FaceRecognition
     	{
     		Point center = new Point(face.x+face.width*0.5,face.y+face.height*0.5);
     		Imgproc.ellipse(frame, center, new Size(face.width*0.5,face.height*0.5), 0, 0, 360, new Scalar(255,0,255), 4, 8, 0);
-    		Mat face_resized = frame.submat(face);
+    		Mat face_resized = frame_gray.submat(face);
+    		FaceImage = face_resized;
     		int prediction = fr.predict(face_resized);
     		
     		String textBox = "Prediction = " + prediction; 
@@ -104,6 +107,7 @@ public class FaceRecognition
     		int pos_y = (int)Math.max(face.tl().y-10,0);
     		
     		Imgproc.putText(frame, textBox, new Point(pos_x,pos_y), 0, 1.0, new Scalar(0,255,0));
+    		
     		/*Mat faceROI = frame_gray.submat(face);
     		MatOfRect eyes = new MatOfRect();
     		
@@ -136,7 +140,7 @@ public class FaceRecognition
     			String[] t = l.split(";");
     			if (t.length > 0)
     			{
-    				imgs.add(Imgcodecs.imread(t[0]));
+    				imgs.add(Imgcodecs.imread(t[0],0)); 
     				labels.add(Integer.parseInt(t[1]));
     				
     			}
@@ -177,14 +181,23 @@ public class FaceRecognition
     	}
     }
     
-    private class Window extends JFrame
+    private class Window extends JFrame implements ActionListener 
     {
     	JLabel imgsrc; 
+    	JButton saveFace;
+    	JPanel contentPane = new JPanel(new BorderLayout());
     	public Window()
     	{
+    		saveFace = new JButton("Save Face");
+    		saveFace.setActionCommand("saveImage");
+    		saveFace.addActionListener(this);
     		this.setSize(800, 600);
     		imgsrc = new JLabel();
-    		this.getContentPane().add(imgsrc);
+    		contentPane.add(imgsrc,BorderLayout.CENTER);
+    		contentPane.add(saveFace,BorderLayout.SOUTH);
+    		this.setContentPane(contentPane);
+    		//this.getContentPane().add(imgsrc);
+    		//this.getContentPane().add(saveFace);
             //this.pack();
             this.setVisible(true);
             this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -209,6 +222,14 @@ public class FaceRecognition
             catch (Exception e) {
                 e.printStackTrace();
             }
+    	}
+    	
+    	public void actionPerformed(ActionEvent e)
+    	{
+    		if("saveImage".equals(e.getActionCommand()))
+    		{
+    			Imgcodecs.imwrite("william2.jpg", FaceImage);
+    		}
     	}
     }
 }
