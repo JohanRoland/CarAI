@@ -1,5 +1,6 @@
 package FaceRecognition;
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -31,7 +32,7 @@ public class FaceRecognition
     Mat FaceImage;
     int imWidht,imHeight;
     HashMap<Integer,Person> pers; 
-    
+    CarView cv;
     String pathToProj; 
     
     public FaceRecognition() {
@@ -63,7 +64,7 @@ public class FaceRecognition
 	    
 	    fr=  Face.createLBPHFaceRecognizer();
 	    fr.train(cs.getImgs(), lab);
-	    
+	    cv = new CarView();
     }
     
     /**
@@ -119,6 +120,8 @@ public class FaceRecognition
     		int pos_y = (int)Math.max(face.tl().y-10,0);
     		
     		Imgproc.putText(frame, textBox, new Point(pos_x,pos_y), 0, 1.0, new Scalar(0,255,0));
+    		cv.parsePerson(pers.get(pred[0]).name, center, new Point(frame.cols()/2,frame.rows()/2));
+    		
     		
     		// Keeping it for reference 
     		
@@ -210,7 +213,7 @@ public class FaceRecognition
 					FileWriter f = new FileWriter(Paths.get("bin\\test.csv").toFile(),append);
 					f.write(p.exportToCsv());
 					f.close();
-					//Files.write(Paths.get("test.csv"), p.exportToCsv().getBytes(),StandardOpenOption.WRITE);
+					
 	    	}catch(Exception e)
 			{
 				System.out.println("Error writing CSV for " + p.name);
@@ -281,6 +284,86 @@ public class FaceRecognition
      * @author William
      *
      */
+    
+    public static class CarView
+    {
+    	//public enum Seat {DRIVER,PASSENGER,BACKSEAT0,BACKSEAT1};
+    	public int DRIVER = 0;
+    	public int PASSENGER = 1;
+    	public int BACKSEAT0 = 2;
+    	public int BACKSEAT1 = 3;
+    	    	
+    	String[] internal; 
+    	
+    	//HashMap<String,Seat> internal;
+    	
+    	public CarView()
+    	{
+    		internal = new String[5];
+    		for(int i = 0; i < internal.length; i++)
+    		{
+    			internal[i] = "";
+    		}
+    		//internal = new HashMap<String,Seat>();
+    	}
+    	
+    	private void emptySeat(int s)
+    	{
+    		internal[s] = "";
+    	}
+    	
+    	private void emptyName(String s)
+    	{
+    		for(int i = 0; i < internal.length; i++)
+    		{
+    			if(internal[i].equals(s))
+    			{
+    				internal[i] = "";
+    			}
+    		}
+    	}
+    	
+    	public void parsePerson(String name,Point p, Point imgCenter)
+    	{
+    		
+    		if(p.x > imgCenter.x)
+    		{
+    			if(p.y > imgCenter.y)
+    			{
+    				emptyName(name);
+    				internal[DRIVER] = name;
+    			}
+    			else
+    			{
+    				emptyName(name);
+    				internal[BACKSEAT0] = name;
+    			}
+    		}
+    		else
+    		{
+    			if(p.y > imgCenter.y)
+    			{
+    				emptyName(name);
+    				internal[PASSENGER] = name;
+    			}
+    			else
+    			{
+    				emptyName(name);
+    				internal[BACKSEAT1] = name;
+    			}
+    		}
+    	}
+    	
+    	public String[] exportPerson()
+    	{
+    		return internal;
+    	}
+    	
+    	public String getSeatName(int i)
+    	{
+    		return internal[i];
+    	}
+    }
     public class Csv
     {
     	private ArrayList<Mat> imgs = new ArrayList<Mat>();
@@ -322,8 +405,15 @@ public class FaceRecognition
     	JButton saveFace;
     	JPanel contentPane = new JPanel(new BorderLayout());
     	JPanel subPane = new JPanel();
+    	JPanel carPane = new JPanel(new GridLayout(0,1));
     	JTextField ltext = new JTextField("",20);
     	JTextField ntext = new JTextField("",20); 
+    	JTextField d = new JTextField("",10);
+    	JTextField p = new JTextField("",10);
+    	JTextField b0 = new JTextField("",10);
+    	JTextField b1 = new JTextField("",10);
+    	
+    	
     	public Window()
     	{
     		saveFace = new JButton("Save Face");
@@ -339,9 +429,20 @@ public class FaceRecognition
     		subPane.add(new InfoText("Name"));
     		subPane.add(ntext);
     		
+    		carPane.add(new InfoText("Driver"));
+    		carPane.add(d);
+    		carPane.add(new InfoText("Passenger"));
+    		carPane.add(p);
+    		carPane.add(new InfoText("Backseat0"));
+    		carPane.add(b0);
+    		carPane.add(new InfoText("Backseat1"));
+    		carPane.add(b1);
+    		
+    		
     		
     		contentPane.add(imgsrc,BorderLayout.CENTER);
     		contentPane.add(subPane,BorderLayout.SOUTH);
+    		contentPane.add(carPane, BorderLayout.EAST);
     		
     		this.setContentPane(contentPane);
             this.setVisible(true);
@@ -376,10 +477,18 @@ public class FaceRecognition
                 imgsrc.setIcon(new ImageIcon(bufImage));
                 imgsrc.revalidate();
                 imgsrc.repaint();
+                
             }
             catch (Exception e) {
                 e.printStackTrace();
             }
+            
+            // Update Seats
+            d.setText(cv.getSeatName(cv.DRIVER));
+            p.setText(cv.getSeatName(cv.PASSENGER));
+            b0.setText(cv.getSeatName(cv.BACKSEAT0));
+            b1.setText(cv.getSeatName(cv.BACKSEAT1));
+            
     	}
     	
     	public void actionPerformed(ActionEvent e)
