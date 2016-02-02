@@ -63,6 +63,7 @@ public class FaceRecognition
 	    }
 	    
 	    fr=  Face.createLBPHFaceRecognizer();
+	    fr.setThreshold(60.0);
 	    fr.train(cs.getImgs(), lab);
 	    cv = new CarView();
     }
@@ -114,14 +115,18 @@ public class FaceRecognition
     		double[] conf = new double[1]; 
     		fr.predict(face_resized, pred, conf);
     		
-    		String textBox = "P = " + pers.get(pred[0]).name + " C =" + conf[0]; 
-    		
-    		int pos_x = (int)Math.max(face.tl().x-10,0);
-    		int pos_y = (int)Math.max(face.tl().y-10,0);
-    		
-    		Imgproc.putText(frame, textBox, new Point(pos_x,pos_y), 0, 1.0, new Scalar(0,255,0));
-    		cv.parsePerson(pers.get(pred[0]).name, center, new Point(frame.cols()/2,frame.rows()/2));
-    		
+    		String nameString;
+    		if(pred[0] < 0)
+    			nameString = "Unknown";
+    		else
+    			nameString = pers.get(pred[0]).getName();
+    		String textBox = "P = " + nameString + " C =" + conf[0]; 
+			int pos_x = (int)Math.max(face.tl().x-10,0);
+			int pos_y = (int)Math.max(face.tl().y-10,0);
+		
+			Imgproc.putText(frame, textBox, new Point(pos_x,pos_y), 0, 1.0, new Scalar(0,255,0));
+			cv.parsePerson(nameString, center, new Point(frame.cols()/2,frame.rows()/2));
+		
     		
     		// Keeping it for reference 
     		
@@ -277,6 +282,15 @@ public class FaceRecognition
     		return exp;
     	}
     	
+    	public String getName()
+    	{
+    		return name;
+    	}
+    	
+    	public int getLabel()
+    	{
+    		return label;
+    	}
     }
     
     /**
