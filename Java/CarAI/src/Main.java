@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import FaceRecognition.FaceMQTT;
 import FaceRecognition.FaceRecognition;
 import Result.Scheduler;
+import serverConnection.DBSCAN;
 import serverConnection.ServerConnection;
 
 /**
@@ -40,20 +41,24 @@ public class Main
     		else if(args[0].equals("4"))
     		{
     			ServerConnection a;
-    			a= new ServerConnection("mydb","3306","192.168.1.26" , "car", "RigedyRigedyrektSon");
-    			ResultSet r= a.basicQuery("Call getCalHist(1)");
-				try{
-    			while(r.next())
-    			{
-
-    					int i = r.getInt(1);
-    					String s = r.getString(2);
-    					System.out.println(i+"\t"+s);
-
-    			}
+    			a= new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
+    			double[] b = {2,7};
+    			double[] c = {3,3};
+    			try {
+					a.replacePosData(1,b,c);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-				catch (SQLException e) {}   			
-    			
+			}
+    		else if(args[0].equals("5"))
+    		{
+    			double [] longs={1,2,1,2,1,3,2,3,10,11,10,11,20};
+    			double [] lats= {1,2,2,1,3,1,3,2,10,11,11,10,20};
+    			DBSCAN s = new DBSCAN(longs,lats);
+    			int temp = s.cluster(2.0, 2);
+    			s.getClusterd(temp+1);
+	
     		}
     		else 
     		{
