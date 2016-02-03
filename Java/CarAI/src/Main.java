@@ -1,6 +1,7 @@
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import FaceRecognition.FaceMQTT;
 import FaceRecognition.FaceRecognition;
 import Result.Scheduler;
 import serverConnection.ServerConnection;
@@ -25,8 +26,11 @@ public class Main
     		else if(args[0].equals("2"))
     		{
     			System.out.println("FaceRecognition debug");
-    			FaceRecognition f = new FaceRecognition();
-    	    	f.start();
+    			
+    			FaceMQTT f = new FaceMQTT();
+    			
+    			//FaceRecognition f = new FaceRecognition();
+    	    	//f.start(true);
     		}
     		else if(args[0].equals("3"))
     		{
@@ -36,7 +40,7 @@ public class Main
     		else if(args[0].equals("4"))
     		{
     			ServerConnection a;
-    			a= new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
+    			a= new ServerConnection("mydb","3306","192.168.1.26" , "car", "RigedyRigedyrektSon");
     			ResultSet r= a.basicQuery("Call getCalHist(1)");
 				try{
     			while(r.next())
