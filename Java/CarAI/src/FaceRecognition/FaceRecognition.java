@@ -101,6 +101,70 @@ public class FaceRecognition
 	    		
 	    }
     }
+    
+    public String sample()
+    {
+    	CarView c = new CarView();
+    	VideoCapture vc = new VideoCapture(0);
+	    if (vc.isOpened())
+	    {
+	    	ArrayList<String> d = new ArrayList<String>();
+	    	ArrayList<String> p = new ArrayList<String>();
+	    	ArrayList<String> b0 = new ArrayList<String>();
+	    	ArrayList<String> b1 = new ArrayList<String>();
+	    	
+	    	for(int i = 0; i < 10; i++)
+	    	{
+	    		vc.read(frame);
+	    		if(!frame.empty())
+	    		{
+	    			detectAndDisplay(frame,false);
+	    			d.add(cv.exportPerson()[cv.DRIVER]);
+	    			p.add(cv.exportPerson()[cv.PASSENGER]);
+	    			b0.add(cv.exportPerson()[cv.BACKSEAT0]);
+	    			b1.add(cv.exportPerson()[cv.BACKSEAT1]);
+	    		}
+	    		else
+	    		{
+	    			System.out.println("Error no captured frame");
+	    		}
+	    	}
+	    	
+	    	c.setPerson(getPop(d.toArray(new String[d.size()])),cv.DRIVER);
+	    	c.setPerson(getPop(p.toArray(new String[p.size()])),cv.PASSENGER);
+	    	c.setPerson(getPop(b0.toArray(new String[b0.size()])),cv.BACKSEAT0);
+	    	c.setPerson(getPop(b1.toArray(new String[b1.size()])),cv.BACKSEAT1);
+	    }
+	    vc.release();
+    	return c.exportJSONPerson();
+    }
+    
+    private String getPop(String[] a)
+    {
+    	int count = 1, tempc;
+    	String pop = a[0];
+    	String temp = "";
+    	
+    	for(int i = 0; i < a.length -1; i++)
+    	{
+    		temp = a[i];
+    		tempc= 0;
+    		for(int j = 1; j < a.length ;j++)
+    		{
+    			if(temp.equals(a[j]))
+    			{
+    				tempc++;
+    			}
+    		}
+    		if(tempc > count)
+    		{
+    			count = tempc;
+    			pop = temp; 
+    		}
+    	}
+    	return temp;
+    }
+    
     /**
      * Helper function to detect faces in an capture frame
      * @param frame Frame cam source
@@ -432,6 +496,11 @@ public class FaceRecognition
     		//internal = new HashMap<String,Seat>();
     	}
     	
+    	public CarView(CarView c)
+    	{
+    		this.internal = c.internal;
+    	}
+    	
     	private void emptySeat(int s)
     	{
     		internal[s] = "";
@@ -488,6 +557,11 @@ public class FaceRecognition
     				internal[BACKSEAT1] = name;
     			}
     		}
+    	}
+    	
+    	public void setPerson(String name, int pos)
+    	{
+    		internal[pos] = name;
     	}
     	
     	public String[] exportPerson()

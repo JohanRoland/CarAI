@@ -33,7 +33,7 @@ public class FaceMQTT implements MQTTInterface {
             while(!client.isConnected()){}
             client.subscribe(utopic,0);
             fr = new FaceRecognition();
-            fr.start(false);
+            //fr.start(false);
 		}
 		catch(MqttException me)
 		{
@@ -66,12 +66,13 @@ public class FaceMQTT implements MQTTInterface {
 			{
 				if(new String(arg1.getPayload()).equals("exit"))
 				{
-					client.disconnect();
+					//client.disconnect();
 					System.exit(0);
 				}
 				else
 				{
-					MqttMessage msg = new MqttMessage(fr.getFaces().getBytes());
+					String passPack = fr.sample();
+					MqttMessage msg = new MqttMessage(passPack.getBytes());
 					msg.setQos(qos);
 					client.publish(ctopic, msg);
 				}
