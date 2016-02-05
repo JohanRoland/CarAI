@@ -81,7 +81,7 @@ public class Main
 				
     			
     			DBSCAN s = new DBSCAN(longs,lats);	
-    			int temp = s.cluster(0.1, 20);
+    			int temp = s.cluster(0.001, 20);
     			
     			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) {
     				ArrayList<Tupple<Float>>[] temp2 = s.getClusterd(temp);
