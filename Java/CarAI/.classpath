@@ -21,13 +21,9 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-<<<<<<< HEAD
 	<classpathentry kind="lib" path="C:/commons-logging-1.2/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="C:/bdi-jade/bdi4jade.jar"/>
 	<classpathentry kind="lib" path="C:/bdi-jade/bdi4jade-extensions.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/Java/mysql-connector-java-5.1.38/mysql-connector-java-5.1.38-bin.jar"/>
-=======
-	<classpathentry kind="lib" path="C:/mysql-connector-java-5.1.38/mysql-connector-java-5.1.38-bin.jar"/>
->>>>>>> branch 'master' of https://github.com/JohanRoland/CarAI.git
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
