@@ -1,9 +1,8 @@
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import FaceRecognition.FaceMQTT;
-import FaceRecognition.FaceRecognition;
-import Result.Scheduler;
+import facerecognition.FaceMQTT;
+import result.Scheduler;
 import serverConnection.DBSCAN;
 import serverConnection.ServerConnection;
 

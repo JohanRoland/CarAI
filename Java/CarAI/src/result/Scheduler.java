@@ -1,4 +1,4 @@
-package Result;
+package result;
 
 import jade.core.*;
 import jade.core.behaviours.*;

@@ -1,4 +1,4 @@
-package FaceRecognition;
+package facerecognition;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -633,7 +633,8 @@ public class FaceRecognition
      */
     private class Window extends JFrame implements ActionListener 
     {
-    	JLabel imgsrc; 
+    	
+		JLabel imgsrc; 
     	JLabel faceImg;
     	JButton saveFace;
     	JPanel contentPane = new JPanel(new BorderLayout());
