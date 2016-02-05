@@ -1,10 +1,19 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Random;
 
 import facerecognition.FaceMQTT;
 import result.Scheduler;
 import serverConnection.DBSCAN;
 import serverConnection.ServerConnection;
+import serverConnection.DBSCAN.Tupple;
 
 /**
  *  Main class for CarAI
@@ -52,12 +61,67 @@ public class Main
 			}
     		else if(args[0].equals("5"))
     		{
-    			double [] longs={1,2,1,2,1,3,2,3,10,11,10,11,20};
-    			double [] lats= {1,2,2,1,3,1,3,2,10,11,11,10,20};
-    			DBSCAN s = new DBSCAN(longs,lats);
-    			int temp = s.cluster(2.0, 2);
-    			s.getClusterd(temp+1);
-	
+    			try {
+    			FileReader fileReader = new FileReader("PhoneData.txt");
+    			BufferedReader bufferedReader = new BufferedReader(fileReader);
+    			String line=null;
+    			ArrayList<Float> longs = new ArrayList<Float>();
+    			ArrayList<Float> lats = new  ArrayList<Float>();
+    			int counter=0;
+
+					while((line = bufferedReader.readLine()) != null) {
+					        String[] temp = line.split(",");
+					        longs.add(Float.parseFloat(temp[2]));
+					        lats .add(Float.parseFloat(temp[3]));
+					        if (counter<100)
+					        	counter++;
+					        else
+					        	break;
+					    }
+				
+    			
+    			DBSCAN s = new DBSCAN(longs,lats);	
+    			int temp = s.cluster(0.001, 20);
+    			
+    			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) {
+    				ArrayList<Tupple<Float>>[] temp2 = s.getClusterd(temp);
+    				int count=0;
+    				for(ArrayList<Tupple<Float>> str : temp2)
+    				{
+    					count++;
+    					out.print("x"+count +" = [");
+    					for(Tupple<Float> v : str)
+    					{
+	    					out.print(v.fst().toString()+" ");
+	    					
+    					}
+    					out.print("];\n");
+    					out.print("y"+count +" = [");
+    					for(Tupple<Float> v : str)
+    					{
+	    					out.print(v.snd().toString()+" ");
+	    					
+    					}
+    					out.print("];\n");
+    				}
+    				out.print("plot(");
+    				for(int i=count; i>1;i--)
+    				{
+    					out.print("x"+i+" ,");
+    					out.print("y"+i+" ,");
+    				}
+    				out.print("x1,");
+					out.print("y1)");
+    				
+    			} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+    			bufferedReader.close();
+    			} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+    			
     		}
     		else 
     		{
