@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import FaceRecognition.FaceMQTT;
 import FaceRecognition.FaceRecognition;
 import Result.Scheduler;
 import serverConnection.DBSCAN;
@@ -35,8 +36,11 @@ public class Main
     		else if(args[0].equals("2"))
     		{
     			System.out.println("FaceRecognition debug");
-    			FaceRecognition f = new FaceRecognition();
-    	    	f.start();
+    			
+    			FaceMQTT f = new FaceMQTT();
+    			
+    			//FaceRecognition f = new FaceRecognition();
+    	    	//f.start(true);
     		}
     		else if(args[0].equals("3"))
     		{
