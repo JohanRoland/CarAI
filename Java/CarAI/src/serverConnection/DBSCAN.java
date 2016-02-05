@@ -1,47 +1,58 @@
 package serverConnection;
 
+import java.lang.ref.Reference;
 import java.util.ArrayList;
+
+import com.github.davidmoten.rtree.Entry;
+import com.github.davidmoten.rtree.RTree;
+import com.github.davidmoten.rtree.geometry.*;
+import rx.internal.*;
+import rx.Observable;
+import rx.functions.Func1;
 
 public class DBSCAN {
 	
-	ArrayList<Point> points;
-	ArrayList<Point> visitedPoints;
+    RTree<PointInSpace, Geometry> points;
+    Observable<Entry<PointInSpace, Geometry>> neibors;
+
+    //RTree<String, Point> tree;
 	
 	
-	
-	public DBSCAN(double[] longs, double[] lats) throws Error
+	public DBSCAN(ArrayList<Float> longs, ArrayList<Float> lats) throws Error
 	{
-		points= new ArrayList<Point>();
-		visitedPoints= new ArrayList<Point>();
+		//tree =  RTree.create();
 		
-		if (longs.length != lats.length)
+		points= RTree.create();//new ArrayList<PointInSpace>();
+		
+		
+		if (longs.size() != lats.size())
 			throw new Error("longs and lats has to have the same length");
 		
-		for(int i=0;i<longs.length;i++)
-			points.add(new Point(longs[i], lats[i]));
-		
+		for(int i=0;i<longs.size();i++)
+			points = points.add(new PointInSpace(longs.get(i), lats.get(i)), Geometries.point((float)longs.get(i), (float)lats.get(i)));//points.add(new PointInSpace(longs.get(i), lats.get(i)));
+
 	}
 	
-	public ArrayList<String>[] getClusterd(int nClust)
+	public ArrayList<Tupple<Float>>[] getClusterd(int nClust)
 	{
-		ArrayList<String>[] clusters = (ArrayList<String>[])new ArrayList[nClust];
+		nClust++;
+		ArrayList<Tupple<Float>>[] clusters = (ArrayList<Tupple<Float>>[])new ArrayList[nClust];
 		
 		
 		for(int i=0;i<nClust;i++)
-			clusters[i]= new ArrayList<String>();
+			clusters[i]= new ArrayList<Tupple<Float>>();
+		
+		points
+			.entries().
+				filter(e-> 
+					e.value().getCluster() !=0).
+						map(a -> 
+							clusters[a.value().getCluster()].add(new Tupple<Float>(a.value().getX(),a.value().getY()))).toBlocking();
 		
 		
-		
-		for(Point p : points)
-		{
-			clusters[p.getCluster()].add("("+p.getX()+" ,"+p.getY()+")");
-		}
-		
-		for(int i=0; i<nClust; i++)
-		{
-			System.out.println(clusters[i].toString());
-		}
-		
+		/*{
+			clusters[p.getCluster()].add(new Tupple<Float>(p.getX(), p.getY()));
+		}*/
 		return clusters;
 	}
 	
@@ -50,65 +61,117 @@ public class DBSCAN {
 	{
 		int c=0;
 		
-		for(Point p : points)			//
-		{								//	Go through every untreated node ones, worst case O(p)
-			if(!p.isVisited())			//
-			{
-				p.markAsVisited();
-				ArrayList<Point> neibors = getNeibors(p, epsilon);		//O(p)
-				if(neibors.size() < minPoints)
-				{
-					p.markAsNoise();
-				}
-				else
-				{
-					c++;
-					expandCluster(p,neibors,c,epsilon,minPoints); // O(p^2) but marks as visited so dosn't interact mulltiplicativly with the for loop
-				}
-			}	
-		}
 		
-		return c;
+		int temp =points.
+			entries().
+				map(
+					e -> 
+						{return clusterHelper(e.value(),epsilon,minPoints,c);}
+				).toBlocking().last();
+
+		
+	
+		
+		return temp;
+	}
+	private int clusterHelper(PointInSpace e, double epsilon,int minPoints, int c)
+	{
+		if(!e.isVisited())			//
+		{
+			e.markAsVisited();
+			neibors = points.search(Geometries.circle(e.getX(), e.getY(), epsilon));//(e, epsilon);		//O(p)
+			if(neibors.count().toBlocking().last() < minPoints)
+			{
+				e.markAsNoise();
+			}
+			else
+			{
+				c++;
+				expandCluster(e,c,epsilon,minPoints); // O(p^2) but marks as visited so dosn't interact mulltiplicativly with the for loop
+			}
+		}
+	
+	return c;
 	}
 	
-	private void expandCluster(Point p, ArrayList<Point> neibors, int c, double epsilon, int minPoints) 
+	private void expandCluster(PointInSpace p, int c, double epsilon, int minPoints) 
 	{
 		p.setCluster(c);
-		for(int i=0; i<neibors.size();i++)				// O(p)
+		neibors.forEach(
+					e-> 
+						{
+							expandClusterHelper(e.value(), epsilon,minPoints, c);
+						}
+						);
+	}
+	private void expandClusterHelper(PointInSpace neibor, double epsilon, int minPoints,int c)
+	{
+		if (!neibor.isVisited())
 		{
-			if (!neibors.get(i).isVisited())
-			{
-				neibors.get(i).markAsVisited();
-				ArrayList<Point> neiborsOfneibors = getNeibors(neibors.get(i),epsilon); //O(p)
-				if(neiborsOfneibors.size() >=minPoints)
-					neibors.addAll(neiborsOfneibors);
-			}
-			if(neibors.get(i).getCluster()==0)
-			{
-				neibors.get(i).setCluster(c);
-			}
+			neibor.markAsVisited();
+			Observable<Entry<PointInSpace, Geometry>> neiborsOfneibors = points.search(Geometries.circle(neibor.getX(), neibor.getY(), epsilon));//getNeibors(neibors.get(i),epsilon); //O(p)
+			if(neiborsOfneibors.count().toBlocking().last() >=minPoints)
+				neibors.mergeWith(neiborsOfneibors);
+		}
+		if(neibor.getCluster()==0)
+		{
+			neibor.setCluster(c);
 		}
 	}
 
+/*
 	// O(p)
-	public ArrayList<Point> getNeibors(Point point,double epsilon)
+	public ArrayList<PointInSpace> getNeibors(PointInSpace point,double epsilon)
 	{
-		ArrayList<Point> tempP= new ArrayList<Point>();
+		ArrayList<PointInSpace> tempP= new ArrayList<PointInSpace>();
 		
-		for(Point p : points)
-		{
-			if(Math.sqrt(Math.pow(point.getY()-p.getY(),2) + Math.pow(point.getX()-p.getX(), 2))<=epsilon)
-				tempP.add(p);
-		}
+		points.
+		entries().
+			map(
+				e ->
+					{
+						if(distFrom(point.getY(),point.getX(),e.value().getY(),e.value().getX())<=epsilon)
+							tempP.add(e.value());
+					});
 		return tempP;	
 	}
+*/
+	
+	 public static float distFrom(double lat1, double lng1, double lat2, double lng2) {
+		    double earthRadius = 6371000; //meters
+		    double dLat = Math.toRadians(lat2-lat1);
+		    double dLng = Math.toRadians(lng2-lng1);
+		    double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+		               Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+		               Math.sin(dLng/2) * Math.sin(dLng/2);
+		    double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+		    float dist = (float) (earthRadius * c);
+
+		    return dist;
+		    }
 	
 	
 	
 	
 	
 	
-	
-	
+	public class Tupple<T>
+	{
+		T a;
+		T b;
+		
+		public Tupple(T first, T second)
+		{
+			a = first;
+			b = second;
+			
+		}
+		public String toString(){return "("+a.toString()+","+b.toString()+")";}
+		public T fst(){return a;}
+		public T snd(){return b;}
+		public void setFst(T in){a=in;}
+		public void setSnd(T in){b=in;}
+		
+	}
 	
 }

@@ -1,11 +1,11 @@
 package serverConnection;
 
-public class Point	{
-	private double x,y;
+public class PointInSpace	{
+	private float x,y;
 	private boolean visited,noise;
 	private int cluster;
 	
-	public Point(double a ,double b)
+	public PointInSpace(float a ,float b)
 	{
 		x=a;
 		y=b;
@@ -17,8 +17,8 @@ public class Point	{
 	public void markAsNoise(){noise=true;}
 	public boolean isVisited(){return visited;}	
 	public boolean isNoise(){return noise;}
-	public double getX(){return x;}
-	public double getY(){return y;}
+	public float getX(){return x;}
+	public float getY(){return y;}
 	public int getCluster() {return cluster;}
 	public void setCluster(int cluster) {this.cluster = cluster;}
 }

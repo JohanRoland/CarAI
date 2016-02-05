@@ -39,14 +39,24 @@
     	<version>4.4.0</version>  
 	</dependency>
 	  <dependency>
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-api</artifactId>
-    <version>2.5</version>
-  </dependency>
-  <dependency>
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-core</artifactId>
-    <version>2.5</version>
-  </dependency>
+        <groupId>com.github.davidmoten</groupId>
+        <artifactId>rtree</artifactId>
+  	    <version>0.7.4</version>
+	  </dependency>
+	  <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>2.5</version>
+      </dependency>
+      <dependency>
+        <groupId>io.reactivex</groupId>
+        <artifactId>rxjava</artifactId>
+        <version>1.1.0</version>
+	  </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>2.5</version>
+      </dependency>
   </dependencies>
 </project>
