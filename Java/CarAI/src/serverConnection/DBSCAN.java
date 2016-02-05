@@ -12,8 +12,10 @@ import rx.functions.Func1;
 
 public class DBSCAN {
 	
+	int c=0;
     RTree<PointInSpace, Geometry> points;
     Observable<Entry<PointInSpace, Geometry>> neibors;
+    volatile ArrayList<Tupple<Float>>[] clusters;
 
     //RTree<String, Point> tree;
 	
@@ -36,18 +38,15 @@ public class DBSCAN {
 	public ArrayList<Tupple<Float>>[] getClusterd(int nClust)
 	{
 		nClust++;
-		ArrayList<Tupple<Float>>[] clusters = (ArrayList<Tupple<Float>>[])new ArrayList[nClust];
+		clusters = (ArrayList<Tupple<Float>>[])new ArrayList[nClust];
 		
 		
 		for(int i=0;i<nClust;i++)
 			clusters[i]= new ArrayList<Tupple<Float>>();
 		
-		points
-			.entries().
-				filter(e-> 
-					e.value().getCluster() !=0).
-						map(a -> 
-							clusters[a.value().getCluster()].add(new Tupple<Float>(a.value().getX(),a.value().getY()))).toBlocking();
+		
+		points.entries().filter(e-> e.value().getCluster()!=0).forEach(a->clusters[a.value().getCluster()].
+								add(new Tupple<Float>(a.value().getX(), a.value().getY())));
 		
 		
 		/*{
@@ -59,22 +58,22 @@ public class DBSCAN {
 	
 	public int cluster(double epsilon, int minPoints) // O(p^2)
 	{
-		int c=0;
 		
 		
-		int temp =points.
+		
+		points.
 			entries().
 				map(
 					e -> 
-						{return clusterHelper(e.value(),epsilon,minPoints,c);}
+						{return clusterHelper(e.value(),epsilon,minPoints);}
 				).toBlocking().last();
 
 		
 	
 		
-		return temp;
+		return c;
 	}
-	private int clusterHelper(PointInSpace e, double epsilon,int minPoints, int c)
+	private int clusterHelper(PointInSpace e, double epsilon,int minPoints)
 	{
 		if(!e.isVisited())			//
 		{
@@ -87,24 +86,24 @@ public class DBSCAN {
 			else
 			{
 				c++;
-				expandCluster(e,c,epsilon,minPoints); // O(p^2) but marks as visited so dosn't interact mulltiplicativly with the for loop
+				expandCluster(e,epsilon,minPoints); // O(p^2) but marks as visited so dosn't interact mulltiplicativly with the for loop
 			}
 		}
 	
 	return c;
 	}
 	
-	private void expandCluster(PointInSpace p, int c, double epsilon, int minPoints) 
+	private void expandCluster(PointInSpace p, double epsilon, int minPoints) 
 	{
 		p.setCluster(c);
 		neibors.forEach(
 					e-> 
 						{
-							expandClusterHelper(e.value(), epsilon,minPoints, c);
+							expandClusterHelper(e.value(), epsilon,minPoints);
 						}
 						);
 	}
-	private void expandClusterHelper(PointInSpace neibor, double epsilon, int minPoints,int c)
+	private void expandClusterHelper(PointInSpace neibor, double epsilon, int minPoints)
 	{
 		if (!neibor.isVisited())
 		{
@@ -144,8 +143,8 @@ public class DBSCAN {
 		    double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
 		               Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
 		               Math.sin(dLng/2) * Math.sin(dLng/2);
-		    double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-		    float dist = (float) (earthRadius * c);
+		    double c1 = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+		    float dist = (float) (earthRadius * c1);
 
 		    return dist;
 		    }
