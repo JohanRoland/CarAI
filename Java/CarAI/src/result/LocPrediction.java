@@ -10,8 +10,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.encog.ConsoleStatusReportable;
 import org.encog.Encog;
-import org.encog.neural.data.*;
-import org.encog.neural.data.basic.BasicNeuralDataSet;
 import org.encog.util.csv.CSVFormat;
 import org.encog.util.csv.ReadCSV;
 import org.encog.ml.data.versatile.sources.CSVDataSource;
@@ -57,8 +55,6 @@ public class LocPrediction {
 		
 		gpxParser("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 			
-		
-		NeuralDataSet ts = new BasicNeuralDataSet(sampleIn,sampleOut);
 		
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
 		VersatileMLDataSet data =  new VersatileMLDataSet(source);
