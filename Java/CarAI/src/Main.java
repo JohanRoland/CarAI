@@ -61,6 +61,7 @@ public class Main
 			}
     		else if(args[0].equals("5"))
     		{
+    			/*
     			try {
     			FileReader fileReader = new FileReader("PhoneData.txt");
     			BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -78,12 +79,17 @@ public class Main
 					        else
 					        	break;
 					    }
-				
-    			
-    			DBSCAN s = new DBSCAN(longs,lats, false);	
-    			int temp = s.cluster(0.001, 2);
-    			
+				*/
+    			ServerConnection b;
+    			b= new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
     			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) {
+    			ArrayList<Double>[] longLat = b.getPosData(0);
+    			
+    			
+    			DBSCAN s = new DBSCAN(longLat[0],longLat[1], false);	
+    			int temp = s.cluster(0.001, 10);
+    			
+    			
     				ArrayList<Tuple<Double>>[] temp2 = s.getClusterd(false);
     				int count=0;
     				for(ArrayList<Tuple<Double>> str : temp2)
@@ -113,11 +119,12 @@ public class Main
     				out.print("x1,");
 					out.print("y1)");
     				
-    			} catch (FileNotFoundException e) {
+    			/*} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
     			bufferedReader.close();
+    			*/
     			} catch (Exception e1) {
 					e1.printStackTrace();
 				}

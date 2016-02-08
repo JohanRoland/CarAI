@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.Statement;
 
+import serverConnection.DBSCAN.Tuple;
+
 public class ServerConnection {
 	Connection connection;
 	public ServerConnection(String serverName, String serverPort, String serverLocation, String userName, String Password)
@@ -46,18 +48,19 @@ public class ServerConnection {
 		return rs;
 	}
 
-	public ArrayList<double[]> getPosData(int ID) throws SQLException
+	public ArrayList<Double>[] getPosData(int ID) throws SQLException
 	{
 		Statement stmt = (Statement) connection.createStatement();
-		ResultSet rs = stmt.executeQuery("CALL getPos"+ID+")");
-		ArrayList<double[]> output = new ArrayList<double[]>();
-		double[] temp =new double[2];
+		ResultSet rs = stmt.executeQuery("CALL getPos("+ID+")");
+		ArrayList<Double>[] output = (ArrayList<Double>[])new ArrayList[2];
+		
+		output[0] = new ArrayList<Double>();
+		output[1] = new ArrayList<Double>();
 		
 		while(rs.next())
 		{
-			temp[0]=rs.getDouble("Long");
-			temp[1]=rs.getDouble("Lat");
-			output.add(temp);
+			output[1].add(rs.getDouble("Lon"));
+			output[0].add(rs.getDouble("Lat"));
 		}
 		stmt.close();
 		return output;

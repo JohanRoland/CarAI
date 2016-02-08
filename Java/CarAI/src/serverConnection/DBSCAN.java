@@ -91,12 +91,12 @@ public class DBSCAN {
 		if(IncludeUnclusterd)
 		{
 			OneOrZero=0;
-			nClust=c;
+			nClust=c+1;
 		}
 		else
 		{
 			OneOrZero=1;
-		    nClust=c+1;	
+		    nClust=c;	
 		}
 		
 		clusters = (ArrayList<Tuple<Double>>[])new ArrayList[nClust];
