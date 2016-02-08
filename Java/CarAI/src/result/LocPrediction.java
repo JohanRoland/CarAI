@@ -1,6 +1,9 @@
 package result;
 
+import serverConnection.ServerConnection;
+
 import java.io.BufferedWriter;
+import java.sql.SQLException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +30,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.mysql.jdbc.Statement;
+
 
 
 
@@ -38,7 +43,7 @@ public class LocPrediction {
 	 * 		Time 	  (Time)
 	 * 		Weekday?  (Int)
 	 * 		Monthday? (Int)
-	 * 		Month     (Int)
+	 * 		Month?     (Int)
 	 * 
 	 * 
 	 * Output:
@@ -162,7 +167,8 @@ public class LocPrediction {
 				{
 					Node oNode = nList.item(i+1);
 					if (oNode.getNodeType() == Node.ELEMENT_NODE) {
-						double[] tmp2 = {Double.parseDouble(eElement.getAttribute("lat")), Double.parseDouble(eElement.getAttribute("lon"))};
+						Element oElement = (Element) oNode;
+						double[] tmp2 = {Double.parseDouble(oElement.getAttribute("lat")), Double.parseDouble(oElement.getAttribute("lon"))};
 						outData.add(tmp2);
 					}
 				}
@@ -179,10 +185,23 @@ public class LocPrediction {
 			parsedInData[i] = inData.get(i);
 		}
 		double[][] parsedOutData = new double[inData.size()][];
-		for(int i = 0; i < inData.size(); i++)
+		for(int i = 0; i < outData.size(); i++)
 		{
 			parsedOutData[i] = outData.get(i);
 		}
+		
+		//
+		//  Upload the location data to database
+		/*ServerConnection sc = new ServerConnection("mydb","3306","192.168.1.26" , "car", "RigedyRigedyrektSon");
+		
+		for(int i = 0; i < inData.size(); i++)
+		{ 
+			try {
+				sc.addPosData(0, inData.get(i)[0], inData.get(i)[1], inData.get(i)[2], outData.get(i)[0], outData.get(i)[0]);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}*/
 		
 		// Write to CSV file; 
 		

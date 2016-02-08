@@ -69,7 +69,7 @@ public class ServerConnection {
 	public void addPosData(int ID, double Long, double Lat, double time, double Long2,double Lat2) throws SQLException
 	{
 		Statement stmt = (Statement) connection.createStatement();
-		stmt.executeQuery("CALL getPos"+ID+","+Long+","+Lat+","+time+","+","+Long2+","+Lat2+")");
+		stmt.executeQuery("CALL enterPossitionData("+ID+","+Long+","+Lat+","+time+","+Long2+","+Lat2+")");
 		stmt.close();
 	}
 	public void replacePosData(int ID, double[] Longs, double[] Lats) throws SQLException
