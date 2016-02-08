@@ -53,7 +53,7 @@ public class DBSCAN {
 		
 			
 		for(int i=0;i<longs.size();i++)
-			points = points.add(new PointInSpace(longs.get(i), lats.get(i)), Geometries.point((double)longs.get(i), (double)lats.get(i)));
+			points = points.add(new PointInSpace(longs.get(i), lats.get(i)), Geometries.point(longs.get(i), lats.get(i)));
 
 	}
 	/**
