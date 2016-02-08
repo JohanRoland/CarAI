@@ -3,6 +3,7 @@ package result;
 import serverConnection.ServerConnection;
 
 import java.io.BufferedWriter;
+import java.sql.SQLException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +43,7 @@ public class LocPrediction {
 	 * 		Time 	  (Time)
 	 * 		Weekday?  (Int)
 	 * 		Monthday? (Int)
-	 * 		Month     (Int)
+	 * 		Month?     (Int)
 	 * 
 	 * 
 	 * Output:
@@ -190,8 +191,17 @@ public class LocPrediction {
 		}
 		
 		//
-		ServerConnection sc = new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
+		//  Upload the location data to database
+		/*ServerConnection sc = new ServerConnection("mydb","3306","192.168.1.26" , "car", "RigedyRigedyrektSon");
 		
+		for(int i = 0; i < inData.size(); i++)
+		{ 
+			try {
+				sc.addPosData(0, inData.get(i)[0], inData.get(i)[1], inData.get(i)[2], outData.get(i)[0], outData.get(i)[0]);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}*/
 		
 		// Write to CSV file; 
 		
