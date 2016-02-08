@@ -1,5 +1,7 @@
 package result;
 
+import serverConnection.ServerConnection;
+
 import java.io.BufferedWriter;
 import java.io.*;
 import java.util.ArrayList;
@@ -26,6 +28,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.mysql.jdbc.Statement;
 
 
 
@@ -162,7 +166,8 @@ public class LocPrediction {
 				{
 					Node oNode = nList.item(i+1);
 					if (oNode.getNodeType() == Node.ELEMENT_NODE) {
-						double[] tmp2 = {Double.parseDouble(eElement.getAttribute("lat")), Double.parseDouble(eElement.getAttribute("lon"))};
+						Element oElement = (Element) oNode;
+						double[] tmp2 = {Double.parseDouble(oElement.getAttribute("lat")), Double.parseDouble(oElement.getAttribute("lon"))};
 						outData.add(tmp2);
 					}
 				}
@@ -179,10 +184,14 @@ public class LocPrediction {
 			parsedInData[i] = inData.get(i);
 		}
 		double[][] parsedOutData = new double[inData.size()][];
-		for(int i = 0; i < inData.size(); i++)
+		for(int i = 0; i < outData.size(); i++)
 		{
 			parsedOutData[i] = outData.get(i);
 		}
+		
+		//
+		ServerConnection sc = new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
+		
 		
 		// Write to CSV file; 
 		

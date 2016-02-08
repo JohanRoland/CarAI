@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import facerecognition.FaceMQTT;
+import result.LocPrediction;
 import result.Scheduler;
 import serverConnection.DBSCAN;
 import serverConnection.ServerConnection;
@@ -44,7 +45,9 @@ public class Main
     		else if(args[0].equals("3"))
     		{
     			System.out.println("Schedule debug");
-    			Scheduler s = new Scheduler();
+    		    //	Scheduler s = new Scheduler();
+    			LocPrediction lp = new LocPrediction();
+    			
     		}
     		else if(args[0].equals("4"))
     		{
