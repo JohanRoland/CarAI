@@ -13,7 +13,7 @@ import facerecognition.FaceMQTT;
 import result.Scheduler;
 import serverConnection.DBSCAN;
 import serverConnection.ServerConnection;
-import serverConnection.DBSCAN.Tupple;
+import serverConnection.DBSCAN.Tuple;
 
 /**
  *  Main class for CarAI
@@ -65,14 +65,14 @@ public class Main
     			FileReader fileReader = new FileReader("PhoneData.txt");
     			BufferedReader bufferedReader = new BufferedReader(fileReader);
     			String line=null;
-    			ArrayList<Float> longs = new ArrayList<Float>();
-    			ArrayList<Float> lats = new  ArrayList<Float>();
+    			ArrayList<Double> longs = new ArrayList<Double>();
+    			ArrayList<Double> lats = new  ArrayList<Double>();
     			int counter=0;
 
 					while((line = bufferedReader.readLine()) != null) {
 					        String[] temp = line.split(",");
-					        longs.add(Float.parseFloat(temp[2]));
-					        lats .add(Float.parseFloat(temp[3]));
+					        longs.add(Double.parseDouble(temp[2]));
+					        lats .add(Double.parseDouble(temp[3]));
 					        if (counter<50000)
 					        	counter++;
 					        else
@@ -80,24 +80,24 @@ public class Main
 					    }
 				
     			
-    			DBSCAN s = new DBSCAN(longs,lats);	
+    			DBSCAN s = new DBSCAN(longs,lats, false);	
     			int temp = s.cluster(0.001, 2);
     			
     			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) {
-    				ArrayList<Tupple<Float>>[] temp2 = s.getClusterd(temp);
+    				ArrayList<Tuple<Double>>[] temp2 = s.getClusterd(false);
     				int count=0;
-    				for(ArrayList<Tupple<Float>> str : temp2)
+    				for(ArrayList<Tuple<Double>> str : temp2)
     				{
     					count++;
     					out.print("x"+count +" = [");
-    					for(Tupple<Float> v : str)
+    					for(Tuple<Double> v : str)
     					{
 	    					out.print(v.fst().toString()+" ");
 	    					
     					}
     					out.print("];\n");
     					out.print("y"+count +" = [");
-    					for(Tupple<Float> v : str)
+    					for(Tuple<Double> v : str)
     					{
 	    					out.print(v.snd().toString()+" ");
 	    					
