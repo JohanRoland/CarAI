@@ -18,8 +18,6 @@ public class DBSCAN {
     RTree<PointInSpace, Geometry> points;
     Observable<Entry<PointInSpace, Geometry>> neibors;
     volatile ArrayList<Tuple<Double>>[] clusters;
-
-    //RTree<String, Point> tree;
 	
     /**
      * @param longs	An ArrayList of Double that details the longitudes.
