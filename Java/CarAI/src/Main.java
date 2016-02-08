@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import facerecognition.FaceMQTT;
-import result.LocPrediction;
 import result.Scheduler;
 import serverConnection.DBSCAN;
 import serverConnection.ServerConnection;
@@ -45,8 +44,7 @@ public class Main
     		else if(args[0].equals("3"))
     		{
     			System.out.println("Schedule debug");
-    			//Scheduler s = new Scheduler();
-    			LocPrediction lp = new LocPrediction();
+    			Scheduler s = new Scheduler();
     		}
     		else if(args[0].equals("4"))
     		{
@@ -75,7 +73,7 @@ public class Main
 					        String[] temp = line.split(",");
 					        longs.add(Float.parseFloat(temp[2]));
 					        lats .add(Float.parseFloat(temp[3]));
-					        if (counter<100)
+					        if (counter<50000)
 					        	counter++;
 					        else
 					        	break;
@@ -83,7 +81,7 @@ public class Main
 				
     			
     			DBSCAN s = new DBSCAN(longs,lats);	
-    			int temp = s.cluster(0.001, 20);
+    			int temp = s.cluster(0.001, 2);
     			
     			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) {
     				ArrayList<Tupple<Float>>[] temp2 = s.getClusterd(temp);
