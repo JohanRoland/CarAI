@@ -33,7 +33,6 @@ public class FaceMQTT implements MQTTInterface {
             while(!client.isConnected()){}
             client.subscribe(utopic,0);
             fr = new FaceRecognition();
-            //fr.start(false);
 		}
 		catch(MqttException me)
 		{
@@ -51,12 +50,10 @@ public class FaceMQTT implements MQTTInterface {
 
 		public void connectionLost(Throwable arg0) {
 			System.out.println("Connection to Mqtt Server lost in Face detection");
-			// TODO Auto-generated method stub
 			
 		}
 
 		public void deliveryComplete(IMqttDeliveryToken arg0) {
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -66,7 +63,6 @@ public class FaceMQTT implements MQTTInterface {
 			{
 				if(new String(arg1.getPayload()).equals("exit"))
 				{
-					//client.disconnect();
 					System.exit(0);
 				}
 				else
