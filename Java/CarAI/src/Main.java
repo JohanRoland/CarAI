@@ -91,7 +91,7 @@ public class Main
     			
     			
     			DBSCAN s = new DBSCAN(longLat, false);	
-    			int temp = s.cluster(0.001, 10);
+    			int temp = s.cluster(0.01, 2);
     			
     			
     				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(false);

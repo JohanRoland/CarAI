@@ -19,8 +19,10 @@ public class PointInSpace {
 	public void markAsNoise(){noise=true;}
 	public boolean isVisited(){return visited;}	
 	public boolean isNoise(){return noise;}
+	
 	public double getX(){return d.getLat();}
 	public double getY(){return d.getLon();}
+	
 	public int getCluster() {return cluster;}
 	public void setCluster(int cluster) {this.cluster = cluster;}
 	public DatabaseLocation getDLLoc(){return d;}

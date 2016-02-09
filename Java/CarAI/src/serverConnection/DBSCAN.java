@@ -51,8 +51,9 @@ public class DBSCAN {
 		
 			
 		for(int i=0;i<input.size();i++)
-			points = points.add(new PointInSpace(input.get(i)), Geometries.point(input.get(i).getLon(), input.get(i).getLat()));
-
+			points = points.add(new PointInSpace(input.get(i)), Geometries.point(input.get(i).getLat(), input.get(i).getLon()));
+		int jasdf = 0;
+		jasdf++;
 	}
 	/**
 	 * @param longs	An ArrayList of Double that details the longitudes.
@@ -70,7 +71,7 @@ public class DBSCAN {
 		
 			
 		for(int i=0;i<input.size();i++)
-			points = points.add(new PointInSpace(input.get(i)), Geometries.point(input.get(i).getLon(), input.get(i).getLat()));
+			points = points.add(new PointInSpace(input.get(i)), Geometries.point(input.get(i).getLat(), input.get(i).getLon()));
 
 	}
 	/**
@@ -130,11 +131,10 @@ public class DBSCAN {
 	public int cluster(double epsilon, int minPoints) // O(p^2)
 	{
 		points.
-			entries().
-				map(
+			entries().forEach(
 					e -> 
-						{return clusterHelper(e.value(),epsilon,minPoints);}
-				).toBlocking().last();
+						clusterHelper(e.value(),epsilon,minPoints)
+				);
 
 		
 	
