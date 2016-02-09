@@ -151,7 +151,7 @@ public class LocPrediction {
 		public void importFromDB()
 		{
 			ServerConnection b;
-			b= new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
+			b= new ServerConnection("mydb","3306","192.168.1.26" , "car", "RigedyRigedyrektSon");
 			
 			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) 
 			{
@@ -159,12 +159,12 @@ public class LocPrediction {
 				
 				
 				DBSCAN s = new DBSCAN(querry, false);	
-				int temp = s.cluster(0.001, 10);
+				int temp = s.cluster(0.001, 2);
 				
 				
-				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(false);
-				HashMap<double[],double[]> hs = new HashMap<double[],double[]>();
-				HashMap<double[],Integer> clust = new HashMap<double[],Integer>();
+				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(true);
+				HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
+				HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();
 				
 				for(int i = 0; i < temp2.length;i++)
 				{
@@ -172,17 +172,17 @@ public class LocPrediction {
 					{
 						for(DatabaseLocation dbl : temp2[i])
 						{
-							double[] d = {dbl.getLat(),dbl.getLon()};
+							Tuple<Double,Double> d = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
 							hs.put(d, d);
 							clust.put(d, i);
 						}
 					}
 					else
 					{
-						double[] mean = Utils.mean(temp2[i]);
+						Tuple<Double,Double> mean = Utils.mean(temp2[i]);
 						for(DatabaseLocation dbl : temp2[i])
 						{
-							double[] coord = {dbl.getLat(),dbl.getLon()};
+							Tuple<Double,Double> coord = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
 							hs.put(coord,mean);
 						}
 						clust.put(mean, i);
@@ -199,16 +199,21 @@ public class LocPrediction {
 						if(i == 0)
 						{
 							input.add(pos);
-							output.add(hs.get(dest));
+							Tuple<Double,Double> dst = new Tuple<Double,Double>(temp2[i].get(j).getNLat(),temp2[i].get(j).getNLon()); 
+							dest[0] = hs.get(dst).fst();
+							dest[1] = hs.get(dst).snd();
+							output.add(dest);
 						}
-						if(clust.get(hs.get(temp2[i].get(j))) != i && i != 0)
+						else if(clust.get(hs.get(temp2[i].get(j))) != i)
 						{
-							double[] coord = {temp2[i].get(j).getLat(),temp2[i].get(j).getLon()};
-							pos[0] = hs.get(coord)[0];
-							pos[1] = hs.get(coord)[1];
+							Tuple<Double,Double> coord = new Tuple<Double,Double>(temp2[i].get(j).getLat(),temp2[i].get(j).getLon());
+							pos[0] = hs.get(coord).fst();
+							pos[1] = hs.get(coord).snd();
 							
 							input.add(pos);
-							output.add(hs.get(dest));
+							dest[0] = hs.get(dest).fst();
+							dest[1] = hs.get(dest).snd();
+							output.add(dest);
 						}
 					}
 				}

@@ -7,7 +7,7 @@ import interfaces.DatabaseLocation;
 public class Utils {
 
 	// TO BE CHANGED!
-	public static double[] mean(ArrayList<DatabaseLocation> in)
+	public static Tuple<Double,Double> mean(ArrayList<DatabaseLocation> in)
 	{
 		double[] t1 = new double[2];
 		for(DatabaseLocation i : in)
@@ -17,7 +17,7 @@ public class Utils {
 		}
 		t1[0] /= in.size();
 		t1[1] /= in.size();
-		return t1;
+		return new Tuple<Double,Double>(t1[0],t1[1]);
 	}
 	
 }
