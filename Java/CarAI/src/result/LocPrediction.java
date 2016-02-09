@@ -1,8 +1,9 @@
 package result;
 
+import interfaces.DatabaseLocation;
 import serverConnection.DBSCAN;
 import serverConnection.ServerConnection;
-import serverConnection.DBSCAN.Tuple;
+import utils.*;
 
 import java.sql.SQLException;
 import java.io.*;
@@ -149,14 +150,14 @@ public class LocPrediction {
 			b= new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
 		try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) 
 			{
-				ArrayList<Double>[] longLat = b.getPosData(0);
+				ArrayList<DatabaseLocation> querry = b.getPosClass(0);
 				
 				
-				DBSCAN s = new DBSCAN(longLat[0],longLat[1], false);	
+				DBSCAN s = new DBSCAN(querry, false);	
 				int temp = s.cluster(0.001, 10);
 				
 				
-				ArrayList<Tuple<Double>>[] temp2 = s.getClusterd(false);
+				ArrayList<Tuple<Tuple<Double, Double>, Object>>[] temp2 = s.getClusterd(false);
 				double[] t; 
 				for(int i = 0; i < temp2.length; i++)
 				{
@@ -166,7 +167,7 @@ public class LocPrediction {
 					}
 					else
 					{
-						t = mean(temp2[i]);
+						//t = Utils.mean(temp2[i]);
 					}
 					
 					
@@ -273,19 +274,6 @@ public class LocPrediction {
 					e.printStackTrace();
 				}
 			}
-		}
-		
-		private double[] mean(ArrayList<Tuple<Double>> in)
-		{
-			double[] t1 = new double[2];
-			for(Tuple<Double> i : in)
-			{
-				t1[0] += i.fst();
-				t1[1] += i.snd();
-			}
-			t1[0] /= in.size();
-			t1[1] /= in.size();
-			return t1;
 		}
 	}
 }

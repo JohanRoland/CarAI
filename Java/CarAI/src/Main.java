@@ -14,7 +14,7 @@ import result.LocPrediction;
 import result.Scheduler;
 import serverConnection.DBSCAN;
 import serverConnection.ServerConnection;
-import serverConnection.DBSCAN.Tuple;
+import utils.Tuple;
 
 /**
  *  Main class for CarAI
