@@ -18,9 +18,9 @@ import utils.Tuple;
 public class DBSCAN {
 	
 	int c=0;
-    RTree<Tuple<PointInSpace,Object>, Geometry> points;
-    Observable<Entry<Tuple<PointInSpace, Object>, Geometry>> neibors;
-    volatile ArrayList<Tuple<Tuple<Double,Double>, Object>>[] clusters;
+    RTree<PointInSpace, Geometry> points;
+    Observable<Entry<PointInSpace, Geometry>> neibors;
+    volatile ArrayList<DatabaseLocation>[] clusters;
 	
     /**
      * @param longs	An ArrayList of Double that details the longitudes.
@@ -36,28 +36,7 @@ public class DBSCAN {
      * length".
      * The time complexity is O(n^2* log n) for R*Tree and O(n^2) for RTree
      */
-	public DBSCAN(ArrayList<Double> longs, ArrayList<Double> lats,ArrayList<Object> payload, boolean star) throws Error
-	{
-		if(star)
-			points= RTree.star().create();
-		else
-			points= RTree.create();
-		
-		if(longs.size()==0 || lats.size()==0 || payload.size()==0)
-		{
-			throw new Error("one or more of the imputted arrays have zero inputs");
-		}
-		else if (longs.size() != lats.size())
-		{
-			throw new Error("longs and lats has to have the same length");
-		}
-		
-			
-		for(int i=0;i<longs.size();i++)
-			points = points.add(new Tuple<PointInSpace,Object>(new PointInSpace(longs.get(i), lats.get(i)), payload.get(i)), Geometries.point(longs.get(i), lats.get(i)));
 
-	}
-	
 	public DBSCAN(ArrayList<DatabaseLocation> input, boolean star) throws Error
 	{ 	
 		if(star)
@@ -72,7 +51,7 @@ public class DBSCAN {
 		
 			
 		for(int i=0;i<input.size();i++)
-			points = points.add(new Tuple<PointInSpace,Object>(new PointInSpace(input.get(i).getLon(), input.get(i).getLat()), input.get(i)), Geometries.point(input.get(i).getLon(), input.get(i).getLat()));
+			points = points.add(new PointInSpace(input.get(i)), Geometries.point(input.get(i).getLon(), input.get(i).getLat()));
 
 	}
 	/**
@@ -82,21 +61,18 @@ public class DBSCAN {
      *  or one of them is zero.
      *  Inserts points given by longs and lats
 	 */
-	public void addEntries(ArrayList<Double> longs, ArrayList<Double> lats,ArrayList<Object> payload)
+	public void addEntries(ArrayList<DatabaseLocation> input)
 	{
-		if(longs.size()==0 || lats.size()==0)
+		if(input.size()==0)
 		{
-			throw new Error("one or more of the imputted arrays have zero inputs");
-		}
-		else if (longs.size() != lats.size())
-		{
-			throw new Error("longs and lats has to have the same length");
+			throw new Error("the imputted arrays have zero inputs");
 		}
 		
-		for(int i=0;i<longs.size();i++)
-			points = points.add(new Tuple<PointInSpace,Object>(new PointInSpace(longs.get(i), lats.get(i)), payload.get(i)), Geometries.point(longs.get(i), lats.get(i)));
-	}
+			
+		for(int i=0;i<input.size();i++)
+			points = points.add(new PointInSpace(input.get(i)), Geometries.point(input.get(i).getLon(), input.get(i).getLat()));
 
+	}
 	/**
 	 * @param IncludeUnclusterd If set to True it will return the unclustered "noise points" as cluster number zero" 
 	 * @return Returns an Array of ArrayList of Tuples of Doubles where each ArrayList is a cluster thats made upp of points described by Tuples.
@@ -104,7 +80,7 @@ public class DBSCAN {
 	 * getClusterd Is the way which one gets information from the DBSCAN class.
 	 * This method goes through each entry ones so it has a ordo O(n).
 	 */
-	public ArrayList<Tuple<Tuple<Double, Double>, Object>>[] getClusterd(boolean IncludeUnclusterd)
+	public ArrayList<DatabaseLocation>[] getClusterd(boolean IncludeUnclusterd)
 	{
 		
 		int nClust, OneOrZero;
@@ -120,20 +96,21 @@ public class DBSCAN {
 		    nClust=c;	
 		}
 		
-		clusters = (ArrayList<Tuple<Tuple<Double,Double>, Object>>[])new ArrayList[nClust];
+		clusters = (ArrayList<DatabaseLocation>[])new ArrayList[nClust];
 		
 		for(int i=0;i<nClust;i++)
-			clusters[i]= new ArrayList<Tuple<Tuple<Double,Double>, Object>>();
+			clusters[i]= new ArrayList<DatabaseLocation>();
 
 		if(IncludeUnclusterd)
 		{
-			points.entries().forEach(a->clusters[a.value().fst().getCluster()-OneOrZero].
-					add(new Tuple<Tuple<Double, Double>, Object>(new Tuple<Double,Double>( a.value().fst().getX() , a.value().fst().getY() ), a.value().snd())));
+			points.entries().forEach(a->clusters[a.value().getCluster()-OneOrZero].
+					add(a.value().getDLLoc()));
 		}
 		else
 		{
-			points.entries().filter(e-> e.value().fst().getCluster()!=0).forEach(a->clusters[a.value().fst().getCluster()-OneOrZero].
-					add(new Tuple<Tuple<Double, Double>, Object>(new Tuple<Double,Double>( a.value().fst().getX() , a.value().fst().getY() ), a.value().snd())));
+			points.entries().filter(e-> e.value().getCluster()!=0).forEach(a->clusters[a.value().getCluster()-OneOrZero].
+					add(a.value().getDLLoc()));
+		
 		}
 		
 		return clusters;
@@ -156,7 +133,7 @@ public class DBSCAN {
 			entries().
 				map(
 					e -> 
-						{return clusterHelper(e.value().fst(),epsilon,minPoints);}
+						{return clusterHelper(e.value(),epsilon,minPoints);}
 				).toBlocking().last();
 
 		
@@ -190,7 +167,7 @@ public class DBSCAN {
 		neibors.forEach(
 					e-> 
 						{
-							expandClusterHelper(e.value().fst(), epsilon,minPoints);
+							expandClusterHelper(e.value(), epsilon,minPoints);
 						}
 						);
 	}
@@ -199,7 +176,7 @@ public class DBSCAN {
 		if (!neibor.isVisited())
 		{
 			neibor.markAsVisited();
-			Observable<Entry<Tuple<PointInSpace, Object>, Geometry>> neiborsOfneibors = points.search(Geometries.circle(neibor.getX(), neibor.getY(), epsilon));//getNeibors(neibors.get(i),epsilon); //O(p)
+			Observable<Entry<PointInSpace, Geometry>> neiborsOfneibors = points.search(Geometries.circle(neibor.getX(), neibor.getY(), epsilon));//getNeibors(neibors.get(i),epsilon); //O(p)
 			if(neiborsOfneibors.count().toBlocking().last() >=minPoints)
 				neibors.mergeWith(neiborsOfneibors);
 		}

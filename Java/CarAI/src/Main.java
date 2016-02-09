@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import facerecognition.FaceMQTT;
+import interfaces.DatabaseLocation;
 import result.LocPrediction;
 import result.Scheduler;
 import serverConnection.DBSCAN;
@@ -86,30 +87,29 @@ public class Main
     			ServerConnection b;
     			b= new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
     			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) {
-    			ArrayList<Double>[] longLat = b.getPosData(0);
+    			ArrayList<DatabaseLocation> longLat = b.getPosClass(0);
     			
     			
-    			DBSCAN s = new DBSCAN(longLat[0],longLat[1],null, false);	
+    			DBSCAN s = new DBSCAN(longLat, false);	
     			int temp = s.cluster(0.001, 10);
     			
     			
-    				ArrayList<Tuple<Tuple<Double, Double>, Object>>[] temp2 = s.getClusterd(false);
+    				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(false);
     				int count=0;
-    				for(ArrayList<Tuple<Tuple<Double, Double>, Object>> str : temp2)
+    				for(ArrayList<DatabaseLocation> str : temp2)
     				{
     					count++;
     					out.print("x"+count +" = [");
-    					for(Tuple<Tuple<Double, Double>, Object> v : str)
+    					for(DatabaseLocation v : str)
     					{
-	    					out.print(v.fst().fst().toString()+" ");
+	    					out.print(v.getLat()+" ");
 	    					
     					}
     					out.print("];\n");
     					out.print("y"+count +" = [");
-    					for(Tuple<Tuple<Double, Double>, Object> v : str)
+    					for(DatabaseLocation v : str)
     					{
-	    					out.print(v.fst().snd().toString()+" ");
-	    					
+	    					out.print(v.getLon()+" ");	    					
     					}
     					out.print("];\n");
     				}

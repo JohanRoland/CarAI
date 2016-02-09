@@ -1,14 +1,16 @@
 package serverConnection;
 
-public class PointInSpace	{
-	private double x,y;
+import interfaces.DatabaseLocation;
+
+public class PointInSpace {
+
+	DatabaseLocation d;
 	private boolean visited,noise;
 	private int cluster;
 	
-	public PointInSpace(double a ,double b)
+	public PointInSpace(DatabaseLocation dL)
 	{
-		x=a;
-		y=b;
+		d=dL;
 		visited=false;
 		noise=false;
 		setCluster(0);
@@ -17,8 +19,9 @@ public class PointInSpace	{
 	public void markAsNoise(){noise=true;}
 	public boolean isVisited(){return visited;}	
 	public boolean isNoise(){return noise;}
-	public double getX(){return x;}
-	public double getY(){return y;}
+	public double getX(){return d.getLat();}
+	public double getY(){return d.getLon();}
 	public int getCluster() {return cluster;}
 	public void setCluster(int cluster) {this.cluster = cluster;}
+	public DatabaseLocation getDLLoc(){return d;}
 }
