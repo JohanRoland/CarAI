@@ -82,7 +82,7 @@ public class Main
 					        else
 					        	break;
 					    }
-				*/
+	
     			ServerConnection b;
     			b= new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
     			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) {
@@ -122,21 +122,22 @@ public class Main
     				out.print("x1,");
 					out.print("y1)");
     				
-    			/*} catch (FileNotFoundException e) {
+    			} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
     			bufferedReader.close();
-    			*/
+    			
     			} catch (Exception e1) {
 					e1.printStackTrace();
 				}
-    			
+    		*/
     		}
     		else 
     		{
     			System.out.println("No argument provided");
     		}
+		
     	}
     	
     	
