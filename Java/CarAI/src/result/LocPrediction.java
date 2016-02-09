@@ -157,7 +157,7 @@ public class LocPrediction {
 				int temp = s.cluster(0.001, 10);
 				
 				
-				ArrayList<Tuple<Tuple<Double, Double>, Object>>[] temp2 = s.getClusterd(false);
+				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(false);
 				double[] t; 
 				for(int i = 0; i < temp2.length; i++)
 				{
