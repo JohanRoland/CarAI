@@ -48,4 +48,22 @@ public class Tuple<T,F>
 	 */
 	public void setSnd(F in){b=in;}
 	
+	public int hashCode()
+	{
+		return Math.floorMod(a.hashCode()*17+b.hashCode()*31,Integer.MAX_VALUE) ; 
+	}
+	
+	public boolean equals(Object obj)
+	{
+		if(!(obj instanceof Tuple))
+			return false;
+		if(obj == this)
+			return true; 
+		
+		Tuple rhs = (Tuple) obj;
+		if(rhs.a == this.a && rhs.b == this.b)
+			return true;
+		
+		return false;
+	}
 }
