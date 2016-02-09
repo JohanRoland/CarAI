@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.Statement;
 
-import serverConnection.DBSCAN.Tuple;
+import interfaces.DatabaseLocation;
+import utils.Tuple;
 
 public class ServerConnection {
 	Connection connection;
@@ -52,7 +53,7 @@ public class ServerConnection {
 	{
 		Statement stmt = (Statement) connection.createStatement();
 		ResultSet rs = stmt.executeQuery("CALL getPos("+ID+")");
-		ArrayList<Double>[] output = (ArrayList<Double>[])new ArrayList[2];
+		ArrayList<Double>[] output = (ArrayList<Double>[])new ArrayList[5];
 		
 		output[0] = new ArrayList<Double>();
 		output[1] = new ArrayList<Double>();
@@ -66,6 +67,23 @@ public class ServerConnection {
 		return output;
 		
 	}
+	
+	public ArrayList<DatabaseLocation> getPosClass(int id) throws SQLException
+	{
+		Statement stmt = (Statement) connection.createStatement();
+		ResultSet rs = stmt.executeQuery("CALL getPos("+id+")");
+		
+		ArrayList<DatabaseLocation> out = new ArrayList<DatabaseLocation>(); 
+		
+		while(rs.next())
+		{
+			out.add(new DBQuerry(rs.getDouble("Lat"),rs.getDouble("Lon"),rs.getDouble("Time"),rs.getDouble("nextLat"),rs.getDouble("nextLon")));
+		}
+		stmt.close();
+		return out;
+		
+	}
+	
 	public void addPosData(int ID, double Long, double Lat, double time, double Long2,double Lat2) throws SQLException
 	{
 		Statement stmt = (Statement) connection.createStatement();
@@ -94,5 +112,34 @@ public class ServerConnection {
 		
 	}
 	
+	
+	public class DBQuerry implements DatabaseLocation
+	{
+		double lat;
+		double lon;
+		double time;
+		double nextLon;
+		double nextLat;
+		
+		public DBQuerry(double la, double lo,double t, double nla,double nlo)
+		{
+			this.lat = la;
+			this.lon = lo;
+			time = t;
+			nextLat = nla;
+			nextLon = nlo;
+		}
+		
+		public double getLon()
+		{
+			return lon;
+		}
+		
+		public double getLat()
+		{
+			return lat;
+		}
+		
+	}
 
 }

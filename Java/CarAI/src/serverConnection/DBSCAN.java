@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import com.github.davidmoten.rtree.Entry;
 import com.github.davidmoten.rtree.RTree;
 import com.github.davidmoten.rtree.geometry.*;
+
+import interfaces.DatabaseLocation;
 import rx.Observable;
-import serverConnection.DBSCAN.Tuple;
+import utils.Tuple;
 /**************************************************************
  * DBSCAN is a clustering algorithm that is noise resistant, 
  * By adjusting the cluster threshold one can adjust what is
@@ -53,6 +55,24 @@ public class DBSCAN {
 			
 		for(int i=0;i<longs.size();i++)
 			points = points.add(new Tuple<PointInSpace,Object>(new PointInSpace(longs.get(i), lats.get(i)), payload.get(i)), Geometries.point(longs.get(i), lats.get(i)));
+
+	}
+	
+	public DBSCAN(ArrayList<DatabaseLocation> input, boolean star) throws Error
+	{ 	
+		if(star)
+			points= RTree.star().create();
+		else
+			points= RTree.create();
+		
+		if(input.size()==0)
+		{
+			throw new Error("the imputted arrays have zero inputs");
+		}
+		
+			
+		for(int i=0;i<input.size();i++)
+			points = points.add(new Tuple<PointInSpace,Object>(new PointInSpace(input.get(i).getLon(), input.get(i).getLat()), input.get(i)), Geometries.point(input.get(i).getLon(), input.get(i).getLat()));
 
 	}
 	/**
@@ -202,59 +222,4 @@ public class DBSCAN {
 
 		    return dist;
 		    }
-	
-	
-	
-	
-	
-	/**
-	 * 
-	 * @author Knarkapan
-	 *
-	 * @param <T>
-	 * 
-	 * A tuple class that makes a tupple of type T with a get and set method as well as a to string method
-	 * 
-	 */
-	public class Tuple<T,F>
-	{
-		private T a;
-		private F b;
-
-		/**
-		 * @param first The first value of the tuple
-		 * @param second The second value of the tuple
-		 */
-		public Tuple(T first, F second)
-		{
-			a = first;
-			b = second;
-		
-		}
-		/**
-		 * Overloads the toString method and prints the result as
-		 * ( first , second ) 
-		 */
-		public String toString(){return "("+a.toString()+","+b.toString()+")";}
-		/**
-		 * @return Returns the first value
-		 */
-		public T fst(){return a;}
-		/**
-		 * @return Returns the second value
-		 */
-		public F snd(){return b;}
-		/**
-		 * @param in The value to set the first value of the tuple
-		 * Sets the first value
-		 */
-		public void setFst(T in){a=in;}
-		/**
-		 * @param in The value to set the second value of the tuple
-		 * set the second value
-		 */
-		public void setSnd(F in){b=in;}
-		
-	}
-	
 }

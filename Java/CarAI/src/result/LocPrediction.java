@@ -1,8 +1,10 @@
 package result;
 
+import interfaces.DatabaseLocation;
+import serverConnection.DBSCAN;
 import serverConnection.ServerConnection;
+import utils.*;
 
-import java.io.BufferedWriter;
 import java.sql.SQLException;
 import java.io.*;
 import java.util.ArrayList;
@@ -58,7 +60,9 @@ public class LocPrediction {
 	{
 		CSVFormat format = new CSVFormat('.',' ');
 		
-		gpxParser("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
+		NNData nd = new NNData();
+		nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
+		nd.exportToCSV();
 			
 		
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
@@ -125,101 +129,151 @@ public class LocPrediction {
 		Encog.getInstance().shutdown();
 	}
 	
-	
-	void gpxParser(String path)
+	private class NNData
 	{
-		ArrayList<double[]> inData = new ArrayList<double[]>();
+		// Inputs
+		ArrayList<double[]> input;
 		
-		ArrayList<double[]> outData = new ArrayList<double[]>();
+		//Outputs
+		ArrayList<double[]> output;
 		
-		try
+		
+		public NNData()
 		{
-		File xmlFile = new File(path);
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			input = new ArrayList<double[]>();
+			output = new ArrayList<double[]>();
+		}
 		
-		Document doc  = dBuilder.parse(xmlFile);
-		
-		doc.getDocumentElement().normalize();
-		
-		NodeList nList = doc.getElementsByTagName("trkpt");
-		
-		String builder = "";
-		for(int i = 0; i < nList.getLength()-1; i++)
+		public void importFromDB()
 		{
-			
-			Node nNode = nList.item(i);
-			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-
-				Element eElement = (Element) nNode;
-				builder = builder + eElement.getAttribute("lat") + " , " + eElement.getAttribute("lon");
+			ServerConnection b;
+			b= new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
+		try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) 
+			{
+				ArrayList<DatabaseLocation> querry = b.getPosClass(0);
 				
-			 	String time = eElement.getElementsByTagName("time").item(0).getTextContent();
-			 	String tmdasd= time.substring(11, time.length()-1).replace(":","");
-			 	double t = Double.parseDouble(tmdasd);
-			 	
-			 	double lat = Double.parseDouble(eElement.getAttribute("lat"));
-			 	double lon = Double.parseDouble(eElement.getAttribute("lon"));
-				double[] tmp = {lat, lon , t};
-				inData.add(tmp);
 				
-				if(i+1 <nList.getLength())
+				DBSCAN s = new DBSCAN(querry, false);	
+				int temp = s.cluster(0.001, 10);
+				
+				
+				ArrayList<Tuple<Tuple<Double, Double>, Object>>[] temp2 = s.getClusterd(false);
+				double[] t; 
+				for(int i = 0; i < temp2.length; i++)
 				{
-					Node oNode = nList.item(i+1);
-					if (oNode.getNodeType() == Node.ELEMENT_NODE) {
-						Element oElement = (Element) oNode;
-						double[] tmp2 = {Double.parseDouble(oElement.getAttribute("lat")), Double.parseDouble(oElement.getAttribute("lon"))};
-						outData.add(tmp2);
+					if(i == 0)
+					{
+						
 					}
+					else
+					{
+						//t = Utils.mean(temp2[i]);
+					}
+					
+					
+					
+				}
+			
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		}
+		
+		public void parseGPX(String path)
+		{
+			try
+			{
+				File xmlFile = new File(path);
+				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+				
+				Document doc  = dBuilder.parse(xmlFile);
+				
+				doc.getDocumentElement().normalize();
+				
+				NodeList nList = doc.getElementsByTagName("trkpt");
+				
+				String builder = "";
+				for(int i = 0; i < nList.getLength()-1; i++)
+				{
+					
+					Node nNode = nList.item(i);
+					if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+		
+						Element eElement = (Element) nNode;
+						builder = builder + eElement.getAttribute("lat") + " , " + eElement.getAttribute("lon");
+						
+					 	String time = eElement.getElementsByTagName("time").item(0).getTextContent();
+					 	String tmdasd= time.substring(11, time.length()-1).replace(":","");
+					 	double t = Double.parseDouble(tmdasd);
+					 	
+					 	double lat = Double.parseDouble(eElement.getAttribute("lat"));
+					 	double lon = Double.parseDouble(eElement.getAttribute("lon"));
+						double[] tmp = {lat, lon , t};
+						input.add(tmp);
+						
+						if(i+1 <nList.getLength())
+						{
+							Node oNode = nList.item(i+1);
+							if (oNode.getNodeType() == Node.ELEMENT_NODE) {
+								Element oElement = (Element) oNode;
+								double[] tmp2 = {Double.parseDouble(oElement.getAttribute("lat")), Double.parseDouble(oElement.getAttribute("lon"))};
+								output.add(tmp2);
+							}
+						}
+					}
+					
+				}
+			
+			}
+			catch(Exception e){}
+		
+		}
+		
+		public void exportToNN(double[][] in,double[][] out)
+		{
+			double[][] parsedInData = new double[input.size()][];
+			for(int i = 0; i < input.size(); i++)
+			{
+				parsedInData[i] = input.get(i);
+			}
+			double[][] parsedOutData = new double[output.size()][];
+			for(int i = 0; i < output.size(); i++)
+			{
+				parsedOutData[i] = output.get(i);
+			}
+			out = parsedOutData;
+			in = parsedInData; 
+			
+		}
+		
+		public void exportToCSV()
+		{
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
+			{
+				for(int i = 0; i < input.size();i++)
+				{
+					writer.write(input.get(i)[0] + " " + input.get(i)[1] + " " + input.get(i)[2] + " " 
+							+ output.get(i)[0] + " " + output.get(i)[1] + "\n");
+				}
+			}catch(Exception e)
+			{
+				System.out.println("Error on creating csv file");
+			}
+		}
+		
+		public void exportToDB()
+		{
+			ServerConnection sc = new ServerConnection("mydb","3306","192.168.1.26" , "car", "RigedyRigedyrektSon");
+			
+			for(int i = 0; i < input.size(); i++)
+			{ 
+				try {
+					sc.addPosData(0, input.get(i)[0], input.get(i)[1], input.get(i)[2], output.get(i)[0], output.get(i)[0]);
+				} catch (SQLException e) {
+					e.printStackTrace();
 				}
 			}
-			
 		}
-		
-		}
-		catch(Exception e){}
-		
-		double[][] parsedInData = new double[inData.size()][];
-		for(int i = 0; i < inData.size(); i++)
-		{
-			parsedInData[i] = inData.get(i);
-		}
-		double[][] parsedOutData = new double[inData.size()][];
-		for(int i = 0; i < outData.size(); i++)
-		{
-			parsedOutData[i] = outData.get(i);
-		}
-		
-		//
-		//  Upload the location data to database
-		/*ServerConnection sc = new ServerConnection("mydb","3306","192.168.1.26" , "car", "RigedyRigedyrektSon");
-		
-		for(int i = 0; i < inData.size(); i++)
-		{ 
-			try {
-				sc.addPosData(0, inData.get(i)[0], inData.get(i)[1], inData.get(i)[2], outData.get(i)[0], outData.get(i)[0]);
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}*/
-		
-		// Write to CSV file; 
-		
-		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
-		{
-			for(int i = 0; i < inData.size();i++)
-			{
-				writer.write(inData.get(i)[0] + " " + inData.get(i)[1] + " " + inData.get(i)[2] + " " 
-						+ outData.get(i)[0] + " " + outData.get(i)[1] + "\n");
-			}
-		}catch(Exception e)
-		{
-			System.out.println("Error on creating csv file");
-		}
-		sampleIn = parsedInData;
-		sampleOut = parsedOutData;
-		
 	}
-	
-	
 }
