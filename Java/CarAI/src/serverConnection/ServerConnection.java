@@ -139,7 +139,26 @@ public class ServerConnection {
 		{
 			return lat;
 		}
+		public double getTime()
+		{
+			return time;
+		}
+		public double getNLon()
+		{
+			return nextLon;
+		}
 		
+		public double getNLat()
+		{
+			return nextLat;
+		}
+		
+		public void setPos(double lon, double lat)
+		{
+			this.lon = lon; 
+			this.lat = lat;
+		}
+			
 	}
 
 }

@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -61,8 +62,11 @@ public class LocPrediction {
 		CSVFormat format = new CSVFormat('.',' ');
 		
 		NNData nd = new NNData();
-		nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
-		nd.exportToCSV();
+		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
+		
+		nd.importFromDB();
+		//nd.exportToDB();
+		//nd.exportToCSV();
 			
 		
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
@@ -148,7 +152,8 @@ public class LocPrediction {
 		{
 			ServerConnection b;
 			b= new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
-		try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) 
+			
+			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) 
 			{
 				ArrayList<DatabaseLocation> querry = b.getPosClass(0);
 				
@@ -158,24 +163,59 @@ public class LocPrediction {
 				
 				
 				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(false);
-				double[] t; 
-				for(int i = 0; i < temp2.length; i++)
+				HashMap<double[],double[]> hs = new HashMap<double[],double[]>();
+				HashMap<double[],Integer> clust = new HashMap<double[],Integer>();
+				
+				for(int i = 0; i < temp2.length;i++)
 				{
 					if(i == 0)
 					{
-						
+						for(DatabaseLocation dbl : temp2[i])
+						{
+							double[] d = {dbl.getLat(),dbl.getLon()};
+							hs.put(d, d);
+							clust.put(d, i);
+						}
 					}
 					else
 					{
-						//t = Utils.mean(temp2[i]);
+						double[] mean = Utils.mean(temp2[i]);
+						for(DatabaseLocation dbl : temp2[i])
+						{
+							double[] coord = {dbl.getLat(),dbl.getLon()};
+							hs.put(coord,mean);
+						}
+						clust.put(mean, i);
 					}
 					
-					
-					
+				}
+				
+				for(int i = 0; i < temp2.length; i++)
+				{
+					for(int j = 0; j < temp2[i].size(); j++)
+					{
+						double[] pos = {temp2[i].get(j).getLat(),temp2[i].get(j).getLon(),temp2[i].get(j).getTime()};
+						double[] dest = {temp2[i].get(j).getNLat(),temp2[i].get(j).getNLon()};
+						if(i == 0)
+						{
+							input.add(pos);
+							output.add(hs.get(dest));
+						}
+						if(clust.get(hs.get(temp2[i].get(j))) != i && i != 0)
+						{
+							double[] coord = {temp2[i].get(j).getLat(),temp2[i].get(j).getLon()};
+							pos[0] = hs.get(coord)[0];
+							pos[1] = hs.get(coord)[1];
+							
+							input.add(pos);
+							output.add(hs.get(dest));
+						}
+					}
 				}
 			
-			} catch (Exception e1) {
-				e1.printStackTrace();
+			} 
+			catch (Exception e1) {
+					e1.printStackTrace();
 			}
 		}
 		
@@ -269,7 +309,7 @@ public class LocPrediction {
 			for(int i = 0; i < input.size(); i++)
 			{ 
 				try {
-					sc.addPosData(0, input.get(i)[0], input.get(i)[1], input.get(i)[2], output.get(i)[0], output.get(i)[0]);
+					sc.addPosData(0, input.get(i)[0], input.get(i)[1], input.get(i)[2], output.get(i)[0], output.get(i)[1]);
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
