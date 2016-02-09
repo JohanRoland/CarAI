@@ -91,10 +91,10 @@ public class Main
     			
     			
     			DBSCAN s = new DBSCAN(longLat, false);	
-    			int temp = s.cluster(0.01, 2);
+    			int temp = s.cluster(0.01, 1);
     			
     			
-    				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(false);
+    				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(true);
     				int count=0;
     				for(ArrayList<DatabaseLocation> str : temp2)
     				{

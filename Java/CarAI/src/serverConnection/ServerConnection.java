@@ -10,9 +10,25 @@ import com.mysql.jdbc.Statement;
 
 import interfaces.DatabaseLocation;
 import utils.Tuple;
-
+/**
+ * @author Knarkapan
+ *
+ *Keeps a connection to a mySQL database, has functions to interact smoothly with 
+ * specific stored procedures aimed at the CarAI project.
+ *
+ */
 public class ServerConnection {
 	Connection connection;
+	/**
+	 * @param serverName The name of the database
+	 * @param serverPort The servers port
+	 * @param serverLocation The location of the database such as an IP
+	 * @param userName The username witch will be used for the log in to the DB account
+	 * @param Password The Password witch will be used for the log in to the DB account
+	 * 
+	 * The constructor creates an connection thats stored in the class object.
+	 * 
+	 */
 	public ServerConnection(String serverName, String serverPort, String serverLocation, String userName, String Password)
 	{
 		
@@ -26,6 +42,14 @@ public class ServerConnection {
 		    throw new IllegalStateException("Cannot connect the database!", e);
 		}
 	}
+	/**
+	 * 
+	 * @param request the mySQL code to be executed
+	 * @return the result of the mySQL code
+	 * 
+	 * executes the request on the connected DB
+	 * 
+	 */
 	public ResultSet basicQuery(String request)
 	{
 		Statement stmt = null;
