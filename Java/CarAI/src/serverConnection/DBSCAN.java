@@ -5,6 +5,7 @@ import com.github.davidmoten.rtree.Entry;
 import com.github.davidmoten.rtree.RTree;
 import com.github.davidmoten.rtree.geometry.*;
 import rx.Observable;
+import serverConnection.DBSCAN.Tuple;
 /**************************************************************
  * DBSCAN is a clustering algorithm that is noise resistant, 
  * By adjusting the cluster threshold one can adjust what is
@@ -107,13 +108,13 @@ public class DBSCAN {
 		if(IncludeUnclusterd)
 		{
 			points.entries().forEach(a->clusters[a.value().fst().getCluster()-OneOrZero].
-					add(new Tuple(new Tuple<Double,Double>( a.value().fst().getX() , a.value().fst().getY() ), a.value().snd())));
+					add(new Tuple<Tuple<Double, Double>, Object>(new Tuple<Double,Double>( a.value().fst().getX() , a.value().fst().getY() ), a.value().snd())));
 		}
 		else
 		{
 			points.entries().filter(e-> e.value().fst().getCluster()!=0).forEach(a->clusters[a.value().fst().getCluster()-OneOrZero].
-					add(new Tuple(new Tuple<Double,Double>( a.value().fst().getX() , a.value().fst().getY() ), a.value().snd())));
-			}
+					add(new Tuple<Tuple<Double, Double>, Object>(new Tuple<Double,Double>( a.value().fst().getX() , a.value().fst().getY() ), a.value().snd())));
+		}
 		
 		return clusters;
 	}

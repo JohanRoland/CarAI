@@ -82,33 +82,33 @@ public class Main
 					        else
 					        	break;
 					    }
-	
+				*/
     			ServerConnection b;
     			b= new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
     			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) {
     			ArrayList<Double>[] longLat = b.getPosData(0);
     			
     			
-    			DBSCAN s = new DBSCAN(longLat[0],longLat[1], false);	
+    			DBSCAN s = new DBSCAN(longLat[0],longLat[1],null, false);	
     			int temp = s.cluster(0.001, 10);
     			
     			
-    				ArrayList<Tuple<Double>>[] temp2 = s.getClusterd(false);
+    				ArrayList<Tuple<Tuple<Double, Double>, Object>>[] temp2 = s.getClusterd(false);
     				int count=0;
-    				for(ArrayList<Tuple<Double>> str : temp2)
+    				for(ArrayList<Tuple<Tuple<Double, Double>, Object>> str : temp2)
     				{
     					count++;
     					out.print("x"+count +" = [");
-    					for(Tuple<Double> v : str)
+    					for(Tuple<Tuple<Double, Double>, Object> v : str)
     					{
-	    					out.print(v.fst().toString()+" ");
+	    					out.print(v.fst().fst().toString()+" ");
 	    					
     					}
     					out.print("];\n");
     					out.print("y"+count +" = [");
-    					for(Tuple<Double> v : str)
+    					for(Tuple<Tuple<Double, Double>, Object> v : str)
     					{
-	    					out.print(v.snd().toString()+" ");
+	    					out.print(v.fst().snd().toString()+" ");
 	    					
     					}
     					out.print("];\n");
@@ -122,22 +122,21 @@ public class Main
     				out.print("x1,");
 					out.print("y1)");
     				
-    			} catch (FileNotFoundException e) {
+    			/*} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
     			bufferedReader.close();
-    			
+    			*/
     			} catch (Exception e1) {
 					e1.printStackTrace();
 				}
-    		*/
+    			
     		}
     		else 
     		{
     			System.out.println("No argument provided");
     		}
-		
     	}
     	
     	
