@@ -72,7 +72,7 @@ public class LocPrediction {
 			
 		String[] descreteMTime = numArray(60);
 		String[] descreteHTime = numArray(24);
- 		String[] descreteClust = numArray(nd.inputClust.size());
+ 		String[] descreteClust = numArray(nd.nrCluster);
 		
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
 		VersatileMLDataSet data =  new VersatileMLDataSet(source);
@@ -188,7 +188,7 @@ public class LocPrediction {
 		
 		//View Datas
 		HashMap<Integer, Tuple<Double,Double>> viewClustPos; 
-		
+		int nrCluster;
 		public NNData()
 		{
 			input = new ArrayList<double[]>();
@@ -198,6 +198,7 @@ public class LocPrediction {
 			inputClust = new ArrayList<Integer>();
 			outputClust = new ArrayList<Integer>();
 			viewClustPos = new HashMap<Integer, Tuple<Double,Double>>();
+			nrCluster = 0;
 		}
 		
 		public void importFromDB()
@@ -219,7 +220,7 @@ public class LocPrediction {
 				HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
 				HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();
 				HashMap<Tuple<Double,Double>,DatabaseLocation> posToLoc = new HashMap<Tuple<Double,Double>,DatabaseLocation>();
-				
+				nrCluster = temp2.length;
 				for(int i = 0; i < temp2.length;i++)
 				{
 					if(i == 0)
