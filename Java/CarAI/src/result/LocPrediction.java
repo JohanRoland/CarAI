@@ -72,31 +72,42 @@ public class LocPrediction {
 			
 		String[] descreteMTime = numArray(60);
 		String[] descreteHTime = numArray(24);
- 		
+ 		String[] descreteClust = numArray(nd.inputClust.size());
 		
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
 		VersatileMLDataSet data =  new VersatileMLDataSet(source);
 
 		data.getNormHelper().setFormat(format); 
-		ColumnDefinition columnInLat = data.defineSourceColumn("ilat",0,ColumnType.continuous);		
+		/*ColumnDefinition columnInLat = data.defineSourceColumn("ilat",0,ColumnType.continuous);		
 		ColumnDefinition columnInLon = data.defineSourceColumn("ilon",1,ColumnType.continuous);		
 		ColumnDefinition columnHTime = data.defineSourceColumn("hours",2,ColumnType.ordinal);
 		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",3,ColumnType.ordinal);
 		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",4,ColumnType.continuous);		
 		ColumnDefinition columnOutLon = data.defineSourceColumn("olon",5,ColumnType.continuous);	
+		*/
+		ColumnDefinition columnInClust = data.defineSourceColumn("pos",0,ColumnType.nominal);		
+		ColumnDefinition columnHTime = data.defineSourceColumn("hours",1,ColumnType.ordinal);
+		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.ordinal);
+		ColumnDefinition columnOutClust = data.defineSourceColumn("opos",3,ColumnType.nominal);
 		
+		columnInClust.defineClass(descreteClust);
 		columnMTime.defineClass(descreteMTime);
-
 		columnHTime.defineClass(descreteHTime);
+		columnOutClust.defineClass(descreteClust);
 		data.getNormHelper().defineUnknownValue("?");
 		data.analyze();
-		
+		/*
 		data.defineInput(columnInLat);
 		data.defineInput(columnInLon);
 		data.defineInput(columnHTime);
 		data.defineInput(columnMTime);
 		data.defineOutput(columnOutLat);
 		data.defineOutput(columnOutLon);
+		*/
+		data.defineInput(columnInClust);
+		data.defineInput(columnHTime);
+		data.defineInput(columnMTime);
+		data.defineOutput(columnOutClust);
 		
 		EncogModel model = new EncogModel(data);
 		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
@@ -107,7 +118,7 @@ public class LocPrediction {
 		
 		model.holdBackValidation(0.3, true, 1001);
 		model.selectTrainingType(data);
-		MLRegression bestMethod = (MLRegression)model.crossvalidate(4, true);
+		MLRegression bestMethod = (MLRegression)model.crossvalidate(5, true);
 		
 		
 		System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
@@ -129,13 +140,15 @@ public class LocPrediction {
 			helper.normalizeInputVector(line,input.getData(),false);
 			MLData output = bestMethod.compute(input);
 			String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
-			String irisChoosen1 = helper.denormalizeOutputVectorToString(output)[1];
-			result.append(Arrays.toString(line));
+			//String irisChoosen1 = helper.denormalizeOutputVectorToString(output)[1];
+			result.append("[" + line[0]+ " ( " + nd.viewClustPos.get(Integer.parseInt(line[0])) + ")"+ ", " + line[1]+ ", " + line[2]+ "] ");
 			result.append(" -> predicted: ");
-			result.append(irisChoosen0 + " , " + irisChoosen1);
+			//result.append(irisChoosen1 + " , " +irisChoosen0);
+			result.append(irisChoosen0 + " ( " + nd.viewClustPos.get(Integer.parseInt(irisChoosen0)) + ")");
 			result.append(" (correct: ");
-			result.append(csv.get(4)+ " , " +csv.get(5)); 
-			result.append(") Lat Err: " +  dispError(irisChoosen0,csv.get(4)) + " Lon Err: " + dispError(irisChoosen1,csv.get(5)));
+			result.append(csv.get(3)+ " ( " + nd.viewClustPos.get(Integer.parseInt(csv.get(3))) + ")"+ ") ");//; +csv.get(4)); 
+			result.append("Err: " + dispError(irisChoosen0,csv.get(3)));
+			//result.append(") Lat Err: " +  dispError(irisChoosen0,csv.get(4)) + " Lon Err: " + dispError(irisChoosen1,csv.get(5)));
 			System.out.println(result.toString());
 		}
 		
@@ -166,11 +179,15 @@ public class LocPrediction {
 		ArrayList<double[]> input;
 		ArrayList<Integer> minutes;
 		ArrayList<Integer> hours;
+		ArrayList<Integer> inputClust;
 		
 		
 		//Outputs
 		ArrayList<double[]> output;
+		ArrayList<Integer> outputClust;
 		
+		//View Datas
+		HashMap<Integer, Tuple<Double,Double>> viewClustPos; 
 		
 		public NNData()
 		{
@@ -178,6 +195,9 @@ public class LocPrediction {
 			output = new ArrayList<double[]>();
 			minutes = new ArrayList<Integer>();
 			hours = new ArrayList<Integer>();
+			inputClust = new ArrayList<Integer>();
+			outputClust = new ArrayList<Integer>();
+			viewClustPos = new HashMap<Integer, Tuple<Double,Double>>();
 		}
 		
 		public void importFromDB()
@@ -198,6 +218,7 @@ public class LocPrediction {
 				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(true);
 				HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
 				HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();
+				HashMap<Tuple<Double,Double>,DatabaseLocation> posToLoc = new HashMap<Tuple<Double,Double>,DatabaseLocation>();
 				
 				for(int i = 0; i < temp2.length;i++)
 				{
@@ -205,25 +226,19 @@ public class LocPrediction {
 					{
 						for(DatabaseLocation dbl : temp2[i])
 						{
-							if(dbl.getLon() == 57.6026314)
-							{
-								System.out.println("entered");
-							}
 							Tuple<Double,Double> d = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
 							hs.put(d, d);
 							clust.put(d, i);
+							posToLoc.put(d, dbl);
 						}
 					}
 					else
 					{
 						
 						Tuple<Double,Double> mean = Utils.mean(temp2[i]);
+						viewClustPos.put(i, mean);
 						for(DatabaseLocation dbl : temp2[i])
 						{
-							if(dbl.getLon() == 57.6026314)
-							{
-								System.out.println("entered");
-							}
 							Tuple<Double,Double> coord = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
 							hs.put(coord,mean);
 						}
@@ -238,12 +253,14 @@ public class LocPrediction {
 					{
 						double[] pos = {temp2[i].get(j).getLat(),temp2[i].get(j).getLon()};
 						double[] dest = {temp2[i].get(j).getNLat(),temp2[i].get(j).getNLon()};
-						Tuple<Double,Double> dst = new Tuple<Double,Double>(temp2[i].get(j).getNLat(),temp2[i].get(j).getNLon());
+						Tuple<Double,Double> dst = findNextCluster( new Tuple<Double,Double>(temp2[i].get(j).getNLat(),temp2[i].get(j).getNLon()),posToLoc);
+												
 						Tuple<Double,Double> meanDst = hs.get(dst);
 						di = i;
 						dj = j; 
 						if(i == 0)
 						{
+							/*
 							input.add(pos);
 							 
 							dest[0] = meanDst.fst();
@@ -251,6 +268,7 @@ public class LocPrediction {
 							output.add(dest);
 							hours.add(temp2[i].get(j).getHTime());
 							minutes.add(temp2[i].get(j).getMTime());
+							*/
 						}
 						else if(clust.get(meanDst) != i)
 						{
@@ -259,11 +277,14 @@ public class LocPrediction {
 							pos[1] = hs.get(coord).snd();
 							
 							input.add(pos);
+							
+							inputClust.add(i);
 							dest[0] = meanDst.fst();
 							dest[1] = meanDst.snd();
 							output.add(dest);
 							hours.add(temp2[i].get(j).getHTime());
 							minutes.add(temp2[i].get(j).getMTime());
+							outputClust.add(clust.get(hs.get(dst)));
 						}
 						
 					}
@@ -359,8 +380,10 @@ public class LocPrediction {
 			{
 				for(int i = 0; i < input.size();i++)
 				{
-					writer.write(input.get(i)[1] + " " + input.get(i)[0] + " " + hours.get(i) + " " + minutes.get(i) + " " 
-							+ output.get(i)[1] + " " + output.get(i)[0] + "\n");
+					/*writer.write(input.get(i)[1] + " " + input.get(i)[0] + " " + hours.get(i) + " " + minutes.get(i) + " " 
+							+ output.get(i)[1] + " " + output.get(i)[0] + "\n");*/
+					writer.write(inputClust.get(i) + " " + hours.get(i) + " " + minutes.get(i) + " " 
+							+ outputClust.get(i) + "\n");
 				}
 			}catch(Exception e)
 			{
@@ -387,6 +410,17 @@ public class LocPrediction {
 				e.printStackTrace();
 			}
 			
+		}
+		public Tuple<Double,Double> findNextCluster(Tuple<Double,Double> pos, HashMap<Tuple<Double,Double>,DatabaseLocation> lookup )
+		{
+			Tuple<Double,Double> temp = pos;
+			while(lookup.containsKey(temp))
+			{
+				DatabaseLocation td = lookup.get(temp);
+				temp = new Tuple<Double,Double>(td.getNLat(),td.getNLon());
+			}
+			
+			return temp;
 		}
 	}
 }
