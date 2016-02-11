@@ -4,7 +4,8 @@ public interface DatabaseLocation {
 	
 	public double getLon();
 	public double getLat();
-	public double getTime();
+	public int getMTime();
+	public int getHTime();
 	public double getNLon();
 	public double getNLat();
 	

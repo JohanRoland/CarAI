@@ -44,7 +44,8 @@ public class LocPrediction {
 	/*
 	 * Input:
 	 * 		Position  (Double, Double)
-	 * 		Time 	  (Time)
+	 * 		Hours 	  (Descrete)
+	 * 		Minutes   (Descrete)
 	 * 		Weekday?  (Int)
 	 * 		Monthday? (Int)
 	 * 		Month?     (Int)
@@ -69,6 +70,9 @@ public class LocPrediction {
 		
 		nd.exportToCSV();
 			
+		String[] descreteMTime = numArray(60);
+		String[] descreteHTime = numArray(24);
+ 		
 		
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
 		VersatileMLDataSet data =  new VersatileMLDataSet(source);
@@ -76,16 +80,21 @@ public class LocPrediction {
 		data.getNormHelper().setFormat(format); 
 		ColumnDefinition columnInLat = data.defineSourceColumn("ilat",0,ColumnType.continuous);		
 		ColumnDefinition columnInLon = data.defineSourceColumn("ilon",1,ColumnType.continuous);		
-		ColumnDefinition columnTime = data.defineSourceColumn("time",2,ColumnType.continuous);
-		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",3,ColumnType.continuous);		
-		ColumnDefinition columnOutLon = data.defineSourceColumn("olon",4,ColumnType.continuous);	
+		ColumnDefinition columnHTime = data.defineSourceColumn("hours",2,ColumnType.ordinal);
+		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",3,ColumnType.ordinal);
+		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",4,ColumnType.continuous);		
+		ColumnDefinition columnOutLon = data.defineSourceColumn("olon",5,ColumnType.continuous);	
 		
+		columnMTime.defineClass(descreteMTime);
+
+		columnHTime.defineClass(descreteHTime);
 		data.getNormHelper().defineUnknownValue("?");
 		data.analyze();
 		
 		data.defineInput(columnInLat);
 		data.defineInput(columnInLon);
-		data.defineInput(columnTime);
+		data.defineInput(columnHTime);
+		data.defineInput(columnMTime);
 		data.defineOutput(columnOutLat);
 		data.defineOutput(columnOutLon);
 		
@@ -108,13 +117,13 @@ public class LocPrediction {
 		System.out.println("Final model: " + bestMethod);
 		
 		ReadCSV csv = new ReadCSV(new File("coords.csv"),false,format);
-		String[] line = new String[3];
+		String[] line = new String[4];
 		MLData input = helper.allocateInputVector();
 		
 		while(csv.next())
 		{
 			StringBuilder result = new StringBuilder();
-			for(int i = 0; i < 3; i++)
+			for(int i = 0; i < 4; i++)
 				line[i] = csv.get(i);
 			
 			helper.normalizeInputVector(line,input.getData(),false);
@@ -124,9 +133,9 @@ public class LocPrediction {
 			result.append(Arrays.toString(line));
 			result.append(" -> predicted: ");
 			result.append(irisChoosen0 + " , " + irisChoosen1);
-			result.append("(correct: ");
-			result.append(csv.get(3)+ " , " +csv.get(4)); 
-			result.append(")");
+			result.append(" (correct: ");
+			result.append(csv.get(4)+ " , " +csv.get(5)); 
+			result.append(") Lat Err: " +  dispError(irisChoosen0,csv.get(4)) + " Lon Err: " + dispError(irisChoosen1,csv.get(5)));
 			System.out.println(result.toString());
 		}
 		
@@ -134,10 +143,30 @@ public class LocPrediction {
 		Encog.getInstance().shutdown();
 	}
 	
+	private String dispError(String x, String y)
+	{
+		
+		return new Double(Double.parseDouble(y)-Double.parseDouble(x)).toString(); 
+	}
+	
+	private String[] numArray(int t)
+	{
+		String[] out = new String[t];
+		
+		for(int i = 0; i < t; i++ )
+			out[i] = "" +i;
+		
+		return out;
+				
+	}
+	
 	private class NNData
 	{
 		// Inputs
 		ArrayList<double[]> input;
+		ArrayList<Integer> minutes;
+		ArrayList<Integer> hours;
+		
 		
 		//Outputs
 		ArrayList<double[]> output;
@@ -147,6 +176,8 @@ public class LocPrediction {
 		{
 			input = new ArrayList<double[]>();
 			output = new ArrayList<double[]>();
+			minutes = new ArrayList<Integer>();
+			hours = new ArrayList<Integer>();
 		}
 		
 		public void importFromDB()
@@ -205,7 +236,7 @@ public class LocPrediction {
 				{
 					for(int j = 0; j < temp2[i].size(); j++)
 					{
-						double[] pos = {temp2[i].get(j).getLat(),temp2[i].get(j).getLon(),temp2[i].get(j).getTime()};
+						double[] pos = {temp2[i].get(j).getLat(),temp2[i].get(j).getLon()};
 						double[] dest = {temp2[i].get(j).getNLat(),temp2[i].get(j).getNLon()};
 						Tuple<Double,Double> dst = new Tuple<Double,Double>(temp2[i].get(j).getNLat(),temp2[i].get(j).getNLon());
 						Tuple<Double,Double> meanDst = hs.get(dst);
@@ -218,6 +249,8 @@ public class LocPrediction {
 							dest[0] = meanDst.fst();
 							dest[1] = meanDst.snd();
 							output.add(dest);
+							hours.add(temp2[i].get(j).getHTime());
+							minutes.add(temp2[i].get(j).getMTime());
 						}
 						else if(clust.get(meanDst) != i)
 						{
@@ -229,7 +262,10 @@ public class LocPrediction {
 							dest[0] = meanDst.fst();
 							dest[1] = meanDst.snd();
 							output.add(dest);
+							hours.add(temp2[i].get(j).getHTime());
+							minutes.add(temp2[i].get(j).getMTime());
 						}
+						
 					}
 				}
 			
@@ -264,14 +300,19 @@ public class LocPrediction {
 						builder = builder + eElement.getAttribute("lat") + " , " + eElement.getAttribute("lon");
 						
 					 	String time = eElement.getElementsByTagName("time").item(0).getTextContent();
-					 	String tmdasd= time.substring(11, time.length()-1).replace(":","");
-					 	double t = Double.parseDouble(tmdasd);
+					 	int h = Integer.parseInt(time.substring(11, time.length()-6).replace(":",""));
+					 	int min = Integer.parseInt(time.substring(13, time.length()-3).replace(":",""));
+					 			
+					 	
+					 	String tmdasd= time.substring(11, time.length()-3).replace(":","");
+					 	double t = Math.floor( Double.parseDouble(tmdasd)/100);
 					 	
 					 	double lat = Double.parseDouble(eElement.getAttribute("lat"));
 					 	double lon = Double.parseDouble(eElement.getAttribute("lon"));
-						double[] tmp = {lat, lon , t};
+						double[] tmp = {lat, lon};
 						input.add(tmp);
-						
+						hours.add(h);
+						minutes.add(min);
 						if(i+1 <nList.getLength())
 						{
 							Node oNode = nList.item(i+1);
@@ -318,12 +359,13 @@ public class LocPrediction {
 			{
 				for(int i = 0; i < input.size();i++)
 				{
-					writer.write(input.get(i)[1] + " " + input.get(i)[0] + " " + input.get(i)[2] + " " 
+					writer.write(input.get(i)[1] + " " + input.get(i)[0] + " " + hours.get(i) + " " + minutes.get(i) + " " 
 							+ output.get(i)[1] + " " + output.get(i)[0] + "\n");
 				}
 			}catch(Exception e)
 			{
 				System.out.println("Error on creating csv file");
+				e.printStackTrace();
 			}
 		}
 		
@@ -335,7 +377,7 @@ public class LocPrediction {
 			try {
 				for(int i = 0; i < input.size(); i++)
 				{ 
-					querry.add(new DBQuerry(input.get(i)[0], input.get(i)[1], input.get(i)[2], output.get(i)[0], output.get(i)[1]));
+					querry.add(new DBQuerry(input.get(i)[0], input.get(i)[1], hours.get(i), minutes.get(i), output.get(i)[0], output.get(i)[1]));
 					
 				}
 				DBQuerry[] sendDB = querry.toArray(new DBQuerry[querry.size()]);

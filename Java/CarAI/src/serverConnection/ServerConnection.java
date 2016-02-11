@@ -101,7 +101,7 @@ public class ServerConnection {
 		
 		while(rs.next())
 		{
-			out.add(new DBQuerry(rs.getDouble("Lat"),rs.getDouble("Lon"),rs.getDouble("Time"),rs.getDouble("nextLat"),rs.getDouble("nextLon")));
+			out.add(new DBQuerry(rs.getDouble("Lat"),rs.getDouble("Lon"),rs.getInt("Hours"),rs.getInt("Minutes") ,rs.getDouble("nextLat"),rs.getDouble("nextLon")));
 		}
 		stmt.close();
 		return out;
@@ -145,9 +145,9 @@ public class ServerConnection {
 		stmt.execute("DELETE FROM positionhistorytable WHERE ID="+ ID);
 		for(int i=0;i<input.length-1;i++)
 		{
-			values += "(" + ID + ","+ input[i].getLon() + "," + input[i].getLat() + "," + input[i].getTime() + "," + input[i].getNLon() + "," + input[i].getNLat() +"),";  
+			values += "(" + ID + ","+ input[i].getLon() + "," + input[i].getLat() + "," + input[i].getHTime() + "," + input[i].getMTime() + "," + input[i].getNLon() + "," + input[i].getNLat() +"),";  
 		}
-		values += "(" + ID + ","+ input[input.length-1].getLon() + "," + input[input.length-1].getLat() + "," + input[input.length-1].getTime() + "," + input[input.length-1].getNLon() + "," + input[input.length-1].getNLat() +");";
+		values += "(" + ID + ","+ input[input.length-1].getLon() + "," + input[input.length-1].getLat() + "," + input[input.length-1].getHTime() + "," + input[input.length-1].getMTime() + "," + input[input.length-1].getNLon() + "," + input[input.length-1].getNLat() +");";
 		
 		System.out.println(values);
 		
@@ -162,15 +162,17 @@ public class ServerConnection {
 	{
 		double lat;
 		double lon;
-		double time;
+		int minutes;
+		int hours;
 		double nextLon;
 		double nextLat;
 		
-		public DBQuerry(double la, double lo,double t, double nla,double nlo)
+		public DBQuerry(double la, double lo,int hour, int min, double nla,double nlo)
 		{
 			this.lat = la;
 			this.lon = lo;
-			time = t;
+			minutes = min;
+			hours = hour;
 			nextLat = nla;
 			nextLon = nlo;
 		}
@@ -184,9 +186,13 @@ public class ServerConnection {
 		{
 			return lat;
 		}
-		public double getTime()
+		public int getMTime()
 		{
-			return time;
+			return minutes;
+		}
+		public int getHTime()
+		{
+			return hours;
 		}
 		public double getNLon()
 		{
