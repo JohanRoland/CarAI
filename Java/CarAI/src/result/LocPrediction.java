@@ -3,6 +3,7 @@ package result;
 import interfaces.DatabaseLocation;
 import serverConnection.DBSCAN;
 import serverConnection.ServerConnection;
+import serverConnection.ServerConnection.DBQuerry;
 import utils.*;
 
 import java.sql.SQLException;
@@ -163,7 +164,7 @@ public class LocPrediction {
 				int temp = s.cluster(0.01, 2);
 				
 				
-				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(false);
+				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(true);
 				HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
 				HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();
 				
@@ -173,6 +174,10 @@ public class LocPrediction {
 					{
 						for(DatabaseLocation dbl : temp2[i])
 						{
+							if(dbl.getLon() == 57.6026314)
+							{
+								System.out.println("entered");
+							}
 							Tuple<Double,Double> d = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
 							hs.put(d, d);
 							clust.put(d, i);
@@ -180,9 +185,14 @@ public class LocPrediction {
 					}
 					else
 					{
+						
 						Tuple<Double,Double> mean = Utils.mean(temp2[i]);
 						for(DatabaseLocation dbl : temp2[i])
 						{
+							if(dbl.getLon() == 57.6026314)
+							{
+								System.out.println("entered");
+							}
 							Tuple<Double,Double> coord = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
 							hs.put(coord,mean);
 						}
@@ -244,7 +254,7 @@ public class LocPrediction {
 				NodeList nList = doc.getElementsByTagName("trkpt");
 				
 				String builder = "";
-				for(int i = 0; i < nList.getLength()-1; i++)
+				for(int i = 0; i < nList.getLength(); i++)
 				{
 					
 					Node nNode = nList.item(i);
@@ -270,6 +280,11 @@ public class LocPrediction {
 								double[] tmp2 = {Double.parseDouble(oElement.getAttribute("lat")), Double.parseDouble(oElement.getAttribute("lon"))};
 								output.add(tmp2);
 							}
+						}
+						else
+						{
+							double[] tmp2 = {lat, lon};
+							output.add(tmp2);
 						}
 					}
 					
@@ -315,15 +330,21 @@ public class LocPrediction {
 		public void exportToDB()
 		{
 			ServerConnection sc = new ServerConnection("mydb","3306","192.168.1.26" , "car", "RigedyRigedyrektSon");
+			ArrayList<DBQuerry> querry = new ArrayList<DBQuerry>();
 			
-			for(int i = 0; i < input.size(); i++)
-			{ 
-				try {
-					sc.addPosData(0, input.get(i)[0], input.get(i)[1], input.get(i)[2], output.get(i)[0], output.get(i)[1]);
-				} catch (SQLException e) {
-					e.printStackTrace();
+			try {
+				for(int i = 0; i < input.size(); i++)
+				{ 
+					querry.add(new DBQuerry(input.get(i)[0], input.get(i)[1], input.get(i)[2], output.get(i)[0], output.get(i)[1]));
+					
 				}
+				DBQuerry[] sendDB = querry.toArray(new DBQuerry[querry.size()]);
+				sc.replacePosData(0, sendDB );
+				//sc.addPosData(0, input.get(i)[0], input.get(i)[1], input.get(i)[2], output.get(i)[0], output.get(i)[1]);
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
+			
 		}
 	}
 }

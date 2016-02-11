@@ -136,8 +136,8 @@ public class ServerConnection {
 	 */
 	public void replacePosData(int ID, DBQuerry[] input) throws SQLException
 	{
-		if(input.length!=0)
-			throw new SQLException("length of input arguments must match");
+		if(input.length==0)
+			throw new SQLException("length of input must be greater than zero");
 						
 		
 		Statement stmt = (Statement) connection.createStatement();
@@ -158,7 +158,7 @@ public class ServerConnection {
 	}
 	
 	
-	public class DBQuerry implements DatabaseLocation
+	public static class DBQuerry implements DatabaseLocation
 	{
 		double lat;
 		double lon;
