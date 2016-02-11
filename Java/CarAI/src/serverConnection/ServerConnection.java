@@ -10,9 +10,25 @@ import com.mysql.jdbc.Statement;
 
 import interfaces.DatabaseLocation;
 import utils.Tuple;
-
+/**
+ * @author Knarkapan
+ *
+ *Keeps a connection to a mySQL database, has functions to interact smoothly with 
+ * specific stored procedures aimed at the CarAI project.
+ *
+ */
 public class ServerConnection {
 	Connection connection;
+	/**
+	 * @param serverName The name of the database
+	 * @param serverPort The servers port
+	 * @param serverLocation The location of the database such as an IP
+	 * @param userName The username witch will be used for the log in to the DB account
+	 * @param Password The Password witch will be used for the log in to the DB account
+	 * 
+	 * The constructor creates an connection thats stored in the class object.
+	 * 
+	 */
 	public ServerConnection(String serverName, String serverPort, String serverLocation, String userName, String Password)
 	{
 		
@@ -26,6 +42,14 @@ public class ServerConnection {
 		    throw new IllegalStateException("Cannot connect the database!", e);
 		}
 	}
+	/**
+	 * 
+	 * @param request the mySQL code to be executed
+	 * @return the result of the mySQL code
+	 * 
+	 * executes the request on the connected DB
+	 * 
+	 */
 	public ResultSet basicQuery(String request)
 	{
 		Statement stmt = null;
@@ -83,26 +107,47 @@ public class ServerConnection {
 		return out;
 		
 	}
-	
+	/**
+	 * @param ID
+	 * @param Long
+	 * @param Lat
+	 * @param time
+	 * @param Long2
+	 * @param Lat2
+	 * @throws SQLException
+	 * 
+	 * 
+	 * Adds an entry to the possitionhistory rable through a stored procedure
+	 */
 	public void addPosData(int ID, double Long, double Lat, double time, double Long2,double Lat2) throws SQLException
 	{
 		Statement stmt = (Statement) connection.createStatement();
 		stmt.executeQuery("CALL enterPossitionData("+ID+","+Long+","+Lat+","+time+","+Long2+","+Lat2+")");
 		stmt.close();
 	}
-	public void replacePosData(int ID, double[] Longs, double[] Lats) throws SQLException
+	/**
+	 * @param ID The ID of the entries that are to be replaced
+	 * @param input List of DBQuerry that holds the information that is to be inserted on behalf of ID
+	 * @throws SQLException
+	 * 
+	 * Removes all previous entries on the specified ID and makes a bulk insert on that ID
+	 * 
+	 * 
+	 */
+	public void replacePosData(int ID, DBQuerry[] input) throws SQLException
 	{
-		if(Longs.length!=Lats.length)
-			throw new SQLException("Length of Longs and Lats must match");
+		if(input.length!=0)
+			throw new SQLException("length of input arguments must match");
+						
 		
 		Statement stmt = (Statement) connection.createStatement();
 		String values= "INSERT INTO positionhistorytable VALUES " ;		
 		stmt.execute("DELETE FROM positionhistorytable WHERE ID="+ ID);
-		for(int i=0;i<Longs.length-1;i++)
+		for(int i=0;i<input.length-1;i++)
 		{
-			values += "(" + ID + ","+ Longs[i] + "," + Lats[i] + "),";  
+			values += "(" + ID + ","+ input[i].getLon() + "," + input[i].getLat() + "," + input[i].getTime() + "," + input[i].getNLon() + "," + input[i].getNLat() +"),";  
 		}
-		values += "(" + ID + ","+ Longs[Longs.length-1] + "," + Lats[Longs.length-1] + ");";
+		values += "(" + ID + ","+ input[input.length-1].getLon() + "," + input[input.length-1].getLat() + "," + input[input.length-1].getTime() + "," + input[input.length-1].getNLon() + "," + input[input.length-1].getNLat() +");";
 		
 		System.out.println(values);
 		

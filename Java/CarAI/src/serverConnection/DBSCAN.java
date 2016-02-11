@@ -23,17 +23,14 @@ public class DBSCAN {
     volatile ArrayList<DatabaseLocation>[] clusters;
 	
     /**
-     * @param longs	An ArrayList of Double that details the longitudes.
-     * @param lats An ArrayList of Double that details the latitudes.
+     * @param input A ArrayList of a Class object that extends DatabaseLocation such that it has long and lat coordinates, it can have any number of other parameters.
      * @param star If set to true an R*Tree will be used instead of a RTree, gives better search at the cost of more expensive creation and inserts. 
      * @throws Error This error is thrown if the ArrayLists have different length
      *  or one of them is zero.
      * 
-     * The DBSCAN constructor constructs an R*Tree from points detailed in the
-     * two lists of coordinates, longs for longitude and lats for latitudes.
-     * The coordinates are indexed based and both lists must be the same length
-     * otherwise an generic Error it thrown "longs and lats has to have the same
-     * length".
+     * The DBSCAN constructor constructs an RTree or R*Tree from points detailed in the
+     * classes that extends DatabaseLocation.
+     * If star is set to True it will be a R*Tree, if it is set to false it will be a RTree 
      * The time complexity is O(n^2* log n) for R*Tree and O(n^2) for RTree
      */
 
@@ -76,10 +73,10 @@ public class DBSCAN {
 	}
 	/**
 	 * @param IncludeUnclusterd If set to True it will return the unclustered "noise points" as cluster number zero" 
-	 * @return Returns an Array of ArrayList of Tuples of Doubles where each ArrayList is a cluster thats made upp of points described by Tuples.
+	 * @return Returns an Array of ArrayList DatabaseLocation that contains among other things a point in (long,lat).
 	 * 
 	 * getClusterd Is the way which one gets information from the DBSCAN class.
-	 * This method goes through each entry ones so it has a ordo O(n).
+	 * This method goes through each entry ones so it has a O(n).
 	 */
 	public ArrayList<DatabaseLocation>[] getClusterd(boolean IncludeUnclusterd)
 	{
@@ -94,7 +91,7 @@ public class DBSCAN {
 		else
 		{
 			OneOrZero=1;
-		    nClust=c;	
+		    nClust=c;
 		}
 		
 		clusters = (ArrayList<DatabaseLocation>[])new ArrayList[nClust];
