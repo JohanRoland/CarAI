@@ -1,5 +1,7 @@
 package utils;
 
+import java.util.Objects;
+
 /**
  * 
  * @author Johan Ekdahl
@@ -50,7 +52,8 @@ public class Tuple<T,F>
 	
 	public int hashCode()
 	{
-		return Math.floorMod(a.hashCode()*17+b.hashCode()*31,Integer.MAX_VALUE) ; 
+		
+		return Objects.hash(a,b);// Math.floorMod(a.hashCode()*17+b.hashCode()*31,Integer.MAX_VALUE) ; 
 	}
 	
 	public boolean equals(Object obj)
@@ -61,7 +64,7 @@ public class Tuple<T,F>
 			return true; 
 		
 		Tuple rhs = (Tuple) obj;
-		if(rhs.a == this.a && rhs.b == this.b)
+		if(rhs.a.equals(this.a) && rhs.b.equals(this.b))
 			return true;
 		
 		return false;

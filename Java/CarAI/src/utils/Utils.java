@@ -17,7 +17,7 @@ public class Utils {
 		}
 		t1[0] /= in.size();
 		t1[1] /= in.size();
-		return new Tuple<Double,Double>(t1[0],t1[1]);
+		return new Tuple<Double,Double>(Math.floor(t1[0]*100000)/100000,Math.floor(t1[1]*100000)/100000);
 	}
 	
 }

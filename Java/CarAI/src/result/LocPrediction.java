@@ -63,10 +63,10 @@ public class LocPrediction {
 		
 		NNData nd = new NNData();
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
-		
-		nd.importFromDB();
 		//nd.exportToDB();
-		//nd.exportToCSV();
+		nd.importFromDB();
+		
+		nd.exportToCSV();
 			
 		
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
@@ -152,17 +152,18 @@ public class LocPrediction {
 		{
 			ServerConnection b;
 			b= new ServerConnection("mydb","3306","192.168.1.26" , "car", "RigedyRigedyrektSon");
-			
+			int di =0;
+			int dj =0;
 			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) 
 			{
 				ArrayList<DatabaseLocation> querry = b.getPosClass(0);
 				
 				
 				DBSCAN s = new DBSCAN(querry, false);	
-				int temp = s.cluster(0.001, 2);
+				int temp = s.cluster(0.01, 2);
 				
 				
-				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(true);
+				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(false);
 				HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
 				HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();
 				
@@ -196,23 +197,27 @@ public class LocPrediction {
 					{
 						double[] pos = {temp2[i].get(j).getLat(),temp2[i].get(j).getLon(),temp2[i].get(j).getTime()};
 						double[] dest = {temp2[i].get(j).getNLat(),temp2[i].get(j).getNLon()};
+						Tuple<Double,Double> dst = new Tuple<Double,Double>(temp2[i].get(j).getNLat(),temp2[i].get(j).getNLon());
+						Tuple<Double,Double> meanDst = hs.get(dst);
+						di = i;
+						dj = j; 
 						if(i == 0)
 						{
 							input.add(pos);
-							Tuple<Double,Double> dst = new Tuple<Double,Double>(temp2[i].get(j).getNLat(),temp2[i].get(j).getNLon()); 
-							dest[0] = hs.get(dst).fst();
-							dest[1] = hs.get(dst).snd();
+							 
+							dest[0] = meanDst.fst();
+							dest[1] = meanDst.snd();
 							output.add(dest);
 						}
-						else if(clust.get(hs.get(temp2[i].get(j))) != i)
+						else if(clust.get(meanDst) != i)
 						{
 							Tuple<Double,Double> coord = new Tuple<Double,Double>(temp2[i].get(j).getLat(),temp2[i].get(j).getLon());
 							pos[0] = hs.get(coord).fst();
 							pos[1] = hs.get(coord).snd();
 							
 							input.add(pos);
-							dest[0] = hs.get(dest).fst();
-							dest[1] = hs.get(dest).snd();
+							dest[0] = meanDst.fst();
+							dest[1] = meanDst.snd();
 							output.add(dest);
 						}
 					}
@@ -298,8 +303,8 @@ public class LocPrediction {
 			{
 				for(int i = 0; i < input.size();i++)
 				{
-					writer.write(input.get(i)[0] + " " + input.get(i)[1] + " " + input.get(i)[2] + " " 
-							+ output.get(i)[0] + " " + output.get(i)[1] + "\n");
+					writer.write(input.get(i)[1] + " " + input.get(i)[0] + " " + input.get(i)[2] + " " 
+							+ output.get(i)[1] + " " + output.get(i)[0] + "\n");
 				}
 			}catch(Exception e)
 			{
