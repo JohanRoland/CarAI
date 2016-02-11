@@ -52,17 +52,8 @@ public class Main
     		}
     		else if(args[0].equals("4"))
     		{
-    			ServerConnection a;
-    			a= new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
-    			double[] b = {2,7};
-    			double[] c = {3,3};
-    			try {
-					a.replacePosData(1,b,c);
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
+    			
+    		}
     		else if(args[0].equals("5"))
     		{
     			/*
@@ -91,10 +82,10 @@ public class Main
     			
     			
     			DBSCAN s = new DBSCAN(longLat, false);	
-    			int temp = s.cluster(0.01, 1);
+    			int temp = s.cluster(0.01, 5);
     			
     			
-    				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(true);
+    				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(false);
     				int count=0;
     				for(ArrayList<DatabaseLocation> str : temp2)
     				{
@@ -117,10 +108,10 @@ public class Main
     				for(int i=count; i>1;i--)
     				{
     					out.print("x"+i+" ,");
-    					out.print("y"+i+" ,");
+    					out.print("y"+i+",'o' ,");
     				}
     				out.print("x1,");
-					out.print("y1)");
+					out.print("y1,'o')");
     				
     			/*} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
