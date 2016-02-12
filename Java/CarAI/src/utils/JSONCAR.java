@@ -32,6 +32,11 @@ public class JSONCAR {
 	{
 		DRIVER = b;
 	}
+	
+	public String toString()
+	{
+		return "DRIVER: " + DRIVER + ", PASSENGER: " + PASSENGER + ", BACKSEAT: " + BACKSEAT0 +", BACKSEAT1: " + BACKSEAT1; 
+	}
 }
 
 

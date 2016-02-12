@@ -73,7 +73,8 @@ public class CarInterface implements MQTTInterface
 			{
 				Gson gs = new Gson(); 
 				JSONCAR carjs =  gs.fromJson(new String(arg1.getPayload()), JSONCAR.class );
-				car.setCar(carjs);
+				System.out.println(carjs.toString());
+				//car.setCar(carjs);
 			}
 		}
 	}

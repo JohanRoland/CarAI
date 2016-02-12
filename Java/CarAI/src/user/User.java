@@ -1,5 +1,7 @@
 package user;
 
+import java.util.ArrayList;
+
 import serverConnection.ServerConnection;
 
 public class User {
@@ -11,18 +13,12 @@ public class User {
 	//Database related
 	ServerConnection sc;
 	
-	public User(String name)
+	public User(String id)
 	{
 		sc = ServerConnection.getInstance();
 		
-		if(!querryUser())
-		{
-			createNewUser();
-		}
-		else
-		{
-			importFromDB();
-		}
+		importFromDB(id);
+		
 	}
 	
 	public int getUserID()
@@ -52,8 +48,23 @@ public class User {
 		
 	}
 	
-	private void importFromDB()
+	private boolean importFromDB(String id)
 	{
-		
+		try{
+			ArrayList<String> userData = sc.getUserData(id);
+			if(userData != null)
+			{
+				userID = Integer.parseInt(userData.get(0)); 
+				userName = userData.get(1);
+			}
+			
+			return true; 
+		}
+		catch(Exception e)
+		{
+			System.out.println("Exception fetchin user "+ id);
+			System.exit(-1);
+		}
+		return false;
 	}
 }

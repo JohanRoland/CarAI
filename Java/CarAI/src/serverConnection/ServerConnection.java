@@ -177,6 +177,31 @@ public class ServerConnection {
 		
 	}
 	
+	public void addUserData(String name) throws SQLException
+	{
+		Statement stmt = (Statement) connection.createStatement();
+		stmt.executeQuery("CALL createUser('"+ name +"')");
+		stmt.close();
+	}
+	
+	public ArrayList<String> getUserData(String id) throws SQLException
+	{
+		Statement stmt = (Statement) connection.createStatement();
+		ResultSet rs =  stmt.executeQuery("CALL getUser("+ id +")");
+		
+		ArrayList<String> out = new ArrayList<String>();
+		
+		while(rs.next())
+		{
+			out.add(rs.getString("ID"));
+			out.add(rs.getString("UName"));
+		}
+		stmt.close();
+		
+		return out;
+	}
+	
+	
 	
 	public static class DBQuerry implements DatabaseLocation
 	{
