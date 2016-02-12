@@ -25,6 +25,8 @@ import org.opencv.face.*;
 
 import com.google.gson.*;
 
+import utils.JSONCAR;
+
 @SuppressWarnings("unused")
 public class FaceRecognition
 {
@@ -572,7 +574,7 @@ public class FaceRecognition
     	public String exportJSONPerson()
     	{
     		Gson g = new Gson();
-    		return g.toJson(new JSONCV(internal[0],internal[1],internal[2],internal[3]));
+    		return g.toJson(new JSONCAR(internal[0],internal[1],internal[2],internal[3]));
     	}
     	
     	public String getSeatName(int i)
@@ -581,21 +583,6 @@ public class FaceRecognition
     	}
     }
     
-    private static class JSONCV
-    {
-    	public String DRIVER = "";
-    	public String PASSENGER = "";
-		public String BACKSEAT0 = "";
-    	public String BACKSEAT1 = "";
-    	
-    	public JSONCV(String d,String p,String b0,String b1)
-    	{
-    		DRIVER = d;
-    		PASSENGER = p;
-    		BACKSEAT0 = b0;
-    		BACKSEAT1 = b1;
-    	}
-    }
     public class Csv
     {
     	private ArrayList<Mat> imgs = new ArrayList<Mat>();

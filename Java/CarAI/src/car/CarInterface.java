@@ -1,4 +1,4 @@
-package result;
+package car;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
@@ -8,20 +8,26 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-import interfaces.MQTTInterface;
+import com.google.gson.*;
 
-class CarInterface implements MQTTInterface
+import interfaces.MQTTInterface;
+import utils.JSONCAR;
+
+public class CarInterface implements MQTTInterface
 {
 	MqttAsyncClient client;
 	MqttConnectOptions connOpts;
 	
 	String utopic = "carai/car";
+	String ftopic = "carai/face/car";
 	String content = "Java to car interface";
 	String clientId = "CarIf";
 	
+	Car car; 
+	
 	public CarInterface()
 	{
-		
+		car = Car.getInstance(); 
 		MemoryPersistence persistence = new MemoryPersistence();
 		
 		try{
@@ -29,7 +35,12 @@ class CarInterface implements MQTTInterface
 			connOpts = new MqttConnectOptions();
 	        connOpts.setCleanSession(true);
 	        client.connect();
-	        client.subscribe(utopic,0);
+	        client.setCallback(new Callback());
+	        while(!client.isConnected()){}
+	      //client.subscribe(utopic,0);
+	        client.subscribe(ftopic, 0);
+	        
+	        
 		}
 		catch(MqttException me) {
 			System.out.println("reason "+me.getReasonCode());
@@ -58,7 +69,12 @@ class CarInterface implements MQTTInterface
 		@Override
 		public void messageArrived(String arg0, MqttMessage arg1) throws Exception {
 			// TODO Auto-generated method stub
-			
+			if(arg0.equals(ftopic))
+			{
+				Gson gs = new Gson(); 
+				JSONCAR carjs =  gs.fromJson(new String(arg1.getPayload()), JSONCAR.class );
+				car.setCar(carjs);
+			}
 		}
 	}
 	

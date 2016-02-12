@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import car.CarInterface;
 import facerecognition.FaceMQTT;
 import interfaces.DatabaseLocation;
 import result.LocPrediction;
@@ -39,6 +40,7 @@ public class Main
     			System.out.println("FaceRecognition debug");
     			
     			FaceMQTT f = new FaceMQTT();
+    			CarInterface cf = new CarInterface();
     			
     			//FaceRecognition f = new FaceRecognition();
     	    	//f.start(true);

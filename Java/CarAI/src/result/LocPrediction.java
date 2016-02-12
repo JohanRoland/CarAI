@@ -66,7 +66,7 @@ public class LocPrediction {
 		NNData nd = new NNData();
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 		//nd.exportToDB();
-		//nd.importFromDB();
+		nd.importFromDB();
 		
 		//nd.exportToCSV();
 			
