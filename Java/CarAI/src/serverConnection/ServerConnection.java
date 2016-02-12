@@ -19,6 +19,8 @@ import utils.Tuple;
  */
 public class ServerConnection {
 	Connection connection;
+	
+	private static ServerConnection instance; 
 	/**
 	 * @param serverName The name of the database
 	 * @param serverPort The servers port
@@ -29,7 +31,7 @@ public class ServerConnection {
 	 * The constructor creates an connection thats stored in the class object.
 	 * 
 	 */
-	public ServerConnection(String serverName, String serverPort, String serverLocation, String userName, String Password)
+	private ServerConnection(String serverName, String serverPort, String serverLocation, String userName, String Password)
 	{
 		
 		try {
@@ -42,6 +44,24 @@ public class ServerConnection {
 		    throw new IllegalStateException("Cannot connect the database!", e);
 		}
 	}
+	
+	private ServerConnection()
+	{
+		this("mydb","3306","192.168.1.26" , "car", "RigedyRigedyrektSon");
+	}
+	
+	public static ServerConnection getInstance()
+	{
+		if(instance == null)
+		{
+			instance = new ServerConnection();
+		}
+		
+		return instance;
+		
+	}
+	
+	
 	/**
 	 * 
 	 * @param request the mySQL code to be executed

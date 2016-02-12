@@ -75,8 +75,8 @@ public class Main
 					        	break;
 					    }
 				*/
-    			ServerConnection b;
-    			b= new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
+    			ServerConnection b = ServerConnection.getInstance();
+    			//b= new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
     			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) {
     			ArrayList<DatabaseLocation> longLat = b.getPosClass(0);
     			

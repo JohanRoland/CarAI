@@ -66,9 +66,9 @@ public class LocPrediction {
 		NNData nd = new NNData();
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 		//nd.exportToDB();
-		nd.importFromDB();
+		//nd.importFromDB();
 		
-		nd.exportToCSV();
+		//nd.exportToCSV();
 			
 		String[] descreteMTime = numArray(60);
 		String[] descreteHTime = numArray(24);
@@ -203,8 +203,8 @@ public class LocPrediction {
 		
 		public void importFromDB()
 		{
-			ServerConnection b;
-			b= new ServerConnection("mydb","3306","192.168.1.26" , "car", "RigedyRigedyrektSon");
+			ServerConnection b = ServerConnection.getInstance();
+			//b= new ServerConnection();
 			int di =0;
 			int dj =0;
 			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) 
@@ -395,7 +395,7 @@ public class LocPrediction {
 		
 		public void exportToDB()
 		{
-			ServerConnection sc = new ServerConnection("mydb","3306","192.168.1.26" , "car", "RigedyRigedyrektSon");
+			ServerConnection sc =  ServerConnection.getInstance(); //new ServerConnection();
 			ArrayList<DBQuerry> querry = new ArrayList<DBQuerry>();
 			
 			try {
