@@ -66,7 +66,7 @@ public class LocPrediction {
 		NNData nd = new NNData();
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 		//nd.exportToDB();
-		nd.importFromDB();
+		nd.importFromDB(1);
 		
 		//nd.exportToCSV();
 			
@@ -156,6 +156,88 @@ public class LocPrediction {
 		Encog.getInstance().shutdown();
 	}
 	
+	public LocPrediction(int id)
+	{
+		CSVFormat format = new CSVFormat('.',' ');
+		
+		NNData nd = new NNData();
+		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
+		//nd.exportToDB();
+		nd.importFromDB(id);
+		
+		nd.exportToCSV();
+			
+		String[] descreteMTime = numArray(60);
+		String[] descreteHTime = numArray(24);
+ 		String[] descreteClust = numArray(nd.nrCluster);
+		
+		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
+		VersatileMLDataSet data =  new VersatileMLDataSet(source);
+
+		data.getNormHelper().setFormat(format); 
+
+		ColumnDefinition columnInClust = data.defineSourceColumn("pos",0,ColumnType.nominal);		
+		ColumnDefinition columnHTime = data.defineSourceColumn("hours",1,ColumnType.ordinal);
+		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.ordinal);
+		ColumnDefinition columnOutClust = data.defineSourceColumn("opos",3,ColumnType.nominal);
+		
+		columnInClust.defineClass(descreteClust);
+		columnMTime.defineClass(descreteMTime);
+		columnHTime.defineClass(descreteHTime);
+		columnOutClust.defineClass(descreteClust);
+		data.getNormHelper().defineUnknownValue("?");
+		data.analyze();
+
+		data.defineInput(columnInClust);
+		data.defineInput(columnHTime);
+		data.defineInput(columnMTime);
+		data.defineOutput(columnOutClust);
+		
+		EncogModel model = new EncogModel(data);
+		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
+		
+		model.setReport(new ConsoleStatusReportable());
+		
+		data.normalize();
+		
+		model.holdBackValidation(0.3, true, 1001);
+		model.selectTrainingType(data);
+		MLRegression bestMethod = (MLRegression)model.crossvalidate(5, true);
+		
+		
+		System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
+		System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
+		NormalizationHelper helper = data.getNormHelper();
+		System.out.println(helper.toString());
+		System.out.println("Final model: " + bestMethod);
+		
+		ReadCSV csv = new ReadCSV(new File("coords.csv"),false,format);
+		String[] line = new String[4];
+		MLData input = helper.allocateInputVector();
+		
+		while(csv.next())
+		{
+			StringBuilder result = new StringBuilder();
+			for(int i = 0; i < 4; i++)
+				line[i] = csv.get(i);
+			
+			helper.normalizeInputVector(line,input.getData(),false);
+			MLData output = bestMethod.compute(input);
+			String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
+			result.append("[" + line[0]+ " ( " + nd.viewClustPos.get(Integer.parseInt(line[0])) + ")"+ ", " + line[1]+ ", " + line[2]+ "] ");
+			result.append(" -> predicted: ");
+			result.append(irisChoosen0 + " ( " + nd.viewClustPos.get(Integer.parseInt(irisChoosen0)) + ")");
+			result.append(" (correct: ");
+			result.append(csv.get(3)+ " ( " + nd.viewClustPos.get(Integer.parseInt(csv.get(3))) + ")"+ ") ");
+			result.append("Err: " + dispError(irisChoosen0,csv.get(3)));
+			System.out.println(result.toString());
+		}
+		
+		
+		Encog.getInstance().shutdown();
+	}
+	
+	
 	private String dispError(String x, String y)
 	{
 		
@@ -171,6 +253,13 @@ public class LocPrediction {
 		
 		return out;
 				
+	}
+	
+	public static void updateDB(int id)
+	{
+		/*NNData nd = new NNData();
+		nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
+		nd.exportToDB(id);*/
 	}
 	
 	private class NNData
@@ -201,7 +290,7 @@ public class LocPrediction {
 			nrCluster = 0;
 		}
 		
-		public void importFromDB()
+		public void importFromDB(int id)
 		{
 			ServerConnection b = ServerConnection.getInstance();
 			//b= new ServerConnection();
@@ -209,7 +298,7 @@ public class LocPrediction {
 			int dj =0;
 			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) 
 			{
-				ArrayList<DatabaseLocation> querry = b.getPosClass(0);
+				ArrayList<DatabaseLocation> querry = b.getPosClass(id);
 				
 				
 				DBSCAN s = new DBSCAN(querry, false);	
@@ -393,7 +482,7 @@ public class LocPrediction {
 			}
 		}
 		
-		public void exportToDB()
+		public void exportToDB(int id)
 		{
 			ServerConnection sc =  ServerConnection.getInstance(); //new ServerConnection();
 			ArrayList<DBQuerry> querry = new ArrayList<DBQuerry>();
@@ -405,7 +494,7 @@ public class LocPrediction {
 					
 				}
 				DBQuerry[] sendDB = querry.toArray(new DBQuerry[querry.size()]);
-				sc.replacePosData(0, sendDB );
+				sc.replacePosData(id, sendDB );
 				//sc.addPosData(0, input.get(i)[0], input.get(i)[1], input.get(i)[2], output.get(i)[0], output.get(i)[1]);
 			} catch (SQLException e) {
 				e.printStackTrace();

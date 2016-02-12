@@ -11,6 +11,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import com.google.gson.*;
 
 import interfaces.MQTTInterface;
+import result.LocPrediction;
 import utils.JSONCAR;
 
 public class CarInterface implements MQTTInterface
@@ -74,7 +75,18 @@ public class CarInterface implements MQTTInterface
 				Gson gs = new Gson(); 
 				JSONCAR carjs =  gs.fromJson(new String(arg1.getPayload()), JSONCAR.class );
 				System.out.println(carjs.toString());
-				//car.setCar(carjs);
+				LocPrediction lp;
+				car.setCar(carjs);
+				if(car.getUser("DRIVER") != null)
+					lp = new LocPrediction(car.getUser("DRIVER").getUserID());
+				if(car.getUser("PASSENGER") != null)
+					lp = new LocPrediction(car.getUser("PASSENGER").getUserID());
+				if(car.getUser("BACKSEAT0") != null)
+					lp = new LocPrediction(car.getUser("BACKSEAT0").getUserID());
+				if(car.getUser("BACKSEAT1") != null)
+					lp = new LocPrediction(car.getUser("BACKSEAT1").getUserID());
+				
+				
 			}
 		}
 	}
