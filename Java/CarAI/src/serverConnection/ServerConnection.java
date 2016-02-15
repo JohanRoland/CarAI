@@ -49,7 +49,7 @@ public class ServerConnection {
 	
 	private ServerConnection()
 	{
-		this("mydb","3306","192.168.1.1" , "car", "RigedyRigedyrektSon");
+		this("mydb","3306","192.168.1.30" , "car", "RigedyRigedyrektSon");
 	}
 	
 	public static ServerConnection getInstance()
@@ -183,7 +183,7 @@ public class ServerConnection {
 	{
 		
 		
-		java.sql.CallableStatement cs = connection.prepareCall("CALL createUser(? , ?);}");
+		java.sql.CallableStatement cs = connection.prepareCall("CALL createUser(? , ?)");
 		cs.setString(1, name);
 		cs.registerOutParameter(2, Types.VARCHAR);
 		cs.executeQuery();
