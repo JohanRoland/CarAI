@@ -63,6 +63,8 @@ public class LocPrediction {
 	int nrCols = 5;
 	public double sampleIn[][] = {{0.0,0.0},{1.0,0.0},{0.0,1.0},{1.0,1.0}};
 	public double sampleOut[][] = {{0.0},{1.0},{1.0},{0.0}};
+	
+	public Tuple<Double,Double> predictedLoc; 
 	public LocPrediction()
 	{
 		CSVFormat format = new CSVFormat('.',' ');
@@ -161,6 +163,7 @@ public class LocPrediction {
 	
 	public LocPrediction(int id)
 	{
+		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
 		CSVFormat format = new CSVFormat('.',' ');
 		
 		NNData nd = new NNData();
@@ -206,9 +209,9 @@ public class LocPrediction {
 			
 			data.normalize();
 			
-			model.holdBackValidation(0.3, true, 1001);
+			model.holdBackValidation(0.3, false, 1001);
 			model.selectTrainingType(data);
-			MLRegression bestMethod = (MLRegression)model.crossvalidate(5, true);
+			MLRegression bestMethod = (MLRegression)model.crossvalidate(5, false);
 			
 			
 			System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
@@ -241,7 +244,6 @@ public class LocPrediction {
 			result.append(irisChoosen0 + " ( " + nd.viewClustPos.get(Integer.parseInt(irisChoosen0)) + ")");
 			System.out.println(result.toString());
 			/*
-			
 			while(csv.next())
 			{
 				StringBuilder result = new StringBuilder();
@@ -259,6 +261,8 @@ public class LocPrediction {
 				result.append("Err: " + dispError(irisChoosen0,csv.get(3)));
 				System.out.println(result.toString());
 			}*/
+			
+			predictedLoc= nd.viewClustPos.get(Integer.parseInt(irisChoosen0));
 		}
 		Encog.getInstance().shutdown();
 	}

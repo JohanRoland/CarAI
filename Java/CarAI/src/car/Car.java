@@ -9,11 +9,14 @@ import utils.Tuple;
 
 public class Car {
 
-	public enum Positions {DRIVER, PASSENGER, BACKSEAT0 , BACKSEAT1};
 	public static Car instance;
-	public Tuple<Double,Double> position;
 	
+	public enum Positions {DRIVER, PASSENGER, BACKSEAT0 , BACKSEAT1};
+	
+	public Tuple<Double,Double> position;
 	private HashMap<Positions,User> users;
+	
+	
 	private Car(){
 		users = new HashMap<Positions,User>();		
 		position = new Tuple<Double,Double>(0.0,0.0);
@@ -63,7 +66,6 @@ public class Car {
 		users.put(Positions.PASSENGER,new User(car.PASSENGER));
 		users.put(Positions.BACKSEAT0,new User(car.BACKSEAT0));
 		users.put(Positions.BACKSEAT1,new User(car.BACKSEAT1));
-		System.out.println("Passengers updated" + users.toString());
 	}
 	
 	public synchronized void setPos(Double lon,Double lat) 

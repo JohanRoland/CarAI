@@ -77,16 +77,29 @@ public class CarInterface implements MQTTInterface
 			{
 				Gson gs = new Gson(); 
 				JSONCAR carjs =  gs.fromJson(new String(arg1.getPayload()), JSONCAR.class );
+				System.out.println(carjs.toString());
 				LocPrediction lp;
 				car.setCar(carjs);
 				if(car.getUser("DRIVER").userExists())
+				{
 					lp = new LocPrediction(car.getUser("DRIVER").getUserID());
+					client.publish("carai/car/driverPred", new MqttMessage(("\"lon\":\""+lp.predictedLoc.fst()+"\",\"lat\":\""+lp.predictedLoc.snd() +"\"").getBytes()));
+				}
 				if(car.getUser("PASSENGER").userExists())
+				{
 					lp = new LocPrediction(car.getUser("PASSENGER").getUserID());
+					client.publish("carai/car/passPred", new MqttMessage(("\"lon\":\""+lp.predictedLoc.fst()+"\",\"lat\":\""+lp.predictedLoc.snd() +"\"").getBytes()));
+				}
 				if(car.getUser("BACKSEAT0").userExists())
+				{
 					lp = new LocPrediction(car.getUser("BACKSEAT0").getUserID());
+					client.publish("carai/car/back0Pred", new MqttMessage(("\"lon\":\""+lp.predictedLoc.fst()+"\",\"lat\":\""+lp.predictedLoc.snd() +"\"").getBytes()));
+				}
 				if(car.getUser("BACKSEAT1").userExists())
-					lp = new LocPrediction(car.getUser("BACKSEAT1").getUserID());	
+				{
+					lp = new LocPrediction(car.getUser("BACKSEAT1").getUserID());
+					client.publish("carai/car/back1Pred", new MqttMessage(("\"lon\":\""+lp.predictedLoc.fst()+"\",\"lat\":\""+lp.predictedLoc.snd() +"\"").getBytes()));
+				}
 			}
 			if(arg0.equals(gpstopic))
 			{
