@@ -119,16 +119,31 @@ public class DBSCAN {
 	{
 		Observable<Entry<PointInSpace, Geometry>> res = points.search(Geometries.circle(point.fst(), point.snd(), rad));
 		
-		ArrayList<Integer> i = new ArrayList<Integer>();
-		i.add(0);
-		if(!res.isEmpty().toBlocking().first())
-			res.map(g-> g.value().getCluster()).toSortedList().last().forEach(e->i.set(0, e.get(0)));
+		ArrayList<Integer> clustC = new ArrayList<Integer>();
+		for(int i2=0;i2<(c+1);i2++)
+			clustC.add(0);
 		
 		
-		return i.get(0);
+		if(!res.isEmpty().toBlocking().last())
+			res.forEach(g -> clustC.set(g.value().getCluster(), clustC.get(g.value().getCluster())+1));
+		
+		
+		
+		return gG(clustC);
 		
 	}
-	
+	private int gG(ArrayList<Integer> in)
+	{
+		int temp=0,index=0;
+		for(int i=0; i<in.size();i++)
+			if(in.get(i)!=0 && in.get(i)>temp)
+			{
+				temp=in.get(i);
+				index=i;
+			}
+		
+		return index;
+	}
 	/**
 	 * @param epsilon Details the maximum distance between points that are to be considerd naibors
 	 * @param minPoints Details the minimum number of neighbors a point has to have for it to be able to add points to the cluster.
