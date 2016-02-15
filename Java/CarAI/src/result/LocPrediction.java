@@ -255,11 +255,11 @@ public class LocPrediction {
 				
 	}
 	
-	public void updateDB(int id)
+	public static void updateDB(int id)
 	{
-		NNData nd = new NNData();
+		/*NNData nd = new NNData();
 		nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
-		nd.exportToDB(id);
+		nd.exportToDB(id);*/
 	}
 	
 	private class NNData
@@ -303,9 +303,7 @@ public class LocPrediction {
 				
 				DBSCAN s = new DBSCAN(querry, false);	
 				int temp = s.cluster(0.01, 2);
-				
-				 System.out.println(s.associateCluster(new Tuple<Double,Double>(57.69661,11.97575),0.01));
-				
+					
 				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(true);
 				HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
 				HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();
