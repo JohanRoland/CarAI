@@ -77,7 +77,6 @@ public class CarInterface implements MQTTInterface
 			{
 				Gson gs = new Gson(); 
 				JSONCAR carjs =  gs.fromJson(new String(arg1.getPayload()), JSONCAR.class );
-				System.out.println(carjs.toString());
 				LocPrediction lp;
 				car.setCar(carjs);
 				if(car.getUser("DRIVER").userExists())
