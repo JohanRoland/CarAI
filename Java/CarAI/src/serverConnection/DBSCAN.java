@@ -1,5 +1,6 @@
 package serverConnection;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.github.davidmoten.rtree.Entry;
 import com.github.davidmoten.rtree.RTree;
@@ -112,6 +113,20 @@ public class DBSCAN {
 		}
 		
 		return clusters;
+	}
+
+	public int associateCluster(Tuple<Double,Double> point,double rad)
+	{
+		Observable<Entry<PointInSpace, Geometry>> res = points.search(Geometries.circle(point.fst(), point.snd(), rad));
+		
+		ArrayList<Integer> i = new ArrayList<Integer>();
+		i.add(0);
+		if(!res.isEmpty().toBlocking().first())
+			res.map(g-> g.value().getCluster()).toSortedList().last().forEach(e->i.set(0, e.get(0)));
+		
+		
+		return i.get(0);
+		
 	}
 	
 	/**

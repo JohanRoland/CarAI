@@ -323,6 +323,7 @@ public class LocPrediction {
 				DBSCAN s = new DBSCAN(querry, false);	
 				int temp = s.cluster(0.01, 2);
 				
+				 System.out.println(s.associateCluster(new Tuple<Double,Double>(57.69661,11.97575),0.01));
 				
 				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(true);
 				HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
