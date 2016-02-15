@@ -3,8 +3,10 @@ package serverConnection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 
+import com.mysql.jdbc.CallableStatement;
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.Statement;
 
@@ -39,7 +41,7 @@ public class ServerConnection {
 			System.out.println(url);
 			connection = (Connection) DriverManager.getConnection(url, userName, Password);
 
-			System.out.println("Weeeee");
+			System.out.println("Connected witout a hitch");
 		} catch (SQLException e) {
 		    throw new IllegalStateException("Cannot connect the database!", e);
 		}
@@ -47,7 +49,7 @@ public class ServerConnection {
 	
 	private ServerConnection()
 	{
-		this("mydb","3306","192.168.1.26" , "car", "RigedyRigedyrektSon");
+		this("mydb","3306","192.168.1.1" , "car", "RigedyRigedyrektSon");
 	}
 	
 	public static ServerConnection getInstance()
@@ -177,11 +179,15 @@ public class ServerConnection {
 		
 	}
 	
-	public void addUserData(String name) throws SQLException
+	public long addUserData(String name) throws SQLException
 	{
-		Statement stmt = (Statement) connection.createStatement();
-		stmt.executeQuery("CALL createUser('"+ name +"')");
-		stmt.close();
+		
+		
+		java.sql.CallableStatement cs = connection.prepareCall("CALL createUser(? , ?);}");
+		cs.setString(1, name);
+		cs.registerOutParameter(2, Types.VARCHAR);
+		cs.executeQuery();
+		return cs.getInt(2);
 	}
 	
 	public ArrayList<String> getUserData(String id) throws SQLException
