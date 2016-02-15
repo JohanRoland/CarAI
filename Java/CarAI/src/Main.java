@@ -54,6 +54,14 @@ public class Main
     		}
     		else if(args[0].equals("4"))
     		{
+    			ServerConnection sc= ServerConnection.getInstance();
+    			
+    			try {
+					System.out.println("Created ID: " +sc.addUserData("Johan"));
+				} catch (SQLException e) {
+					System.out.println("You SUCK!!");
+					e.printStackTrace();
+				}
     			
     		}
     		else if(args[0].equals("5"))
