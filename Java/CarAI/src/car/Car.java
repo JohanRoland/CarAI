@@ -15,12 +15,7 @@ public class Car {
 	
 	private HashMap<Positions,User> users;
 	private Car(){
-		users = new HashMap<Positions,User>();
-		for(Positions p : Positions.values() )
-		{
-			users.put(p, null);
-		}
-		
+		users = new HashMap<Positions,User>();		
 		position = new Tuple<Double,Double>(0.0,0.0);
 	}
 	
@@ -51,7 +46,10 @@ public class Car {
 	
 	public synchronized User getUser(String position)
 	{
-		return users.get(getSeatPosition(position));
+		if(users.containsKey(getSeatPosition(position)))
+			return users.get(getSeatPosition(position));
+		else
+			return null; 
 	}
 	
 	public synchronized void setUser(String pos, String usr)

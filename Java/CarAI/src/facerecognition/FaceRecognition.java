@@ -238,7 +238,7 @@ public class FaceRecognition
     		
     		String nameString;
     		if(pred[0] < 0)
-    			nameString = "Unknown";
+    			nameString = "0";
     		else
     			nameString = pers.get(pred[0]).getName();
     		String textBox = "P = " + nameString + " C =" + new DecimalFormat("#.##").format(conf[0]); 

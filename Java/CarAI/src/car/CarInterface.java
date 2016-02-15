@@ -80,13 +80,13 @@ public class CarInterface implements MQTTInterface
 				System.out.println(carjs.toString());
 				LocPrediction lp;
 				car.setCar(carjs);
-				if(car.getUser("DRIVER") != null)
+				if(car.getUser("DRIVER").userExists())
 					lp = new LocPrediction(car.getUser("DRIVER").getUserID());
-				if(car.getUser("PASSENGER") != null)
+				if(car.getUser("PASSENGER").userExists())
 					lp = new LocPrediction(car.getUser("PASSENGER").getUserID());
-				if(car.getUser("BACKSEAT0") != null)
+				if(car.getUser("BACKSEAT0").userExists())
 					lp = new LocPrediction(car.getUser("BACKSEAT0").getUserID());
-				if(car.getUser("BACKSEAT1") != null)
+				if(car.getUser("BACKSEAT1").userExists())
 					lp = new LocPrediction(car.getUser("BACKSEAT1").getUserID());	
 			}
 			if(arg0.equals(gpstopic))
