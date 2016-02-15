@@ -13,6 +13,7 @@ import com.google.gson.*;
 import interfaces.MQTTInterface;
 import result.LocPrediction;
 import utils.JSONCAR;
+import utils.Tuple;
 
 public class CarInterface implements MQTTInterface
 {
@@ -21,6 +22,8 @@ public class CarInterface implements MQTTInterface
 	
 	String utopic = "carai/car";
 	String ftopic = "carai/face/car";
+	String gpstopic = "carai/car/gps";
+	
 	String content = "Java to car interface";
 	String clientId = "CarIf";
 	
@@ -40,7 +43,7 @@ public class CarInterface implements MQTTInterface
 	        while(!client.isConnected()){}
 	      //client.subscribe(utopic,0);
 	        client.subscribe(ftopic, 0);
-	        
+	        client.subscribe(gpstopic,0);
 	        
 		}
 		catch(MqttException me) {
@@ -58,7 +61,7 @@ public class CarInterface implements MQTTInterface
 		@Override
 		public void connectionLost(Throwable arg0) {
 			// TODO Auto-generated method stub
-			
+			System.out.println("CarInterface mqtt connection closed");
 		}
 
 		@Override
@@ -84,10 +87,16 @@ public class CarInterface implements MQTTInterface
 				if(car.getUser("BACKSEAT0") != null)
 					lp = new LocPrediction(car.getUser("BACKSEAT0").getUserID());
 				if(car.getUser("BACKSEAT1") != null)
-					lp = new LocPrediction(car.getUser("BACKSEAT1").getUserID());
-				
-				
+					lp = new LocPrediction(car.getUser("BACKSEAT1").getUserID());	
 			}
+			if(arg0.equals(gpstopic))
+			{
+				Gson gs = new Gson();
+				Tuple<String,String> gpsPos = gs.fromJson(new String(arg1.getPayload()), Tuple.class);
+				System.out.println("x: " + gpsPos.fst() + " y: " + gpsPos.snd());
+				car.setPos(Double.parseDouble(gpsPos.fst()),Double.parseDouble( gpsPos.snd()));
+			}
+
 		}
 	}
 	
