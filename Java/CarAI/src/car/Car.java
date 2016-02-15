@@ -66,10 +66,10 @@ public class Car {
 		System.out.println("Passengers updated" + users.toString());
 	}
 	
-	public synchronized void setPos(Double lat,Double lon) 
+	public synchronized void setPos(Double lon,Double lat) 
 	{
-		position.setFst(lat);
-		position.setSnd(lon);
+		position.setFst(lon);
+		position.setSnd(lat);
 	}
 	
 	public synchronized Tuple<Double,Double> getPos()

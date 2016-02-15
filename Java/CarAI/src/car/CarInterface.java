@@ -93,7 +93,7 @@ public class CarInterface implements MQTTInterface
 			{
 				Gson gs = new Gson();
 				Tuple<String,String> gpsPos = gs.fromJson(new String(arg1.getPayload()), Tuple.class);
-				System.out.println("x: " + gpsPos.fst() + " y: " + gpsPos.snd());
+				System.out.println("lon: " + gpsPos.fst() + " lat: " + gpsPos.snd());
 				car.setPos(Double.parseDouble(gpsPos.fst()),Double.parseDouble( gpsPos.snd()));
 			}
 

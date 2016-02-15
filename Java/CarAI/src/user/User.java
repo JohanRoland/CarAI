@@ -16,7 +16,7 @@ public class User {
 	public User(String id)
 	{
 		sc = ServerConnection.getInstance();
-		if(!id.equals("") && !id.equals("-1"))
+		if(!id.equals("") && !id.equals("0"))
 		{
 			importFromDB(id);
 		}

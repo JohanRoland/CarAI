@@ -38,6 +38,8 @@ import org.w3c.dom.NodeList;
 
 import com.mysql.jdbc.Statement;
 
+import car.Car;
+
 
 
 
@@ -164,7 +166,9 @@ public class LocPrediction {
 		NNData nd = new NNData();
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 		//nd.exportToDB();
+		
 		nd.importFromDB(id);
+
 		if(!nd.emptyData())
 		{
 			nd.exportToCSV();
@@ -221,7 +225,10 @@ public class LocPrediction {
 			int hour = c.get(Calendar.HOUR_OF_DAY);
 			int minute = c.get(Calendar.MINUTE);
 			
-			line[0] = "1";
+			//new Tuple<Double,Double>(57.69661,11.97575)
+			Car carData = Car.getInstance();
+			
+			line[0] = ""+nd.getClosestCluster(carData.getPos());
 			line[1] = ""+hour;
 			line[2] = ""+minute;
 			
@@ -297,6 +304,8 @@ public class LocPrediction {
 		//View Datas
 		HashMap<Integer, Tuple<Double,Double>> viewClustPos; 
 		int nrCluster;
+		
+		DBSCAN tree;
 		public NNData()
 		{
 			input = new ArrayList<double[]>();
@@ -307,6 +316,11 @@ public class LocPrediction {
 			outputClust = new ArrayList<Integer>();
 			viewClustPos = new HashMap<Integer, Tuple<Double,Double>>();
 			nrCluster = 0;
+		}
+		
+		public int getClosestCluster(Tuple<Double,Double> pos)
+		{
+			return tree.associateCluster(pos,0.01);
 		}
 		
 		public void importFromDB(int id)
@@ -320,12 +334,10 @@ public class LocPrediction {
 				ArrayList<DatabaseLocation> querry = b.getPosClass(id);
 				
 				
-				DBSCAN s = new DBSCAN(querry, false);	
-				int temp = s.cluster(0.01, 2);
+				tree = new DBSCAN(querry, false);	
+				int temp = tree.cluster(0.01, 2);
 				
-				 System.out.println(s.associateCluster(new Tuple<Double,Double>(57.69661,11.97575),0.01));
-				
-				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(true);
+				ArrayList<DatabaseLocation>[] temp2 = tree.getClusterd(true);
 				HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
 				HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();
 				HashMap<Tuple<Double,Double>,DatabaseLocation> posToLoc = new HashMap<Tuple<Double,Double>,DatabaseLocation>();
@@ -336,7 +348,7 @@ public class LocPrediction {
 					{
 						for(DatabaseLocation dbl : temp2[i])
 						{
-							Tuple<Double,Double> d = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
+							Tuple<Double,Double> d = new Tuple<Double,Double>(dbl.getLon(),dbl.getLat());
 							hs.put(d, d);
 							clust.put(d, i);
 							posToLoc.put(d, dbl);
@@ -349,7 +361,7 @@ public class LocPrediction {
 						viewClustPos.put(i, mean);
 						for(DatabaseLocation dbl : temp2[i])
 						{
-							Tuple<Double,Double> coord = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
+							Tuple<Double,Double> coord = new Tuple<Double,Double>(dbl.getLon(),dbl.getLat());
 							hs.put(coord,mean);
 						}
 						clust.put(mean, i);
@@ -361,9 +373,9 @@ public class LocPrediction {
 				{
 					for(int j = 0; j < temp2[i].size(); j++)
 					{
-						double[] pos = {temp2[i].get(j).getLat(),temp2[i].get(j).getLon()};
-						double[] dest = {temp2[i].get(j).getNLat(),temp2[i].get(j).getNLon()};
-						Tuple<Double,Double> dst = findNextCluster( new Tuple<Double,Double>(temp2[i].get(j).getNLat(),temp2[i].get(j).getNLon()),posToLoc);
+						double[] pos = {temp2[i].get(j).getLon(),temp2[i].get(j).getLat()};
+						double[] dest = {temp2[i].get(j).getNLon(),temp2[i].get(j).getNLat()};
+						Tuple<Double,Double> dst = findNextCluster( new Tuple<Double,Double>(temp2[i].get(j).getNLon(),temp2[i].get(j).getNLat()),posToLoc);
 												
 						Tuple<Double,Double> meanDst = hs.get(dst);
 						di = i;
@@ -382,7 +394,7 @@ public class LocPrediction {
 						}
 						else if(clust.get(meanDst) != i)
 						{
-							Tuple<Double,Double> coord = new Tuple<Double,Double>(temp2[i].get(j).getLat(),temp2[i].get(j).getLon());
+							Tuple<Double,Double> coord = new Tuple<Double,Double>(temp2[i].get(j).getLon(),temp2[i].get(j).getLat());
 							pos[0] = hs.get(coord).fst();
 							pos[1] = hs.get(coord).snd();
 							
@@ -440,7 +452,7 @@ public class LocPrediction {
 					 	
 					 	double lat = Double.parseDouble(eElement.getAttribute("lat"));
 					 	double lon = Double.parseDouble(eElement.getAttribute("lon"));
-						double[] tmp = {lat, lon};
+						double[] tmp =  {lon,lat};
 						input.add(tmp);
 						hours.add(h);
 						minutes.add(min);
@@ -449,13 +461,13 @@ public class LocPrediction {
 							Node oNode = nList.item(i+1);
 							if (oNode.getNodeType() == Node.ELEMENT_NODE) {
 								Element oElement = (Element) oNode;
-								double[] tmp2 = {Double.parseDouble(oElement.getAttribute("lat")), Double.parseDouble(oElement.getAttribute("lon"))};
+								double[] tmp2 = {Double.parseDouble(oElement.getAttribute("lon")), Double.parseDouble(oElement.getAttribute("lat"))};
 								output.add(tmp2);
 							}
 						}
 						else
 						{
-							double[] tmp2 = {lat, lon};
+							double[] tmp2 = {lon,lat};
 							output.add(tmp2);
 						}
 					}
@@ -527,7 +539,7 @@ public class LocPrediction {
 			while(lookup.containsKey(temp))
 			{
 				DatabaseLocation td = lookup.get(temp);
-				temp = new Tuple<Double,Double>(td.getNLat(),td.getNLon());
+				temp = new Tuple<Double,Double>(td.getNLon(),td.getNLat());
 			}
 			
 			return temp;

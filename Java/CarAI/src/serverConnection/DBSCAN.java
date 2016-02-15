@@ -49,7 +49,7 @@ public class DBSCAN {
 		
 			
 		for(int i=0;i<input.size();i++)
-			points = points.add(new PointInSpace(input.get(i)), Geometries.point(input.get(i).getLat(), input.get(i).getLon()));
+			points = points.add(new PointInSpace(input.get(i)), Geometries.point(input.get(i).getLon(), input.get(i).getLat()));
 		int jasdf = 0;
 		jasdf++;
 	}
@@ -69,7 +69,7 @@ public class DBSCAN {
 		
 			
 		for(int i=0;i<input.size();i++)
-			points = points.add(new PointInSpace(input.get(i)), Geometries.point(input.get(i).getLat(), input.get(i).getLon()));
+			points = points.add(new PointInSpace(input.get(i)), Geometries.point(input.get(i).getLon(), input.get(i).getLat()));
 
 	}
 	/**
