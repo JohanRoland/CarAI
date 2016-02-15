@@ -193,7 +193,7 @@ public class ServerConnection {
 	public ArrayList<String> getUserData(String id) throws SQLException
 	{
 		Statement stmt = (Statement) connection.createStatement();
-		ResultSet rs =  stmt.executeQuery("CALL getUser("+ id +")");
+		ResultSet rs =  stmt.executeQuery("CALL getUser("+ Integer.parseInt(id) +")");
 		
 		ArrayList<String> out = new ArrayList<String>();
 		
