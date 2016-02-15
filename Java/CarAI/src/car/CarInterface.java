@@ -80,20 +80,20 @@ public class CarInterface implements MQTTInterface
 				System.out.println(carjs.toString());
 				LocPrediction lp;
 				car.setCar(carjs);
-				if(car.getUser("DRIVER") != null)
+				if(car.getUser("DRIVER").userExists())
 					lp = new LocPrediction(car.getUser("DRIVER").getUserID());
-				if(car.getUser("PASSENGER") != null)
+				if(car.getUser("PASSENGER").userExists())
 					lp = new LocPrediction(car.getUser("PASSENGER").getUserID());
-				if(car.getUser("BACKSEAT0") != null)
+				if(car.getUser("BACKSEAT0").userExists())
 					lp = new LocPrediction(car.getUser("BACKSEAT0").getUserID());
-				if(car.getUser("BACKSEAT1") != null)
+				if(car.getUser("BACKSEAT1").userExists())
 					lp = new LocPrediction(car.getUser("BACKSEAT1").getUserID());	
 			}
 			if(arg0.equals(gpstopic))
 			{
 				Gson gs = new Gson();
 				Tuple<String,String> gpsPos = gs.fromJson(new String(arg1.getPayload()), Tuple.class);
-				System.out.println("x: " + gpsPos.fst() + " y: " + gpsPos.snd());
+				System.out.println("lon: " + gpsPos.fst() + " lat: " + gpsPos.snd());
 				car.setPos(Double.parseDouble(gpsPos.fst()),Double.parseDouble( gpsPos.snd()));
 			}
 

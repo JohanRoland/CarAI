@@ -49,7 +49,7 @@ public class Main
     		{
     			System.out.println("Schedule debug");
     		    //	Scheduler s = new Scheduler();
-    			LocPrediction lp = new LocPrediction();
+    			LocPrediction lp = new LocPrediction(1);
     			
     		}
     		else if(args[0].equals("4"))

@@ -16,9 +16,20 @@ public class User {
 	public User(String id)
 	{
 		sc = ServerConnection.getInstance();
-		if(!id.equals(""))
+		if(!id.equals("") && !id.equals("0"))
+		{
 			importFromDB(id);
-		
+		}
+		else if (id.equals("0"))
+		{
+			userID = 0;
+			userName = "Unknown";
+		}
+		else
+		{
+			userID = -1;
+			userName = "Empty";
+		}
 	}
 	
 	public int getUserID()
@@ -31,6 +42,11 @@ public class User {
 		return userName;
 	}
 	
+	public boolean userExists()
+	{
+		return (userID >0);
+	}
+	
 	private boolean querryUser()
 	{
 		return true;
@@ -38,8 +54,6 @@ public class User {
 	
 	private boolean createNewUser()
 	{
-		
-		
 		return true; 
 	}
 	

@@ -47,12 +47,12 @@ public class PointInSpace {
 	 * 
 	 * @return Tthe longitude in the stored DatabaseLocation
 	 */
-	public double getX(){return d.getLat();}
+	public double getX(){return d.getLon();}
 	/**
 	 * 
 	 * @return The latitude stored in the DatabaseLocation
 	 */
-	public double getY(){return d.getLon();}
+	public double getY(){return d.getLat();}
 	/**
 	 * 
 	 * @return The value of cluster

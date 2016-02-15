@@ -7,9 +7,11 @@ import serverConnection.ServerConnection.DBQuerry;
 import utils.*;
 
 import java.sql.SQLException;
+import java.sql.Time;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -35,6 +37,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.mysql.jdbc.Statement;
+
+import car.Car;
 
 
 
@@ -152,7 +156,6 @@ public class LocPrediction {
 			System.out.println(result.toString());
 		}
 		
-		
 		Encog.getInstance().shutdown();
 	}
 	
@@ -163,77 +166,100 @@ public class LocPrediction {
 		NNData nd = new NNData();
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 		//nd.exportToDB();
+		
 		nd.importFromDB(id);
-		
-		nd.exportToCSV();
-			
-		String[] descreteMTime = numArray(60);
-		String[] descreteHTime = numArray(24);
- 		String[] descreteClust = numArray(nd.nrCluster);
-		
-		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
-		VersatileMLDataSet data =  new VersatileMLDataSet(source);
 
-		data.getNormHelper().setFormat(format); 
-
-		ColumnDefinition columnInClust = data.defineSourceColumn("pos",0,ColumnType.nominal);		
-		ColumnDefinition columnHTime = data.defineSourceColumn("hours",1,ColumnType.ordinal);
-		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.ordinal);
-		ColumnDefinition columnOutClust = data.defineSourceColumn("opos",3,ColumnType.nominal);
-		
-		columnInClust.defineClass(descreteClust);
-		columnMTime.defineClass(descreteMTime);
-		columnHTime.defineClass(descreteHTime);
-		columnOutClust.defineClass(descreteClust);
-		data.getNormHelper().defineUnknownValue("?");
-		data.analyze();
-
-		data.defineInput(columnInClust);
-		data.defineInput(columnHTime);
-		data.defineInput(columnMTime);
-		data.defineOutput(columnOutClust);
-		
-		EncogModel model = new EncogModel(data);
-		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
-		
-		model.setReport(new ConsoleStatusReportable());
-		
-		data.normalize();
-		
-		model.holdBackValidation(0.3, true, 1001);
-		model.selectTrainingType(data);
-		MLRegression bestMethod = (MLRegression)model.crossvalidate(5, true);
-		
-		
-		System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
-		System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
-		NormalizationHelper helper = data.getNormHelper();
-		System.out.println(helper.toString());
-		System.out.println("Final model: " + bestMethod);
-		
-		ReadCSV csv = new ReadCSV(new File("coords.csv"),false,format);
-		String[] line = new String[4];
-		MLData input = helper.allocateInputVector();
-		
-		while(csv.next())
+		if(!nd.emptyData())
 		{
-			StringBuilder result = new StringBuilder();
-			for(int i = 0; i < 4; i++)
-				line[i] = csv.get(i);
+			nd.exportToCSV();
+				
+			String[] descreteMTime = numArray(60);
+			String[] descreteHTime = numArray(24);
+	 		String[] descreteClust = numArray(nd.nrCluster);
+			
+			VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
+			VersatileMLDataSet data =  new VersatileMLDataSet(source);
+	
+			data.getNormHelper().setFormat(format); 
+	
+			ColumnDefinition columnInClust = data.defineSourceColumn("pos",0,ColumnType.nominal);		
+			ColumnDefinition columnHTime = data.defineSourceColumn("hours",1,ColumnType.ordinal);
+			ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.ordinal);
+			ColumnDefinition columnOutClust = data.defineSourceColumn("opos",3,ColumnType.nominal);
+			
+			columnInClust.defineClass(descreteClust);
+			columnMTime.defineClass(descreteMTime);
+			columnHTime.defineClass(descreteHTime);
+			columnOutClust.defineClass(descreteClust);
+			data.getNormHelper().defineUnknownValue("?");
+			data.analyze();
+	
+			data.defineInput(columnInClust);
+			data.defineInput(columnHTime);
+			data.defineInput(columnMTime);
+			data.defineOutput(columnOutClust);
+			
+			EncogModel model = new EncogModel(data);
+			model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
+			
+			//model.setReport(new ConsoleStatusReportable());
+			
+			data.normalize();
+			
+			model.holdBackValidation(0.3, true, 1001);
+			model.selectTrainingType(data);
+			MLRegression bestMethod = (MLRegression)model.crossvalidate(5, true);
+			
+			
+			System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
+			System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
+			NormalizationHelper helper = data.getNormHelper();
+			//System.out.println(helper.toString());
+			System.out.println("Final model: " + bestMethod);
+			
+			ReadCSV csv = new ReadCSV(new File("coords.csv"),false,format);
+			String[] line = new String[4];
+			MLData input = helper.allocateInputVector();
+			
+			Calendar c = Calendar.getInstance();
+			int hour = c.get(Calendar.HOUR_OF_DAY);
+			int minute = c.get(Calendar.MINUTE);
+			
+			//new Tuple<Double,Double>(57.69661,11.97575)
+			Car carData = Car.getInstance();
+			
+			line[0] = ""+nd.getClosestCluster(carData.getPos());
+			line[1] = ""+hour;
+			line[2] = ""+minute;
 			
 			helper.normalizeInputVector(line,input.getData(),false);
 			MLData output = bestMethod.compute(input);
 			String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
+			StringBuilder result = new StringBuilder();
 			result.append("[" + line[0]+ " ( " + nd.viewClustPos.get(Integer.parseInt(line[0])) + ")"+ ", " + line[1]+ ", " + line[2]+ "] ");
 			result.append(" -> predicted: ");
 			result.append(irisChoosen0 + " ( " + nd.viewClustPos.get(Integer.parseInt(irisChoosen0)) + ")");
-			result.append(" (correct: ");
-			result.append(csv.get(3)+ " ( " + nd.viewClustPos.get(Integer.parseInt(csv.get(3))) + ")"+ ") ");
-			result.append("Err: " + dispError(irisChoosen0,csv.get(3)));
 			System.out.println(result.toString());
+			/*
+			
+			while(csv.next())
+			{
+				StringBuilder result = new StringBuilder();
+				for(int i = 0; i < 4; i++)
+					line[i] = csv.get(i);
+				
+				helper.normalizeInputVector(line,input.getData(),false);
+				MLData output = bestMethod.compute(input);
+				String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
+				result.append("[" + line[0]+ " ( " + nd.viewClustPos.get(Integer.parseInt(line[0])) + ")"+ ", " + line[1]+ ", " + line[2]+ "] ");
+				result.append(" -> predicted: ");
+				result.append(irisChoosen0 + " ( " + nd.viewClustPos.get(Integer.parseInt(irisChoosen0)) + ")");
+				result.append(" (correct: ");
+				result.append(csv.get(3)+ " ( " + nd.viewClustPos.get(Integer.parseInt(csv.get(3))) + ")"+ ") ");
+				result.append("Err: " + dispError(irisChoosen0,csv.get(3)));
+				System.out.println(result.toString());
+			}*/
 		}
-		
-		
 		Encog.getInstance().shutdown();
 	}
 	
@@ -278,6 +304,8 @@ public class LocPrediction {
 		//View Datas
 		HashMap<Integer, Tuple<Double,Double>> viewClustPos; 
 		int nrCluster;
+		
+		DBSCAN tree;
 		public NNData()
 		{
 			input = new ArrayList<double[]>();
@@ -288,6 +316,11 @@ public class LocPrediction {
 			outputClust = new ArrayList<Integer>();
 			viewClustPos = new HashMap<Integer, Tuple<Double,Double>>();
 			nrCluster = 0;
+		}
+		
+		public int getClosestCluster(Tuple<Double,Double> pos)
+		{
+			return tree.associateCluster(pos,0.01);
 		}
 		
 		public void importFromDB(int id)
@@ -305,6 +338,7 @@ public class LocPrediction {
 				int temp = s.cluster(0.01, 2);
 					
 				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(true);
+
 				HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
 				HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();
 				HashMap<Tuple<Double,Double>,DatabaseLocation> posToLoc = new HashMap<Tuple<Double,Double>,DatabaseLocation>();
@@ -315,7 +349,7 @@ public class LocPrediction {
 					{
 						for(DatabaseLocation dbl : temp2[i])
 						{
-							Tuple<Double,Double> d = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
+							Tuple<Double,Double> d = new Tuple<Double,Double>(dbl.getLon(),dbl.getLat());
 							hs.put(d, d);
 							clust.put(d, i);
 							posToLoc.put(d, dbl);
@@ -328,7 +362,7 @@ public class LocPrediction {
 						viewClustPos.put(i, mean);
 						for(DatabaseLocation dbl : temp2[i])
 						{
-							Tuple<Double,Double> coord = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
+							Tuple<Double,Double> coord = new Tuple<Double,Double>(dbl.getLon(),dbl.getLat());
 							hs.put(coord,mean);
 						}
 						clust.put(mean, i);
@@ -340,9 +374,9 @@ public class LocPrediction {
 				{
 					for(int j = 0; j < temp2[i].size(); j++)
 					{
-						double[] pos = {temp2[i].get(j).getLat(),temp2[i].get(j).getLon()};
-						double[] dest = {temp2[i].get(j).getNLat(),temp2[i].get(j).getNLon()};
-						Tuple<Double,Double> dst = findNextCluster( new Tuple<Double,Double>(temp2[i].get(j).getNLat(),temp2[i].get(j).getNLon()),posToLoc);
+						double[] pos = {temp2[i].get(j).getLon(),temp2[i].get(j).getLat()};
+						double[] dest = {temp2[i].get(j).getNLon(),temp2[i].get(j).getNLat()};
+						Tuple<Double,Double> dst = findNextCluster( new Tuple<Double,Double>(temp2[i].get(j).getNLon(),temp2[i].get(j).getNLat()),posToLoc);
 												
 						Tuple<Double,Double> meanDst = hs.get(dst);
 						di = i;
@@ -361,7 +395,7 @@ public class LocPrediction {
 						}
 						else if(clust.get(meanDst) != i)
 						{
-							Tuple<Double,Double> coord = new Tuple<Double,Double>(temp2[i].get(j).getLat(),temp2[i].get(j).getLon());
+							Tuple<Double,Double> coord = new Tuple<Double,Double>(temp2[i].get(j).getLon(),temp2[i].get(j).getLat());
 							pos[0] = hs.get(coord).fst();
 							pos[1] = hs.get(coord).snd();
 							
@@ -419,7 +453,7 @@ public class LocPrediction {
 					 	
 					 	double lat = Double.parseDouble(eElement.getAttribute("lat"));
 					 	double lon = Double.parseDouble(eElement.getAttribute("lon"));
-						double[] tmp = {lat, lon};
+						double[] tmp =  {lon,lat};
 						input.add(tmp);
 						hours.add(h);
 						minutes.add(min);
@@ -428,13 +462,13 @@ public class LocPrediction {
 							Node oNode = nList.item(i+1);
 							if (oNode.getNodeType() == Node.ELEMENT_NODE) {
 								Element oElement = (Element) oNode;
-								double[] tmp2 = {Double.parseDouble(oElement.getAttribute("lat")), Double.parseDouble(oElement.getAttribute("lon"))};
+								double[] tmp2 = {Double.parseDouble(oElement.getAttribute("lon")), Double.parseDouble(oElement.getAttribute("lat"))};
 								output.add(tmp2);
 							}
 						}
 						else
 						{
-							double[] tmp2 = {lat, lon};
+							double[] tmp2 = {lon,lat};
 							output.add(tmp2);
 						}
 					}
@@ -506,10 +540,15 @@ public class LocPrediction {
 			while(lookup.containsKey(temp))
 			{
 				DatabaseLocation td = lookup.get(temp);
-				temp = new Tuple<Double,Double>(td.getNLat(),td.getNLon());
+				temp = new Tuple<Double,Double>(td.getNLon(),td.getNLat());
 			}
 			
 			return temp;
+		}
+		
+		public boolean emptyData()
+		{
+			return input.isEmpty() && output.isEmpty();
 		}
 	}
 }
