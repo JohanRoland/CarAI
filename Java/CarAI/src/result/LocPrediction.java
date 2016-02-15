@@ -255,11 +255,11 @@ public class LocPrediction {
 				
 	}
 	
-	public static void updateDB(int id)
+	public void updateDB(int id)
 	{
-		/*NNData nd = new NNData();
+		NNData nd = new NNData();
 		nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
-		nd.exportToDB(id);*/
+		nd.exportToDB(id);
 	}
 	
 	private class NNData
