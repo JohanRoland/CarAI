@@ -308,6 +308,7 @@ public class LocPrediction {
 		DBSCAN tree;
 		public NNData()
 		{
+			
 			input = new ArrayList<double[]>();
 			output = new ArrayList<double[]>();
 			minutes = new ArrayList<Integer>();
@@ -334,10 +335,10 @@ public class LocPrediction {
 				ArrayList<DatabaseLocation> querry = b.getPosClass(id);
 				
 				
-				DBSCAN s = new DBSCAN(querry, false);	
-				int temp = s.cluster(0.01, 2);
+				tree = new DBSCAN(querry, false);	
+				int temp = tree.cluster(0.01, 2);
 					
-				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(true);
+				ArrayList<DatabaseLocation>[] temp2 = tree.getClusterd(true);
 
 				HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
 				HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();

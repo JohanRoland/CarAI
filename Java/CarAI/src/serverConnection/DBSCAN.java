@@ -114,13 +114,12 @@ public class DBSCAN {
 		
 		return clusters;
 	}
-	ArrayList<Integer> clustC;
+
 	public int associateCluster(Tuple<Double,Double> point,double rad)
 	{
 		Observable<Entry<PointInSpace, Geometry>> res = points.search(Geometries.circle(point.fst(), point.snd(), rad));
 		
-		
-		clustC = new ArrayList();
+		ArrayList<Integer> clustC = new ArrayList<Integer>();
 		for(int i2=0;i2<(c+1);i2++)
 			clustC.add(0);
 		
