@@ -90,49 +90,36 @@ public class LocPrediction {
 		//nd.exportToDB();
 		nd.importFromDB(1);
 		
-		//nd.exportToCSV();
-			
+		nd.exportAsCoordsToCSV();
+		
 		String[] descreteMTime = numArray(60);
 		String[] descreteHTime = numArray(24);
- 		String[] descreteClust = numArray(nd.nrCluster);
 		
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
 		data =  new VersatileMLDataSet(source);
 
 		data.getNormHelper().setFormat(format); 
-		/*ColumnDefinition columnInLat = data.defineSourceColumn("ilat",0,ColumnType.continuous);		
-		ColumnDefinition columnInLon = data.defineSourceColumn("ilon",1,ColumnType.continuous);		
+		ColumnDefinition columnInLon = data.defineSourceColumn("ilon",0,ColumnType.continuous);		
+		ColumnDefinition columnInLat = data.defineSourceColumn("ilat",1,ColumnType.continuous);		
 		ColumnDefinition columnHTime = data.defineSourceColumn("hours",2,ColumnType.ordinal);
 		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",3,ColumnType.ordinal);
-		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",4,ColumnType.continuous);		
-		ColumnDefinition columnOutLon = data.defineSourceColumn("olon",5,ColumnType.continuous);	
-		*/
-		ColumnDefinition columnInClust = data.defineSourceColumn("pos",0,ColumnType.nominal);		
-		ColumnDefinition columnHTime = data.defineSourceColumn("hours",1,ColumnType.ordinal);
-		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.ordinal);
-		ColumnDefinition columnOutClust = data.defineSourceColumn("opos",3,ColumnType.nominal);
+		ColumnDefinition columnOutLon = data.defineSourceColumn("olon",4,ColumnType.continuous);		
+		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",5,ColumnType.continuous);	
 		
-		columnInClust.defineClass(descreteClust);
 		columnMTime.defineClass(descreteMTime);
 		columnHTime.defineClass(descreteHTime);
-		columnOutClust.defineClass(descreteClust);
-		data.getNormHelper().defineUnknownValue("?");
 		data.analyze();
-		/*
-		data.defineInput(columnInLat);
+		
 		data.defineInput(columnInLon);
+		data.defineInput(columnInLat);
 		data.defineInput(columnHTime);
 		data.defineInput(columnMTime);
-		data.defineOutput(columnOutLat);
 		data.defineOutput(columnOutLon);
-		*/
-		data.defineInput(columnInClust);
-		data.defineInput(columnHTime);
-		data.defineInput(columnMTime);
-		data.defineOutput(columnOutClust);
+		data.defineOutput(columnOutLat);
+		data.getNormHelper().defineUnknownValue("?");
 		
 		EncogModel model = new EncogModel(data);
-		model.selectMethod(data, MLMethodFactory.TYPE_NEAT);
+		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
 		
 		model.setReport(new ConsoleStatusReportable());
 		
@@ -162,15 +149,13 @@ public class LocPrediction {
 			helper.normalizeInputVector(line,input.getData(),false);
 			MLData output = bestMethod.compute(input);
 			String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
-			//String irisChoosen1 = helper.denormalizeOutputVectorToString(output)[1];
-			result.append("[" + line[0]+ " ( " + nd.viewClustPos.get(Integer.parseInt(line[0])) + ")"+ ", " + line[1]+ ", " + line[2]+ "] ");
+			String irisChoosen1 = helper.denormalizeOutputVectorToString(output)[1];
+			result.append("[" + line[0]+ ", "+ line[1]+ " " + line[2]+ ", " + line[3]+ "] ");
 			result.append(" -> predicted: ");
-			//result.append(irisChoosen1 + " , " +irisChoosen0);
-			result.append(irisChoosen0 + " ( " + nd.viewClustPos.get(Integer.parseInt(irisChoosen0)) + ")");
+			result.append(irisChoosen0 + " , " +irisChoosen1);
 			result.append(" (correct: ");
-			result.append(csv.get(3)+ " ( " + nd.viewClustPos.get(Integer.parseInt(csv.get(3))) + ")"+ ") ");//; +csv.get(4)); 
-			result.append("Err: " + dispError(irisChoosen0,csv.get(3)));
-			//result.append(") Lat Err: " +  dispError(irisChoosen0,csv.get(4)) + " Lon Err: " + dispError(irisChoosen1,csv.get(5)));
+			result.append(csv.get(4)+ " " +csv.get(5)); 
+			result.append(") Lat Err: " +  dispError(irisChoosen0,csv.get(4)) + " Lon Err: " + dispError(irisChoosen1,csv.get(5)));
 			System.out.println(result.toString());
 		}
 		
@@ -250,7 +235,7 @@ public class LocPrediction {
 		}
 		if(!instanceMap.containsKey(userID))
 		{
-			instanceMap.put(userID, new LocPrediction(userID));
+			instanceMap.put(userID, new LocPrediction());
 		}
 		
 		return instanceMap.get(userID);
@@ -289,8 +274,8 @@ public class LocPrediction {
 		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
 		Car carData = Car.getInstance();
 		
-		//line[0] = ""+nd.getClosestCluster(carData.getPos());
-		line[0] = ""+nd.getClosestCluster(new Tuple<Double,Double>(57.69661,11.97575));
+		line[0] = ""+nd.getClosestCluster(carData.getPos());
+		//line[0] = ""+nd.getClosestCluster(new Tuple<Double,Double>(57.69661,11.97575));
 		line[1] = ""+hour;
 		line[2] = ""+minute;
 		
@@ -323,6 +308,8 @@ public class LocPrediction {
 		int nrCluster;
 		
 		DBSCAN tree;
+		
+		ArrayList<DatabaseLocation> querry;
 		public NNData()
 		{
 			
@@ -349,7 +336,7 @@ public class LocPrediction {
 			int dj =0;
 			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) 
 			{
-				ArrayList<DatabaseLocation> querry = b.getPosClass(id);
+				querry = b.getPosClass(id);
 				
 				
 				tree = new DBSCAN(querry, false);	
@@ -515,7 +502,7 @@ public class LocPrediction {
 			
 		}
 		
-		public void exportToCSV()
+		public void exportAsClustToCSV()
 		{
 			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
 			{
@@ -526,6 +513,23 @@ public class LocPrediction {
 					for(int noise = -5 ; noise < 5; noise++)
 						writer.write(inputClust.get(i) + " " + hours.get(i) + " " + Math.floorMod((minutes.get(i)+noise), 60) + " " 
 							+ outputClust.get(i) + "\n");
+				}
+			}catch(Exception e)
+			{
+				System.out.println("Error on creating csv file");
+				e.printStackTrace();
+			}
+		}
+		
+		public void exportAsCoordsToCSV()
+		{
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
+			{
+				for(int i = 0; i < querry.size();i++)
+				{
+					writer.write(querry.get(i).getLon()+ " " + querry.get(i).getLat() + " " + querry.get(i).getHTime() + " " + querry.get(i).getMTime() + " " 
+							+ querry.get(i).getNLon() + " " + querry.get(i).getNLat()+ "\n");
+					
 				}
 			}catch(Exception e)
 			{
