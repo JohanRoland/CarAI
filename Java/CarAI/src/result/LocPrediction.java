@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -21,16 +22,21 @@ import org.encog.ConsoleStatusReportable;
 import org.encog.Encog;
 import org.encog.util.csv.CSVFormat;
 import org.encog.util.csv.ReadCSV;
+import org.encog.util.logging.EncogFormatter;
+import org.encog.util.obj.SerializeObject;
+import org.encog.util.simple.EncogUtility;
 import org.encog.ml.data.versatile.sources.CSVDataSource;
 import org.encog.ml.data.versatile.columns.ColumnDefinition;
 import org.encog.ml.data.versatile.sources.VersatileDataSource;
 import org.encog.ml.factory.MLMethodFactory;
 import org.encog.ml.model.EncogModel;
+import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.ml.MLRegression;
 import org.encog.ml.data.MLData;
 import org.encog.ml.data.versatile.NormalizationHelper;
 import org.encog.ml.data.versatile.VersatileMLDataSet;
 import org.encog.ml.data.versatile.columns.ColumnType;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -57,17 +63,27 @@ public class LocPrediction {
 	 * 
 	 * Output:
 	 * 		Position (Double, Double)
-	 * 
 	 */
+	
+	
+	static private Map<Integer,LocPrediction> instanceMap; 
+	
+	
+	CSVFormat format;
+	VersatileMLDataSet data;
+	NormalizationHelper helper;
+	MLRegression bestMethod;
+	NNData nd;
 	
 	int nrCols = 5;
 	public double sampleIn[][] = {{0.0,0.0},{1.0,0.0},{0.0,1.0},{1.0,1.0}};
 	public double sampleOut[][] = {{0.0},{1.0},{1.0},{0.0}};
 	
-	public Tuple<Double,Double> predictedLoc; 
-	public LocPrediction()
+	public Tuple<Double,Double> predictedLoc;
+	private MqttTime mqttTime;
+	private LocPrediction()
 	{
-		CSVFormat format = new CSVFormat('.',' ');
+		format = new CSVFormat('.',' ');
 		
 		NNData nd = new NNData();
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
@@ -81,7 +97,7 @@ public class LocPrediction {
  		String[] descreteClust = numArray(nd.nrCluster);
 		
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
-		VersatileMLDataSet data =  new VersatileMLDataSet(source);
+		data =  new VersatileMLDataSet(source);
 
 		data.getNormHelper().setFormat(format); 
 		/*ColumnDefinition columnInLat = data.defineSourceColumn("ilat",0,ColumnType.continuous);		
@@ -116,15 +132,15 @@ public class LocPrediction {
 		data.defineOutput(columnOutClust);
 		
 		EncogModel model = new EncogModel(data);
-		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
+		model.selectMethod(data, MLMethodFactory.TYPE_NEAT);
 		
 		model.setReport(new ConsoleStatusReportable());
 		
 		data.normalize();
 		
-		model.holdBackValidation(0.3, true, 1001);
+		model.holdBackValidation(0.3, false, 1001);
 		model.selectTrainingType(data);
-		MLRegression bestMethod = (MLRegression)model.crossvalidate(5, true);
+		MLRegression bestMethod = (MLRegression)model.crossvalidate(5, false);
 		
 		
 		System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
@@ -161,12 +177,13 @@ public class LocPrediction {
 		Encog.getInstance().shutdown();
 	}
 	
-	public LocPrediction(int id)
+	private LocPrediction(int id)
 	{
+		mqttTime = MqttTime.getInstance();
 		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
-		CSVFormat format = new CSVFormat('.',' ');
+		format = new CSVFormat('.',' ');
 		
-		NNData nd = new NNData();
+		nd = new NNData();
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 		//nd.exportToDB();
 		
@@ -174,14 +191,14 @@ public class LocPrediction {
 
 		if(!nd.emptyData())
 		{
-			nd.exportToCSV();
+			//nd.exportToCSV();
 				
 			String[] descreteMTime = numArray(60);
 			String[] descreteHTime = numArray(24);
 	 		String[] descreteClust = numArray(nd.nrCluster);
 			
 			VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
-			VersatileMLDataSet data =  new VersatileMLDataSet(source);
+			data =  new VersatileMLDataSet(source);
 	
 			data.getNormHelper().setFormat(format); 
 	
@@ -205,66 +222,38 @@ public class LocPrediction {
 			EncogModel model = new EncogModel(data);
 			model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
 			
-			//model.setReport(new ConsoleStatusReportable());
+			model.setReport(new ConsoleStatusReportable());
 			
 			data.normalize();
 			
 			model.holdBackValidation(0.3, false, 1001);
 			model.selectTrainingType(data);
-			MLRegression bestMethod = (MLRegression)model.crossvalidate(5, false);
+			bestMethod = (MLRegression)model.crossvalidate(5, false);
 			
 			
 			System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
 			System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
-			NormalizationHelper helper = data.getNormHelper();
-			//System.out.println(helper.toString());
+			helper = data.getNormHelper();
+			System.out.println(helper.toString());
 			System.out.println("Final model: " + bestMethod);
 			
-			ReadCSV csv = new ReadCSV(new File("coords.csv"),false,format);
-			String[] line = new String[4];
-			MLData input = helper.allocateInputVector();
-			
-			Calendar c = Calendar.getInstance();
-			int hour = c.get(Calendar.HOUR_OF_DAY);
-			int minute = c.get(Calendar.MINUTE);
-			
-			//new Tuple<Double,Double>(57.69661,11.97575)
-			Car carData = Car.getInstance();
-			
-			line[0] = ""+nd.getClosestCluster(carData.getPos());
-			line[1] = ""+hour;
-			line[2] = ""+minute;
-			
-			helper.normalizeInputVector(line,input.getData(),false);
-			MLData output = bestMethod.compute(input);
-			String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
-			StringBuilder result = new StringBuilder();
-			result.append("[" + line[0]+ " ( " + nd.viewClustPos.get(Integer.parseInt(line[0])) + ")"+ ", " + line[1]+ ", " + line[2]+ "] ");
-			result.append(" -> predicted: ");
-			result.append(irisChoosen0 + " ( " + nd.viewClustPos.get(Integer.parseInt(irisChoosen0)) + ")");
-			System.out.println(result.toString());
-			/*
-			while(csv.next())
-			{
-				StringBuilder result = new StringBuilder();
-				for(int i = 0; i < 4; i++)
-					line[i] = csv.get(i);
-				
-				helper.normalizeInputVector(line,input.getData(),false);
-				MLData output = bestMethod.compute(input);
-				String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
-				result.append("[" + line[0]+ " ( " + nd.viewClustPos.get(Integer.parseInt(line[0])) + ")"+ ", " + line[1]+ ", " + line[2]+ "] ");
-				result.append(" -> predicted: ");
-				result.append(irisChoosen0 + " ( " + nd.viewClustPos.get(Integer.parseInt(irisChoosen0)) + ")");
-				result.append(" (correct: ");
-				result.append(csv.get(3)+ " ( " + nd.viewClustPos.get(Integer.parseInt(csv.get(3))) + ")"+ ") ");
-				result.append("Err: " + dispError(irisChoosen0,csv.get(3)));
-				System.out.println(result.toString());
-			}*/
-			
-			predictedLoc= nd.viewClustPos.get(Integer.parseInt(irisChoosen0));
 		}
-		Encog.getInstance().shutdown();
+		
+		//Encog.getInstance().shutdown();
+	}
+	
+	static public LocPrediction getInstance(int userID)
+	{
+		if(instanceMap == null)
+		{
+			instanceMap = new HashMap<Integer,LocPrediction>();
+		}
+		if(!instanceMap.containsKey(userID))
+		{
+			instanceMap.put(userID, new LocPrediction(userID));
+		}
+		
+		return instanceMap.get(userID);
 	}
 	
 	
@@ -285,11 +274,35 @@ public class LocPrediction {
 				
 	}
 	
-	public static void updateDB(int id)
+	public Tuple<Double,Double> predict()
 	{
-		/*NNData nd = new NNData();
-		nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
-		nd.exportToDB(id);*/
+		ReadCSV csv = new ReadCSV(new File("coords.csv"),false,format);
+		String[] line = new String[4];
+		MLData input = helper.allocateInputVector();
+		
+		//Calendar c = Calendar.getInstance();
+		int hour = mqttTime.getHour();// c.get(Calendar.HOUR_OF_DAY);
+		int minute = mqttTime.getMinute(); //c.get(Calendar.MINUTE);
+		
+		//EncogUtility.saveEGB(new File("networkExport.eg"), data);
+		//EncogUtility.explainErrorMSE(bestMethod, data);
+		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
+		Car carData = Car.getInstance();
+		
+		//line[0] = ""+nd.getClosestCluster(carData.getPos());
+		line[0] = ""+nd.getClosestCluster(new Tuple<Double,Double>(57.69661,11.97575));
+		line[1] = ""+hour;
+		line[2] = ""+minute;
+		
+		helper.normalizeInputVector(line,input.getData(),false);
+		MLData output = bestMethod.compute(input);
+		String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
+		StringBuilder result = new StringBuilder();
+		result.append("[" + line[0]+ " ( " + nd.viewClustPos.get(Integer.parseInt(line[0])) + ")"+ ", " + line[1]+ ", " + line[2]+ "] ");
+		result.append(" -> predicted: ");
+		result.append(irisChoosen0 + " ( " + nd.viewClustPos.get(Integer.parseInt(irisChoosen0)) + ")");
+		System.out.println(result.toString());
+		return nd.viewClustPos.get(Integer.parseInt(irisChoosen0));
 	}
 	
 	private class NNData
@@ -510,7 +523,8 @@ public class LocPrediction {
 				{
 					/*writer.write(input.get(i)[1] + " " + input.get(i)[0] + " " + hours.get(i) + " " + minutes.get(i) + " " 
 							+ output.get(i)[1] + " " + output.get(i)[0] + "\n");*/
-					writer.write(inputClust.get(i) + " " + hours.get(i) + " " + minutes.get(i) + " " 
+					for(int noise = -5 ; noise < 5; noise++)
+						writer.write(inputClust.get(i) + " " + hours.get(i) + " " + Math.floorMod((minutes.get(i)+noise), 60) + " " 
 							+ outputClust.get(i) + "\n");
 				}
 			}catch(Exception e)

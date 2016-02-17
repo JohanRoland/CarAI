@@ -16,6 +16,7 @@ import result.LocPrediction;
 import result.Scheduler;
 import serverConnection.DBSCAN;
 import serverConnection.ServerConnection;
+import utils.MqttTime;
 import utils.Tuple;
 
 /**
@@ -28,6 +29,7 @@ public class Main
 	
     public static void main(String[] args) {
     	
+    	MqttTime mt = MqttTime.getInstance();
     	if(args.length > 0)
     	{
     		if(args[0].equals("1"))
@@ -49,7 +51,7 @@ public class Main
     		{
     			System.out.println("Schedule debug");
     		    //	Scheduler s = new Scheduler();
-    			LocPrediction lp = new LocPrediction(1);
+    			LocPrediction lp = LocPrediction.getInstance(1);
     			
     		}
     		else if(args[0].equals("4"))
