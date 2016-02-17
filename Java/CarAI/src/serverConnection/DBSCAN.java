@@ -135,8 +135,8 @@ public class DBSCAN {
 	private int gG(ArrayList<Integer> in)
 	{
 		int temp=0,index=0;
-		for(int i=0; i<in.size();i++)
-			if(in.get(i)!=0 && in.get(i)>temp)
+		for(int i=1; i<in.size();i++)
+			if(in.get(i)>temp)
 			{
 				temp=in.get(i);
 				index=i;
