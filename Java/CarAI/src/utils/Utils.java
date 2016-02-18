@@ -34,12 +34,16 @@ public class Utils {
 
 		    return dist;
 	}
+	/**
+	 * @param in an Arraylist containing Database Locations 
+	 * @return A Tuple of Tuples containing the min x y tuple and max x y tuple as it's first and second argument respectively
+	 */
 	public static Tuple<Tuple<Double,Double>,Tuple<Double,Double>> getGPSPlotFrame(ArrayList<DatabaseLocation> in)
 	{
-		double maxY=0;
-		double maxX=0;
-		double minY=0;
-		double minX=0;
+		double maxY=Double.MIN_VALUE;
+		double maxX=Double.MIN_VALUE;
+		double minY=Double.MIN_VALUE;
+		double minX=Double.MIN_VALUE;
 		
 		
 		for(DatabaseLocation d : in)
