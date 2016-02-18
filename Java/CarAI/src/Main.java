@@ -19,6 +19,7 @@ import serverConnection.KmeansSortOf;
 import serverConnection.ServerConnection;
 import utils.MqttTime;
 import utils.Tuple;
+import displayData.PointsPlotter;
 
 /**
  *  Main class for CarAI
@@ -135,6 +136,12 @@ public class Main
     			} catch (Exception e1) {
 					e1.printStackTrace();
 				}
+    			
+    		}
+    		else if(args[0].equals("6"))
+    		{
+    			PointsPlotter pp = new PointsPlotter();
+    			pp.setVisible(true);
     			
     		}
     		else 
