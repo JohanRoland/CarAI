@@ -16,7 +16,7 @@ public class KmeansSortOf
 {
 	
 	RTree<PointInSpace, Geometry> points;
-    volatile ArrayList<DatabaseLocation>[] clusters;
+    volatile ArrayList<ArrayList<DatabaseLocation>> clusters;
     int c;
     
 	
@@ -32,14 +32,15 @@ public class KmeansSortOf
 		{
 			throw new Error("the imputted arrays have zero inputs");
 		}
+		clusters = new ArrayList<ArrayList<DatabaseLocation>>();
+		
 		
 			
 		for(int i=0;i<input.size();i++)
 			points = points.add(new PointInSpace(input.get(i)), Geometries.point(input.get(i).getLon(), input.get(i).getLat()));
-
 	}
 	
-	public ArrayList<DatabaseLocation>[] getClusterd(boolean IncludeUnclusterd)
+	public ArrayList<ArrayList<DatabaseLocation>> getClusterd(boolean IncludeUnclusterd)
 	{
 		
 		int nClust, OneOrZero;
@@ -55,19 +56,16 @@ public class KmeansSortOf
 		    nClust=c;
 		}
 		
-		clusters = (ArrayList<DatabaseLocation>[])new ArrayList[nClust];
-		
-		for(int i=0;i<nClust;i++)
-			clusters[i]= new ArrayList<DatabaseLocation>();
+
 
 		if(IncludeUnclusterd)
 		{
-			points.entries().forEach(a->clusters[a.value().getCluster()-OneOrZero].
+			points.entries().forEach(a->clusters.get(a.value().getCluster()-OneOrZero).
 					add(a.value().getDLLoc()));
 		}
 		else
 		{
-			points.entries().filter(e-> e.value().getCluster()!=0).forEach(a->clusters[a.value().getCluster()-OneOrZero].
+			points.entries().filter(e-> e.value().getCluster()!=0).forEach(a->clusters.get(a.value().getCluster()-OneOrZero).
 					add(a.value().getDLLoc()));
 		
 		}
@@ -89,14 +87,19 @@ public class KmeansSortOf
 	private int clusterHelper(PointInSpace e, double epsilon)
 	{	
 		ArrayList<Tuple<Double,Double>> temp = new ArrayList<Tuple<Double,Double>>();
-		Tuple<Double,Double> temp2 = new Tuple<Double,Double>(Double.MIN_VALUE,Double.MIN_VALUE);
-		Observable<Entry<PointInSpace, Geometry>> neibors = Observable.empty();
+		Tuple<Double,Double> temp2 = new Tuple<Double,Double>(e.getX(),e.getY());
+		Observable<Entry<PointInSpace, Geometry>> neibors = null;
+		double tempX =e.getX();
+		double tempY =e.getY();
 		
-		while(e.getX()!=temp2.fst() && e.getY()!=temp2.snd())
+		do
 		{
-
-			neibors = points.search(Geometries.circle(e.getX(), e.getY(), epsilon));
-					
+			tempX=temp2.fst();
+			tempY=temp2.snd();
+			neibors = points.search(Geometries.circle(tempX, tempY, epsilon));
+			if(neibors.isEmpty().toBlocking().last())
+				return 0;
+			
 			neibors.forEach(v -> temp.add(new Tuple<Double,Double>(v.value().getX(),v.value().getY())));		
 			
 			temp2 = new Tuple<Double,Double>(0.0,0.0);
@@ -108,10 +111,19 @@ public class KmeansSortOf
 			temp2.setFst(temp2.fst()/temp.size());
 			temp2.setSnd(temp2.snd()/temp.size());	
 		}
+		while(Math.abs(tempX-temp2.fst())>0.01|| Math.abs(tempY-temp2.snd())>0.01);
+		
 		c++;
-		neibors.forEach(f -> f.value().setCluster(c));
-		neibors.forEach(d -> points.delete(d));
+		clusters.add(new ArrayList<DatabaseLocation>());
+		neibors.forEach(f -> clusters.get(c-1).add(f.value().getDLLoc()));
+		neibors.forEach(d -> helper(d));
+
 		return c;
 	}
+	void helper(Entry<PointInSpace, Geometry> in)
+	{
+		points=points.delete(in);
+	}
 }
+
 
