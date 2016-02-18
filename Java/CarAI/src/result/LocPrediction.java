@@ -376,17 +376,17 @@ public class LocPrediction {
 				tree = new DBSCAN(querry, false);	
 				int temp = tree.cluster(0.01, 2);
 					
-				ArrayList<DatabaseLocation>[] temp2 = tree.getClusterd(true);
+				ArrayList<ArrayList<DatabaseLocation>> temp2 = tree.getClusterd(true);
 
 				HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
 				HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();
 				HashMap<Tuple<Double,Double>,DatabaseLocation> posToLoc = new HashMap<Tuple<Double,Double>,DatabaseLocation>();
-				nrCluster = temp2.length;
-				for(int i = 0; i < temp2.length;i++)
+				nrCluster = temp2.size();
+				for(int i = 0; i < temp2.size();i++)
 				{
 					if(i == 0)
 					{
-						for(DatabaseLocation dbl : temp2[i])
+						for(DatabaseLocation dbl : temp2.get(i))
 						{
 							Tuple<Double,Double> d = new Tuple<Double,Double>(dbl.getLon(),dbl.getLat());
 							hs.put(d, d);
@@ -397,9 +397,9 @@ public class LocPrediction {
 					else
 					{
 						
-						Tuple<Double,Double> mean = Utils.mean(temp2[i]);
+						Tuple<Double,Double> mean = Utils.mean(temp2.get(i));
 						viewClustPos.put(i, mean);
-						for(DatabaseLocation dbl : temp2[i])
+						for(DatabaseLocation dbl : temp2.get(i))
 						{
 							Tuple<Double,Double> coord = new Tuple<Double,Double>(dbl.getLon(),dbl.getLat());
 							hs.put(coord,mean);
@@ -409,13 +409,13 @@ public class LocPrediction {
 					
 				}
 				
-				for(int i = 0; i < temp2.length; i++)
+				for(int i = 0; i < temp2.size(); i++)
 				{
-					for(int j = 0; j < temp2[i].size(); j++)
+					for(int j = 0; j < temp2.get(i).size(); j++)
 					{
-						double[] pos = {temp2[i].get(j).getLon(),temp2[i].get(j).getLat()};
-						double[] dest = {temp2[i].get(j).getNLon(),temp2[i].get(j).getNLat()};
-						Tuple<Double,Double> dst = findNextCluster( new Tuple<Double,Double>(temp2[i].get(j).getNLon(),temp2[i].get(j).getNLat()),posToLoc);
+						double[] pos = {temp2.get(i).get(j).getLon(),temp2.get(i).get(j).getLat()};
+						double[] dest = {temp2.get(i).get(j).getNLon(),temp2.get(i).get(j).getNLat()};
+						Tuple<Double,Double> dst = findNextCluster( new Tuple<Double,Double>(temp2.get(i).get(j).getNLon(),temp2.get(i).get(j).getNLat()),posToLoc);
 												
 						Tuple<Double,Double> meanDst = hs.get(dst);
 						di = i;
@@ -434,7 +434,7 @@ public class LocPrediction {
 						}
 						else if(clust.get(meanDst) != i)
 						{
-							Tuple<Double,Double> coord = new Tuple<Double,Double>(temp2[i].get(j).getLon(),temp2[i].get(j).getLat());
+							Tuple<Double,Double> coord = new Tuple<Double,Double>(temp2.get(i).get(j).getLon(),temp2.get(i).get(j).getLat());
 							pos[0] = hs.get(coord).fst();
 							pos[1] = hs.get(coord).snd();
 							
@@ -444,8 +444,8 @@ public class LocPrediction {
 							dest[0] = meanDst.fst();
 							dest[1] = meanDst.snd();
 							output.add(dest);
-							hours.add(temp2[i].get(j).getHTime());
-							minutes.add(temp2[i].get(j).getMTime());
+							hours.add(temp2.get(i).get(j).getHTime());
+							minutes.add(temp2.get(i).get(j).getMTime());
 							outputClust.add(clust.get(hs.get(dst)));
 						}
 						

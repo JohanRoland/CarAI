@@ -100,7 +100,7 @@ public class PointsPlotter extends JFrame {
 			try {
 				
 				ArrayList<DatabaseLocation> points = sc.getPosClass(1);
-				ArrayList<ArrayList<DatabaseLocation>> temp2;
+				ArrayList<ArrayList<DatabaseLocation>> temp2 = new ArrayList<ArrayList<DatabaseLocation>>();
 				switch(clusterType)
 				{
 					case 1:
@@ -109,9 +109,9 @@ public class PointsPlotter extends JFrame {
 						temp2 = sbs.getClusterd(true);
 						break;
 					case 2:
-						KmeansSortOf sbs = new KmeansSortOf(points, true); 
-						sbs.cluster(0.002);
-						temp2 = sbs.getClusterd(true);
+						KmeansSortOf sbs2 = new KmeansSortOf(points, true); 
+						sbs2.cluster(0.002);
+						temp2 = sbs2.getClusterd(true);
 						break;
 					
 				}
