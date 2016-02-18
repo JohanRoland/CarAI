@@ -99,7 +99,7 @@ public class Main
     			int temp = s.cluster(0.5);
     			
     			
-    				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(false);
+    				ArrayList<ArrayList<DatabaseLocation>> temp2 = s.getClusterd(false);
     				int count=0;
     				for(ArrayList<DatabaseLocation> str : temp2)
     				{
