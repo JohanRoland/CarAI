@@ -83,14 +83,16 @@ public class LocPrediction {
 	private MqttTime mqttTime;
 	private LocPrediction()
 	{
+		mqttTime = MqttTime.getInstance();
+		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
 		format = new CSVFormat('.',' ');
 		
 		NNData nd = new NNData();
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
-		//nd.exportToDB();
-		nd.importFromDB(1);
+		//nd.exportToDB(1);
+		//nd.importFromDB(1);
 		
-		nd.exportAsCoordsToCSV();
+		//nd.exportAsCoordsToCSV();
 		
 		String[] descreteMTime = numArray(60);
 		String[] descreteHTime = numArray(24);
@@ -127,20 +129,20 @@ public class LocPrediction {
 		
 		model.holdBackValidation(0.3, false, 1001);
 		model.selectTrainingType(data);
-		MLRegression bestMethod = (MLRegression)model.crossvalidate(5, false);
+		bestMethod = (MLRegression)model.crossvalidate(5, false);
 		
 		
 		System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
 		System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
-		NormalizationHelper helper = data.getNormHelper();
+		helper = data.getNormHelper();
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
 		
-		ReadCSV csv = new ReadCSV(new File("coords.csv"),false,format);
-		String[] line = new String[4];
-		MLData input = helper.allocateInputVector();
+		//ReadCSV csv = new ReadCSV(new File("coords.csv"),false,format);
+		//String[] line = new String[4];
+		//MLData input = helper.allocateInputVector();
 		
-		while(csv.next())
+		/*while(csv.next())
 		{
 			StringBuilder result = new StringBuilder();
 			for(int i = 0; i < 4; i++)
@@ -158,8 +160,9 @@ public class LocPrediction {
 			result.append(") Lat Err: " +  dispError(irisChoosen0,csv.get(4)) + " Lon Err: " + dispError(irisChoosen1,csv.get(5)));
 			System.out.println(result.toString());
 		}
+		*/
 		
-		Encog.getInstance().shutdown();
+		//Encog.getInstance().shutdown();
 	}
 	
 	private LocPrediction(int id)
@@ -261,7 +264,7 @@ public class LocPrediction {
 	
 	public Tuple<Double,Double> predict()
 	{
-		ReadCSV csv = new ReadCSV(new File("coords.csv"),false,format);
+		//ReadCSV csv = new ReadCSV(new File("coords.csv"),false,format);
 		String[] line = new String[4];
 		MLData input = helper.allocateInputVector();
 		
@@ -289,6 +292,37 @@ public class LocPrediction {
 		System.out.println(result.toString());
 		return nd.viewClustPos.get(Integer.parseInt(irisChoosen0));
 	}
+	public Tuple<Double,Double> predictCoord()
+	{
+		String[] line = new String[4];
+		MLData input = helper.allocateInputVector();
+		
+		//Calendar c = Calendar.getInstance();
+		int hour = mqttTime.getHour();// c.get(Calendar.HOUR_OF_DAY);
+		int minute = mqttTime.getMinute(); //c.get(Calendar.MINUTE);
+		
+		//EncogUtility.saveEGB(new File("networkExport.eg"), data);
+		//EncogUtility.explainErrorMSE(bestMethod, data);
+		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
+		Car carData = Car.getInstance();
+		
+		line[0] = ""+carData.getPos().fst();
+		line[1] = ""+carData.getPos().snd();
+		line[2] = ""+hour;
+		line[3] = ""+minute;
+		
+		helper.normalizeInputVector(line,input.getData(),false);
+		MLData output = bestMethod.compute(input);
+		String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[1];
+		String irisChoosen1 = helper.denormalizeOutputVectorToString(output)[0];
+		StringBuilder result = new StringBuilder();
+		result.append("[" + line[0]+ ", " + line[1] +", " + line[2]+ ", " + line[3]+ "] ");
+		result.append(" -> predicted: ");
+		result.append(irisChoosen0 + ", " + irisChoosen1);
+		System.out.println(result.toString());
+		return new Tuple<Double,Double>(Double.parseDouble(irisChoosen0),Double.parseDouble(irisChoosen1));
+	}
+	
 	
 	private class NNData
 	{
