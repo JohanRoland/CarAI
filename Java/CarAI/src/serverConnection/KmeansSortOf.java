@@ -36,8 +36,43 @@ public class KmeansSortOf
 			
 		for(int i=0;i<input.size();i++)
 			points = points.add(new PointInSpace(input.get(i)), Geometries.point(input.get(i).getLon(), input.get(i).getLat()));
-		int jasdf = 0;
-		jasdf++;
+
+	}
+	
+	public ArrayList<DatabaseLocation>[] getClusterd(boolean IncludeUnclusterd)
+	{
+		
+		int nClust, OneOrZero;
+		
+		if(IncludeUnclusterd)
+		{
+			OneOrZero=0;
+			nClust=c+1;
+		}
+		else
+		{
+			OneOrZero=1;
+		    nClust=c;
+		}
+		
+		clusters = (ArrayList<DatabaseLocation>[])new ArrayList[nClust];
+		
+		for(int i=0;i<nClust;i++)
+			clusters[i]= new ArrayList<DatabaseLocation>();
+
+		if(IncludeUnclusterd)
+		{
+			points.entries().forEach(a->clusters[a.value().getCluster()-OneOrZero].
+					add(a.value().getDLLoc()));
+		}
+		else
+		{
+			points.entries().filter(e-> e.value().getCluster()!=0).forEach(a->clusters[a.value().getCluster()-OneOrZero].
+					add(a.value().getDLLoc()));
+		
+		}
+		
+		return clusters;
 	}
 	
 	public int cluster(double epsilon) // O(p^2)

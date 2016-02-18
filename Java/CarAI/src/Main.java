@@ -15,6 +15,7 @@ import interfaces.DatabaseLocation;
 import result.LocPrediction;
 import result.Scheduler;
 import serverConnection.DBSCAN;
+import serverConnection.KmeansSortOf;
 import serverConnection.ServerConnection;
 import utils.MqttTime;
 import utils.Tuple;
@@ -93,8 +94,8 @@ public class Main
     			ArrayList<DatabaseLocation> longLat = b.getPosClass(0);
     			
     			
-    			DBSCAN s = new DBSCAN(longLat, false);	
-    			int temp = s.cluster(0.01, 5);
+    			KmeansSortOf s = new KmeansSortOf(longLat, false);	
+    			int temp = s.cluster(0.5);
     			
     			
     				ArrayList<DatabaseLocation>[] temp2 = s.getClusterd(false);
