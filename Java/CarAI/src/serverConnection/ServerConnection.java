@@ -227,6 +227,21 @@ public class ServerConnection {
 			nextLat = nla;
 			nextLon = nlo;
 		}
+		public boolean equals(Object o)
+		{
+			if(o==null)
+				return false;
+			
+			if(o==this)
+				return true;
+		
+			DBQuerry dbq = (DBQuerry)o;
+			
+			if(this.getLat()==dbq.getLat() && this.getLon()==dbq.getLon() && this.getHTime()==dbq.getHTime() && this.getMTime()==dbq.getMTime() && this.getNLat()==dbq.getNLat() && this.getNLon()==dbq.getNLon())
+				return true;
+			else
+				return false;
+		}
 		
 		public double getLon()
 		{
