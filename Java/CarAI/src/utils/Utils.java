@@ -42,8 +42,8 @@ public class Utils {
 	{
 		double maxY=Double.MIN_VALUE;
 		double maxX=Double.MIN_VALUE;
-		double minY=Double.MIN_VALUE;
-		double minX=Double.MIN_VALUE;
+		double minY=Double.MAX_VALUE;
+		double minX=Double.MAX_VALUE;
 		
 		
 		for(DatabaseLocation d : in)
