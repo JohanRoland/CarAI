@@ -3,6 +3,7 @@ package displayData;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -16,6 +17,7 @@ import javax.swing.Timer;
 
 import interfaces.DatabaseLocation;
 import serverConnection.DBSCAN;
+import serverConnection.KmeansSortOf;
 import serverConnection.ServerConnection;
 import utils.Tuple;
 import utils.Utils;
@@ -34,9 +36,12 @@ public class PointsPlotter extends JFrame {
 	
 	private void initUI()
 	{
-		final Surface surface = new Surface();
-		add(surface);
-		
+		JPanel mapPane = new JPanel(new GridLayout(0,1));
+		final Surface surface = new Surface(0);
+		final Surface surface1 = new Surface(1);
+		mapPane.add(surface);
+		mapPane.add(surface1);
+		add(mapPane);
 		addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -58,10 +63,11 @@ public class PointsPlotter extends JFrame {
 	{
 		private final int DELAY = 150;
 	    private Timer timer;
-		
-		public Surface()
+		private int clusterType;
+		public Surface(int i)
 		{
 			initTimer();
+			clusterType = i;
 		}
 		
 		private void initTimer() {
@@ -94,18 +100,31 @@ public class PointsPlotter extends JFrame {
 			try {
 				
 				ArrayList<DatabaseLocation> points = sc.getPosClass(1);
-				DBSCAN sbs = new DBSCAN(points, true); 
-				sbs.cluster(0.002, 2);
-				ArrayList<DatabaseLocation>[] temp2 = sbs.getClusterd(true);
+				ArrayList<ArrayList<DatabaseLocation>> temp2;
+				switch(clusterType)
+				{
+					case 1:
+						DBSCAN sbs = new DBSCAN(points, true); 
+						sbs.cluster(0.002,2);
+						temp2 = sbs.getClusterd(true);
+						break;
+					case 2:
+						KmeansSortOf sbs = new KmeansSortOf(points, true); 
+						sbs.cluster(0.002);
+						temp2 = sbs.getClusterd(true);
+						break;
+					
+				}
+				
 				Tuple<Tuple<Double,Double>,Tuple<Double,Double>> minMax =  Utils.getGPSPlotFrame(points);
 				double maxDistX = (minMax.snd().fst() - minMax.fst().fst());
 				double maxDistY = (minMax.snd().snd() - minMax.fst().snd());
 				double scalingFacX = (this.getHeight()-20) / maxDistX;
 				double scalingFacY = (this.getHeight()-20) /maxDistY;
 				double scalingFac = Math.min(scalingFacX, scalingFacY);
-				for(int i = 0; i < temp2.length; i++)
+				for(int i = 0; i < temp2.size(); i++)
 				{
-					for( DatabaseLocation l: temp2[i])
+					for( DatabaseLocation l: temp2.get(i))
 					{
 						
 						int y = (this.getHeight()-20)-(int)((l.getLat()-minMax.fst().fst())*scalingFac)+10;
