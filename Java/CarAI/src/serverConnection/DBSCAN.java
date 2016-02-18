@@ -21,7 +21,7 @@ public class DBSCAN {
 	int c=0;
     RTree<PointInSpace, Geometry> points;
     Observable<Entry<PointInSpace, Geometry>> neibors;
-    volatile ArrayList<DatabaseLocation>[] clusters;
+    ArrayList<ArrayList<DatabaseLocation>> clusters;
 	
     /**
      * @param input A ArrayList of a Class object that extends DatabaseLocation such that it has long and lat coordinates, it can have any number of other parameters.
@@ -79,7 +79,7 @@ public class DBSCAN {
 	 * getClusterd Is the way which one gets information from the DBSCAN class.
 	 * This method goes through each entry ones so it has a O(n).
 	 */
-	public ArrayList<DatabaseLocation>[] getClusterd(boolean IncludeUnclusterd)
+	public ArrayList<ArrayList<DatabaseLocation>> getClusterd(boolean IncludeUnclusterd)
 	{
 		
 		int nClust, OneOrZero;
@@ -95,19 +95,19 @@ public class DBSCAN {
 		    nClust=c;
 		}
 		
-		clusters = (ArrayList<DatabaseLocation>[])new ArrayList[nClust];
+		clusters = new ArrayList<ArrayList<DatabaseLocation>>();
 		
 		for(int i=0;i<nClust;i++)
-			clusters[i]= new ArrayList<DatabaseLocation>();
+			clusters.add(new ArrayList<DatabaseLocation>());
 
 		if(IncludeUnclusterd)
 		{
-			points.entries().forEach(a->clusters[a.value().getCluster()-OneOrZero].
+			points.entries().forEach(a->clusters.get(a.value().getCluster()-OneOrZero).
 					add(a.value().getDLLoc()));
 		}
 		else
 		{
-			points.entries().filter(e-> e.value().getCluster()!=0).forEach(a->clusters[a.value().getCluster()-OneOrZero].
+			points.entries().filter(e-> e.value().getCluster()!=0).forEach(a->clusters.get(a.value().getCluster()-OneOrZero).
 					add(a.value().getDLLoc()));
 		
 		}

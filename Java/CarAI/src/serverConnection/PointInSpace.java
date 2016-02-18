@@ -25,6 +25,31 @@ public class PointInSpace {
 		noise=false;
 		setCluster(0);
 	}
+	public int compareTo(Object o)
+	{
+		if(this.equals(o))
+			return 0;
+		else
+			return -1;
+		
+	}
+	public boolean equals(Object o)
+	{
+		if(o==null)
+			return false;
+		
+		if(o==this)
+			return true;
+		
+		PointInSpace p = (PointInSpace)o;
+		
+		if(p.getDLLoc().equals(this.d) && p.getCluster()==this.getCluster())
+			return true;
+		else
+			return false;
+			
+		
+	}
 	/**
 	 * sets visited to true
 	 */

@@ -31,7 +31,7 @@ public class Main
 	
     public static void main(String[] args) {
     	
-    	MqttTime mt = MqttTime.getInstance();
+    	//MqttTime mt = MqttTime.getInstance();
     	if(args.length > 0)
     	{
     		if(args[0].equals("1"))
@@ -92,11 +92,11 @@ public class Main
     			ServerConnection b = ServerConnection.getInstance();
     			//b= new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
     			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) {
-    			ArrayList<DatabaseLocation> longLat = b.getPosClass(0);
+    			ArrayList<DatabaseLocation> longLat = b.getPosClass(1);
     			
     			
     			KmeansSortOf s = new KmeansSortOf(longLat, false);	
-    			int temp = s.cluster(0.5);
+    			int temp = s.cluster(0.002);
     			
     			
     				ArrayList<ArrayList<DatabaseLocation>> temp2 = s.getClusterd(false);
