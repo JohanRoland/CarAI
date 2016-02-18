@@ -34,5 +34,33 @@ public class Utils {
 
 		    return dist;
 	}
-	
+	public static Tuple<Tuple<Double,Double>,Tuple<Double,Double>> getGPSPlotFrame(ArrayList<DatabaseLocation> in)
+	{
+		double maxY=0;
+		double maxX=0;
+		double minY=0;
+		double minX=0;
+		
+		
+		for(DatabaseLocation d : in)
+		{
+			if(maxY < d.getLon())
+				maxY=d.getLon();
+				
+			if(minY > d.getLon())
+				minY = d.getLon();
+			
+			if(maxX < d.getLat())
+				maxX = d.getLat();
+			
+			if(minX > d.getLat())
+				minX = d.getLat();
+		}
+		
+		
+		return new Tuple<Tuple<Double,Double>,Tuple<Double,Double>>(new Tuple<Double,Double>(minX,minY),new Tuple<Double,Double>(maxX,maxY));
+	}
+	 
+	 
+	 
 }
