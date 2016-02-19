@@ -8,6 +8,7 @@ import com.github.davidmoten.rtree.geometry.*;
 
 import interfaces.DatabaseLocation;
 import rx.Observable;
+import rx.Observable.OnSubscribe;
 import utils.Tuple;
 /**************************************************************
  * DBSCAN is a clustering algorithm that is noise resistant, 
@@ -21,6 +22,8 @@ public class DBSCAN {
 	int c=0;
     RTree<PointInSpace, Geometry> points;
     Observable<Entry<PointInSpace, Geometry>> neibors;
+    Observable<Entry<PointInSpace, Geometry>> recNeibors;
+    
     ArrayList<ArrayList<DatabaseLocation>> clusters;
 	
     /**
@@ -181,22 +184,32 @@ public class DBSCAN {
 			else
 			{
 				c++;
-				expandCluster(e,epsilon,minPoints); // O(p^2) but marks as visited so dosn't interact mulltiplicativly with the for loop
+				expandCluster(e, neibors,epsilon,minPoints); // O(p^2) but marks as visited so dosn't interact mulltiplicativly with the for loop
 			}
 		}
 	
 	return c;
 	}
 	
-	private void expandCluster(PointInSpace p, double epsilon, int minPoints) 
+	private void expandCluster(PointInSpace p, Observable<Entry<PointInSpace, Geometry>> neibors2, double epsilon, int minPoints) 
 	{
+		recNeibors=Observable.empty();
 		p.setCluster(c);
-		neibors.forEach(
+		neibors2.forEach(
 					e-> 
 						{
 							expandClusterHelper(e.value(), epsilon,minPoints);
 						}
 						);
+		if(!recNeibors.isEmpty().toBlocking().last())
+		{
+			expandCluster(p,Observable.concat(recNeibors,Observable.empty()),epsilon,minPoints);
+
+		}
+		else
+		{
+			return ;
+		}
 	}
 	private void expandClusterHelper(PointInSpace neibor, double epsilon, int minPoints)
 	{
@@ -204,8 +217,9 @@ public class DBSCAN {
 		{
 			neibor.markAsVisited();
 			Observable<Entry<PointInSpace, Geometry>> neiborsOfneibors = points.search(Geometries.circle(neibor.getX(), neibor.getY(), epsilon));//getNeibors(neibors.get(i),epsilon); //O(p)
+			
 			if(neiborsOfneibors.count().toBlocking().last() >=minPoints)
-				neibors.mergeWith(neiborsOfneibors);
+				recNeibors=recNeibors.mergeWith(neiborsOfneibors);
 		}
 		if(neibor.getCluster()==0)
 		{

@@ -95,8 +95,8 @@ public class Main
     			ArrayList<DatabaseLocation> longLat = b.getPosClass(1);
     			
     			
-    			KmeansSortOf s = new KmeansSortOf(longLat, false);	
-    			int temp = s.cluster(0.002);
+    			DBSCAN s = new DBSCAN(longLat, true);	
+    			int temp = s.cluster(0.002, 2);
     			
     			
     				ArrayList<ArrayList<DatabaseLocation>> temp2 = s.getClusterd(false);
