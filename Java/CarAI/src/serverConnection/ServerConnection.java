@@ -165,16 +165,27 @@ public class ServerConnection {
 		Statement stmt = (Statement) connection.createStatement();
 		String values= "INSERT INTO positionhistorytable VALUES " ;		
 		stmt.execute("DELETE FROM positionhistorytable WHERE ID="+ ID);
-		for(int i=0;i<input.length-1;i++)
+		
+		
+		
+		int ltoh=0;
+		for(int i=0;i<input.length;i=i+ltoh)
 		{
-			values += "(" + ID + ","+ input[i].getLon() + "," + input[i].getLat() + "," + input[i].getHTime() + "," + input[i].getMTime() + "," + input[i].getNLon() + "," + input[i].getNLat() +"),";  
+			StringBuilder sb = new StringBuilder();
+			sb.append("INSERT INTO positionhistorytable VALUES ");
+			ltoh= Math.min((input.length -i), 100);
+			for(int j=i;j<(i+ltoh-1);j++)
+			{
+				sb.append( "(" + ID + ","+ input[j].getLon() + "," + input[j].getLat() + "," + input[j].getHTime() + "," + input[j].getMTime() + "," + input[j].getNLon() + "," + input[j].getNLat() +"),");  
+			}
+			sb.append("(" + ID + ","+ input[(i+ltoh-1)].getLon() + "," + input[(i+ltoh-1)].getLat() + "," + input[(i+ltoh-1)].getHTime() + "," + input[(i+ltoh-1)].getMTime() + "," + input[(i+ltoh-1)].getNLon() + "," + input[(i+ltoh-1)].getNLat() +");");
+			
+			//System.out.println(sb.toString());
+			
+			
+			stmt.execute(sb.toString());
 		}
-		values += "(" + ID + ","+ input[input.length-1].getLon() + "," + input[input.length-1].getLat() + "," + input[input.length-1].getHTime() + "," + input[input.length-1].getMTime() + "," + input[input.length-1].getNLon() + "," + input[input.length-1].getNLat() +");";
-		
-		System.out.println(values);
-		
-		
-		stmt.execute(values);
+		System.out.println("Done sending data sting");
 		stmt.close();		
 		
 	}
