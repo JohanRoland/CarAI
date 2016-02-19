@@ -36,7 +36,7 @@ public class PointsPlotter extends JFrame {
 	
 	private void initUI()
 	{
-		JPanel mapPane = new JPanel(new GridLayout(0,1));
+		JPanel mapPane = new JPanel(new GridLayout(1,0));
 		final Surface surface = new Surface(0);
 		final Surface surface1 = new Surface(1);
 		mapPane.add(surface);
@@ -103,12 +103,12 @@ public class PointsPlotter extends JFrame {
 				ArrayList<ArrayList<DatabaseLocation>> temp2 = new ArrayList<ArrayList<DatabaseLocation>>();
 				switch(clusterType)
 				{
-					case 1:
+					case 0:
 						DBSCAN sbs = new DBSCAN(points, true); 
 						sbs.cluster(0.002,2);
 						temp2 = sbs.getClusterd(true);
 						break;
-					case 2:
+					case 1:
 						KmeansSortOf sbs2 = new KmeansSortOf(points, true); 
 						sbs2.cluster(0.002);
 						temp2 = sbs2.getClusterd(true);

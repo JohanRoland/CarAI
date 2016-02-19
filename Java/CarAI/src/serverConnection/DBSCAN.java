@@ -1,5 +1,6 @@
 package serverConnection;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.github.davidmoten.rtree.Entry;
@@ -8,6 +9,7 @@ import com.github.davidmoten.rtree.geometry.*;
 
 import interfaces.DatabaseLocation;
 import rx.Observable;
+import rx.observables.BlockingObservable;
 import utils.Tuple;
 /**************************************************************
  * DBSCAN is a clustering algorithm that is noise resistant, 
@@ -49,7 +51,7 @@ public class DBSCAN {
 		
 			
 		for(int i=0;i<input.size();i++)
-			points = points.add(new PointInSpace(input.get(i)), Geometries.point(input.get(i).getLon(), input.get(i).getLat()));
+			points = points.add(new PointInSpace(input.get(i)), Geometries.pointGeographic(input.get(i).getLon(), input.get(i).getLat()));
 		int jasdf = 0;
 		jasdf++;
 	}
@@ -69,7 +71,7 @@ public class DBSCAN {
 		
 			
 		for(int i=0;i<input.size();i++)
-			points = points.add(new PointInSpace(input.get(i)), Geometries.point(input.get(i).getLon(), input.get(i).getLat()));
+			points = points.add(new PointInSpace(input.get(i)), Geometries.pointGeographic(input.get(i).getLon(), input.get(i).getLat()));
 
 	}
 	/**
@@ -99,14 +101,15 @@ public class DBSCAN {
 		
 		for(int i=0;i<nClust;i++)
 			clusters.add(new ArrayList<DatabaseLocation>());
-
 		if(IncludeUnclusterd)
 		{
+			
 			points.entries().forEach(a->clusters.get(a.value().getCluster()-OneOrZero).
 					add(a.value().getDLLoc()));
 		}
 		else
 		{
+			
 			points.entries().filter(e-> e.value().getCluster()!=0).forEach(a->clusters.get(a.value().getCluster()-OneOrZero).
 					add(a.value().getDLLoc()));
 		
@@ -174,7 +177,7 @@ public class DBSCAN {
 		{
 			e.markAsVisited();
 			neibors = points.search(Geometries.circle(e.getX(), e.getY(), epsilon));//(e, epsilon);		//O(p)
-			if(neibors.count().toBlocking().last() < minPoints)
+			if( neibors.count().toBlocking().last() < minPoints)
 			{
 				e.markAsNoise();
 			}
@@ -188,15 +191,16 @@ public class DBSCAN {
 	return c;
 	}
 	
-	private void expandCluster(PointInSpace p, double epsilon, int minPoints) 
+	private void expandCluster(PointInSpace p, double epsilon, int minPoints ) 
 	{
 		p.setCluster(c);
+		int i = neibors.count().toBlocking().last();
 		neibors.forEach(
 					e-> 
 						{
 							expandClusterHelper(e.value(), epsilon,minPoints);
 						}
-						);
+			);
 	}
 	private void expandClusterHelper(PointInSpace neibor, double epsilon, int minPoints)
 	{
@@ -204,8 +208,13 @@ public class DBSCAN {
 		{
 			neibor.markAsVisited();
 			Observable<Entry<PointInSpace, Geometry>> neiborsOfneibors = points.search(Geometries.circle(neibor.getX(), neibor.getY(), epsilon));//getNeibors(neibors.get(i),epsilon); //O(p)
+			
+			
 			if(neiborsOfneibors.count().toBlocking().last() >=minPoints)
-				neibors.mergeWith(neiborsOfneibors);
+			{
+				neibors =  neibors.mergeWith(neiborsOfneibors);
+			}
+				
 		}
 		if(neibor.getCluster()==0)
 		{
