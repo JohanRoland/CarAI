@@ -82,6 +82,11 @@ public class DBSCAN {
 			points = points.add(new PointInSpace(input.get(i)), Geometries.pointGeographic(input.get(i).getLon(), input.get(i).getLat()));
 
 	}
+	
+	/**
+	 * @param name the name that identifies the cluster file, the file thats loaded is saveClust + name + .txt
+	 * @return returns the same as get clusterd
+	 */
 	static public ArrayList<ArrayList<DatabaseLocation>> loadCulster(String name)
 	{
 
@@ -138,6 +143,11 @@ public class DBSCAN {
         return output;
 		
 	}
+	/**
+	 * @param name the name that identifeis the cluster file, the file that will be saved is caveClust + name + .txt
+	 * 
+	 * invokes the getClust method and saves the result in a file with the specified name, use loadCluster with the same name to read the file later
+	 */
 	public void saveCluster(String name)
 	{
 		ArrayList<ArrayList<DatabaseLocation>> temp = getClusterd(true);
