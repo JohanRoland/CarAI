@@ -1,4 +1,9 @@
 package serverConnection;
+import java.io.BufferedReader;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -76,6 +81,109 @@ public class DBSCAN {
 		for(int i=0;i<input.size();i++)
 			points = points.add(new PointInSpace(input.get(i)), Geometries.pointGeographic(input.get(i).getLon(), input.get(i).getLat()));
 
+	}
+	static public ArrayList<ArrayList<DatabaseLocation>> loadCulster(String name)
+	{
+
+		ArrayList<ArrayList<DatabaseLocation>> output = new ArrayList<ArrayList<DatabaseLocation>>();
+        String fileName = "saveClust" + name + ".txt";
+        String line = null;
+        String line2 = null;
+        String line3 = null;
+        String line4 = null;
+        String line5 = null;
+        String line6 = null;
+        
+        String[] lines = null;
+        String[] lines2 = null;
+        String[] lines3 = null;
+        String[] lines4 = null;
+        String[] lines5 = null;
+        String[] lines6 = null;
+        try {
+            // FileReader reads text files in the default encoding.
+            FileReader fileReader =  new FileReader(fileName);
+
+            // Always wrap FileReader in BufferedReader.
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            int count=0;
+
+			// double lo, double la,int hour, int min, double nlo,double nla
+            while((line = bufferedReader.readLine()) != null && (line2 = bufferedReader.readLine()) != null && (line3 = bufferedReader.readLine()) != null && (line4 = bufferedReader.readLine()) != null && (line5 = bufferedReader.readLine()) != null && (line6 = bufferedReader.readLine()) != null )
+            {
+            	lines = line.split(" ");
+            	lines2 = line2.split(" ");
+            	lines3 = line.split(" ");
+            	lines4 = line2.split(" ");
+            	lines5 = line.split(" ");
+            	lines6 = line2.split(" ");
+            	
+            	
+                output.add(new ArrayList<DatabaseLocation>());
+            	for(int i=0; i<lines.length;i++)
+            	{
+            		output.get(count).add(new ServerConnection.DBQuerry(Double.parseDouble(lines[i]),Double.parseDouble(lines2[i]),Integer.parseInt(lines3[i]),Integer.parseInt(lines4[i]),Double.parseDouble(lines5[i]),Double.parseDouble(lines6[i])));
+            	}
+                
+            	count++;
+            }   
+
+            // Always close files.
+            bufferedReader.close();         
+        }
+        catch(Error | IOException e) {
+            System.out.println("An error has ocured when trying to read the cluster file");                
+        }
+        
+        return output;
+		
+	}
+	public void saveCluster(String name)
+	{
+		ArrayList<ArrayList<DatabaseLocation>> temp = getClusterd(true);
+		try(PrintStream out = new PrintStream(new FileOutputStream("saveClust" + name + ".txt"))){
+			
+			ArrayList<ArrayList<DatabaseLocation>> temp2 = getClusterd(true);
+			for(ArrayList<DatabaseLocation> str : temp2)
+			{
+				
+				for(DatabaseLocation v : str)
+				{
+					out.print(v.getLon()+" ");
+					
+				}
+				out.print("\n");
+				for(DatabaseLocation v : str)
+				{
+					out.print(v.getLat()+" ");	    					
+				}
+				out.print("\n");
+				for(DatabaseLocation v : str)
+				{
+					out.print(v.getHTime()+" ");	    					
+				}
+				out.print("\n");
+				for(DatabaseLocation v : str)
+				{
+					out.print(v.getMTime()+" ");	    					
+				}
+				out.print("\n");
+				for(DatabaseLocation v : str)
+				{
+					out.print(v.getNLon()+" ");	    					
+				}
+				out.print("\n");
+				for(DatabaseLocation v : str)
+				{
+					out.print(v.getNLat()+" ");	    					
+				}
+				out.print("\n");
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+
+		
 	}
 	/**
 	 * @param IncludeUnclusterd If set to True it will return the unclustered "noise points" as cluster number zero" 
