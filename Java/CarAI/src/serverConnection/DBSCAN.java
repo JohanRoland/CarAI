@@ -146,7 +146,8 @@ public class DBSCAN {
 	/**
 	 * @param name the name that identifeis the cluster file, the file that will be saved is caveClust + name + .txt
 	 * 
-	 * invokes the getClust method and saves the result in a file with the specified name, use loadCluster with the same name to read the file later
+	 * invokes the getClust method and saves the result in a file with the specified name, use loadCluster to read the file later
+	 * 
 	 */
 	public void saveCluster(String name)
 	{
@@ -316,22 +317,16 @@ public class DBSCAN {
 	{
 		recNeibors=Observable.empty();
 		p.setCluster(c);
-
+		do{
 		neibors2.forEach(
 					e-> 
 						{
 							expandClusterHelper(e.value(), epsilon,minPoints);
 						}
 				);
-		if(!recNeibors.isEmpty().toBlocking().last())
-		{
-			expandCluster(p,Observable.concat(recNeibors,Observable.empty()),epsilon,minPoints);
-
-		}
-		else
-		{
-			return ;
-		}
+		neibors2=recNeibors;
+		} 
+		while(!recNeibors.isEmpty().toBlocking().last());
 	}
 	private void expandClusterHelper(PointInSpace neibor, double epsilon, int minPoints)
 	{
