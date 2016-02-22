@@ -49,7 +49,7 @@ public class ServerConnection {
 	
 	private ServerConnection()
 	{
-		this("mydb","3306","192.168.1.30" , "car", "RigedyRigedyrektSon");
+		this("mydb","3306","192.168.1.29" , "car", "RigedyRigedyrektSon");
 	}
 	
 	public static ServerConnection getInstance()
@@ -167,6 +167,10 @@ public class ServerConnection {
 		stmt.execute("DELETE FROM positionhistorytable WHERE ID="+ ID);
 		for(int i=0;i<input.length-1;i++)
 		{
+			if(input[i]==null)
+				System.out.println(i);
+			
+			
 			values += "(" + ID + ","+ input[i].getLon() + "," + input[i].getLat() + "," + input[i].getHTime() + "," + input[i].getMTime() + "," + input[i].getNLon() + "," + input[i].getNLat() +"),";  
 		}
 		values += "(" + ID + ","+ input[input.length-1].getLon() + "," + input[input.length-1].getLat() + "," + input[input.length-1].getHTime() + "," + input[input.length-1].getMTime() + "," + input[input.length-1].getNLon() + "," + input[input.length-1].getNLat() +");";
