@@ -315,9 +315,9 @@ public class DBSCAN {
 	
 	private void expandCluster(PointInSpace p, Observable<Entry<PointInSpace, Geometry>> neibors2, double epsilon, int minPoints) 
 	{
+		do{
 		recNeibors=Observable.empty();
 		p.setCluster(c);
-		do{
 		neibors2.forEach(
 					e-> 
 						{
