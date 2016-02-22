@@ -521,69 +521,69 @@ public class LocPrediction {
 			}
 			catch(Exception e){}
 		
+			
 		}
 		
 		public void parseKML(String path)
 		{
 			try{
-			File xmlFile = new File(path);
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			
-			Document doc  = dBuilder.parse(xmlFile);
-			
-			doc.getDocumentElement().normalize();
-			
-			NodeList nList = doc.getElementsByTagName("gx:coord");
-			NodeList tList = doc.getElementsByTagName("when");
-			
-			String builder = "";
-			for(int i = nList.getLength()-1; i >= 0; i--)
-			{
-				Node nNode = nList.item(i);
-				Node tNode = tList.item(i);
-				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-	
-					Element eElement = (Element) nNode;
-					Element tElement = (Element) tNode;
-					
-					String[] coordinates = eElement.getTextContent().split(" ");
-					String[] fullDateTime = tElement.getTextContent().substring(0, tElement.getTextContent().length()-1).split("T");
-					
-					//TIME PARSING
-					String[] splitTime = fullDateTime[1].split(":");
-					int h = Integer.parseInt(splitTime[0]);
-					int min = Integer.parseInt(splitTime[1]);;
-					
-					
-					//GPS PARSING
-					double lat = Double.parseDouble(coordinates[1]);
-				 	double lon = Double.parseDouble(coordinates[0]);
-					double[] tmp =  {lon,lat};
-					input.add(tmp);
-					hours.add(h);
-					minutes.add(min);
-					
-					if(i == 0)
-					{
-						Node oNode = nList.item(i-1);
-						if (oNode.getNodeType() == Node.ELEMENT_NODE) {
-							Element oElement = (Element) oNode;
-							String[] nCoordinates = oElement.getTextContent().split(" ");
-							double[] tmp2 = {Double.parseDouble(nCoordinates[0]), Double.parseDouble(nCoordinates[1])};
+				File xmlFile = new File(path);
+				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+				
+				Document doc  = dBuilder.parse(xmlFile);
+				
+				doc.getDocumentElement().normalize();
+				
+				NodeList nList = doc.getElementsByTagName("gx:coord");
+				NodeList tList = doc.getElementsByTagName("when");
+				
+				String builder = "";
+				for(int i = nList.getLength()-1; i >= 0; i--)
+				{
+					Node nNode = nList.item(i);
+					Node tNode = tList.item(i);
+					if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+		
+						Element eElement = (Element) nNode;
+						Element tElement = (Element) tNode;
+						
+						String[] coordinates = eElement.getTextContent().split(" ");
+						String[] fullDateTime = tElement.getTextContent().substring(0, tElement.getTextContent().length()-1).split("T");
+						
+						//TIME PARSING
+						String[] splitTime = fullDateTime[1].split(":");
+						int h = Integer.parseInt(splitTime[0]);
+						int min = Integer.parseInt(splitTime[1]);;
+						
+						
+						//GPS PARSING
+						double lat = Double.parseDouble(coordinates[1]);
+					 	double lon = Double.parseDouble(coordinates[0]);
+						double[] tmp =  {lon,lat};
+						input.add(tmp);
+						hours.add(h);
+						minutes.add(min);
+						
+						if(i != 0)
+						{
+							Node oNode = nList.item(i-1);
+							if (oNode.getNodeType() == Node.ELEMENT_NODE) {
+								Element oElement = (Element) oNode;
+								String[] nCoordinates = oElement.getTextContent().split(" ");
+								double[] tmp2 = {Double.parseDouble(nCoordinates[0]), Double.parseDouble(nCoordinates[1])};
+								output.add(tmp2);
+							}
+						}
+						else
+						{
+							double[] tmp2 = {lon,lat};
 							output.add(tmp2);
 						}
+						
 					}
-					else
-					{
-						double[] tmp2 = {lon,lat};
-						output.add(tmp2);
-					}
-					
 				}
-			}
-			
-			
+				System.out.println("Done fetching data");
 			}
 			catch(Exception e)
 			{
@@ -655,6 +655,7 @@ public class LocPrediction {
 					querry.add(new DBQuerry(input.get(i)[0], input.get(i)[1], hours.get(i), minutes.get(i), output.get(i)[0], output.get(i)[1]));
 					
 				}
+				System.out.println("Done formatting QuerryArrayList " + querry.size());
 				DBQuerry[] sendDB = querry.toArray(new DBQuerry[querry.size()]);
 				sc.replacePosData(id, sendDB );
 				//sc.addPosData(0, input.get(i)[0], input.get(i)[1], input.get(i)[2], output.get(i)[0], output.get(i)[1]);
