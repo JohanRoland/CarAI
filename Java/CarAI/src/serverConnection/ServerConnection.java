@@ -171,6 +171,7 @@ public class ServerConnection {
 		int ltoh=0;
 		for(i=0;i<input.length;i=i+ltoh)
 		{
+
 			StringBuilder sb = new StringBuilder();
 			sb.append("INSERT INTO positionhistorytable VALUES ");
 			ltoh= Math.min((input.length -i), 100);
