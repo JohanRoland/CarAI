@@ -49,7 +49,7 @@ public class ServerConnection {
 	
 	private ServerConnection()
 	{
-		this("mydb","3306","192.168.1.30" , "car", "RigedyRigedyrektSon");
+		this("mydb","3306","192.168.1.29" , "car", "RigedyRigedyrektSon");
 	}
 	
 	public static ServerConnection getInstance()
@@ -166,10 +166,10 @@ public class ServerConnection {
 		String values= "INSERT INTO positionhistorytable VALUES " ;		
 		stmt.execute("DELETE FROM positionhistorytable WHERE ID="+ ID);
 		
-		
-		
+		int i =0;
+		try{
 		int ltoh=0;
-		for(int i=0;i<input.length;i=i+ltoh)
+		for(i=0;i<input.length;i=i+ltoh)
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.append("INSERT INTO positionhistorytable VALUES ");
@@ -184,6 +184,11 @@ public class ServerConnection {
 			
 			
 			stmt.execute(sb.toString());
+		}
+		}catch(Exception e)
+		{
+			System.out.println("Error at row " + i);
+			e.printStackTrace();
 		}
 		System.out.println("Done sending data sting");
 		stmt.close();		
