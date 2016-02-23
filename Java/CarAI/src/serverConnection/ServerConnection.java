@@ -114,10 +114,10 @@ public class ServerConnection {
 		
 	}
 	
-	public ArrayList<DatabaseLocation> getPosClass(int id) throws SQLException
+	public ArrayList<DatabaseLocation> getPosClass(int id,int limit) throws SQLException
 	{
 		Statement stmt = (Statement) connection.createStatement();
-		ResultSet rs = stmt.executeQuery("CALL getPos("+id+")");
+		ResultSet rs = stmt.executeQuery("CALL getPos("+id+","+limit +")");
 		
 		ArrayList<DatabaseLocation> out = new ArrayList<DatabaseLocation>(); 
 		
@@ -163,7 +163,7 @@ public class ServerConnection {
 						
 		
 		Statement stmt = (Statement) connection.createStatement();
-		String values= "INSERT INTO positionhistorytable VALUES " ;		
+		String values= "INSERT INTO positionhistorytable (ID,Lon,Lat,Hours,Minutes,nextLon,nextLat) VALUES " ;		
 		stmt.execute("DELETE FROM positionhistorytable WHERE ID="+ ID);
 		
 		int i =0;
@@ -173,7 +173,7 @@ public class ServerConnection {
 		{
 
 			StringBuilder sb = new StringBuilder();
-			sb.append("INSERT INTO positionhistorytable VALUES ");
+			sb.append("INSERT INTO positionhistorytable (ID,Lon,Lat,Hours,Minutes,nextLon,nextLat) VALUES ");
 			ltoh= Math.min((input.length -i), 100);
 			for(int j=i;j<(i+ltoh-1);j++)
 			{

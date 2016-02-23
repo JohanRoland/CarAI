@@ -77,6 +77,7 @@ public class User {
 		catch(Exception e)
 		{
 			System.out.println("Exception fetchin user "+ id);
+			e.printStackTrace();
 			System.exit(-1);
 		}
 		return false;

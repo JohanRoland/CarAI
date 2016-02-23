@@ -92,7 +92,7 @@ public class Main
     			ServerConnection b = ServerConnection.getInstance();
     			//b= new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
     			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) {
-    			ArrayList<DatabaseLocation> longLat = b.getPosClass(1);
+    			ArrayList<DatabaseLocation> longLat = b.getPosClass(1,10000);
     			
     			
     			DBSCAN s = new DBSCAN(longLat, true);	

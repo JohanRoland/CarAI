@@ -90,9 +90,9 @@ public class LocPrediction {
 		NNData nd = new NNData();
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 		//nd.exportToDB(1);
-		//nd.importFromDB(1);
+		nd.importFromDB(1);
 		
-		//nd.exportAsCoordsToCSV();
+		nd.exportAsCoordsToCSV();
 		
 		String[] descreteMTime = numArray(60);
 		String[] descreteHTime = numArray(24);
@@ -183,7 +183,7 @@ public class LocPrediction {
 
 		if(!nd.emptyData())
 		{
-			nd.exportAsCoordsToCSV();
+			nd.exportAsClustToCSV();
 				
 			String[] descreteMTime = numArray(60);
 			String[] descreteHTime = numArray(24);
@@ -242,7 +242,7 @@ public class LocPrediction {
 		}
 		if(!instanceMap.containsKey(userID))
 		{
-			instanceMap.put(userID, new LocPrediction(userID));
+			instanceMap.put(userID, new LocPrediction());//userID
 		}
 		
 		return instanceMap.get(userID);
@@ -370,98 +370,13 @@ public class LocPrediction {
 		{
 			ServerConnection b = ServerConnection.getInstance();
 			//b= new ServerConnection();
-			int di =0;
-			int dj =0;
 			try {
-				querry = b.getPosClass(id);
+				querry = b.getPosClass(id,5000);
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+				System.out.println("Error Downloading Data");
 				e.printStackTrace();
 			}
 			System.out.println("Finished downloading data");
-			
-			tree = new DBSCAN(querry, false);	
-			
-			int temp = tree.cluster(0.01, 2);
-			System.out.println("Finished Clustering");	
-			ArrayList<ArrayList<DatabaseLocation>> temp2 = tree.getClusterd(true);
-			System.out.println("Done Getting Cluster");
-			HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
-			HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();
-			HashMap<Tuple<Double,Double>,DatabaseLocation> posToLoc = new HashMap<Tuple<Double,Double>,DatabaseLocation>();
-			nrCluster = temp2.size();
-			for(int i = 0; i < temp2.size();i++)
-			{
-				if(i == 0)
-				{
-					for(DatabaseLocation dbl : temp2.get(i))
-					{
-						Tuple<Double,Double> d = new Tuple<Double,Double>(dbl.getLon(),dbl.getLat());
-						hs.put(d, d);
-						clust.put(d, i);
-						posToLoc.put(d, dbl);
-					}
-				}
-				else
-				{
-					
-					Tuple<Double,Double> mean = Utils.mean(temp2.get(i));
-					viewClustPos.put(i, mean);
-					for(DatabaseLocation dbl : temp2.get(i))
-					{
-						Tuple<Double,Double> coord = new Tuple<Double,Double>(dbl.getLon(),dbl.getLat());
-						hs.put(coord,mean);
-					}
-					clust.put(mean, i);
-				}
-				
-			}
-			
-			System.out.println("Done first Data Iteration");
-			
-			for(int i = 0; i < temp2.size(); i++)
-			{
-				for(int j = 0; j < temp2.get(i).size(); j++)
-				{
-					double[] pos = {temp2.get(i).get(j).getLon(),temp2.get(i).get(j).getLat()};
-					double[] dest = {temp2.get(i).get(j).getNLon(),temp2.get(i).get(j).getNLat()};
-					Tuple<Double,Double> dst = findNextCluster( new Tuple<Double,Double>(temp2.get(i).get(j).getNLon(),temp2.get(i).get(j).getNLat()),posToLoc);
-											
-					Tuple<Double,Double> meanDst = hs.get(dst);
-					di = i;
-					dj = j; 
-					if(i == 0)
-					{
-						/*
-						input.add(pos);
-						 
-						dest[0] = meanDst.fst();
-						dest[1] = meanDst.snd();
-						output.add(dest);
-						hours.add(temp2[i].get(j).getHTime());
-						minutes.add(temp2[i].get(j).getMTime());
-						*/
-					}
-					else if(clust.get(meanDst) != i)
-					{
-						Tuple<Double,Double> coord = new Tuple<Double,Double>(temp2.get(i).get(j).getLon(),temp2.get(i).get(j).getLat());
-						pos[0] = hs.get(coord).fst();
-						pos[1] = hs.get(coord).snd();
-						
-						input.add(pos);
-						
-						inputClust.add(i);
-						dest[0] = meanDst.fst();
-						dest[1] = meanDst.snd();
-						output.add(dest);
-						hours.add(temp2.get(i).get(j).getHTime());
-						minutes.add(temp2.get(i).get(j).getMTime());
-						outputClust.add(clust.get(hs.get(dst)));
-					}
-					
-				}
-			}
-			System.out.println("Done Formatting datastructure");
 	
 		}
 		
@@ -613,6 +528,87 @@ public class LocPrediction {
 		
 		public void exportAsClustToCSV()
 		{
+tree = new DBSCAN(querry, true);	
+			
+			int temp = tree.cluster(0.01, 2);
+			System.out.println("Finished Clustering");	
+			ArrayList<ArrayList<DatabaseLocation>> temp2 = tree.getClusterd(true);
+			System.out.println("Done Getting Cluster");
+			HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
+			HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();
+			HashMap<Tuple<Double,Double>,DatabaseLocation> posToLoc = new HashMap<Tuple<Double,Double>,DatabaseLocation>();
+			nrCluster = temp2.size();
+			for(int i = 0; i < temp2.size();i++)
+			{
+				if(i == 0)
+				{
+					for(DatabaseLocation dbl : temp2.get(i))
+					{
+						Tuple<Double,Double> d = new Tuple<Double,Double>(dbl.getLon(),dbl.getLat());
+						hs.put(d, d);
+						clust.put(d, i);
+						posToLoc.put(d, dbl);
+					}
+				}
+				else
+				{
+					
+					Tuple<Double,Double> mean = Utils.mean(temp2.get(i));
+					viewClustPos.put(i, mean);
+					for(DatabaseLocation dbl : temp2.get(i))
+					{
+						Tuple<Double,Double> coord = new Tuple<Double,Double>(dbl.getLon(),dbl.getLat());
+						hs.put(coord,mean);
+					}
+					clust.put(mean, i);
+				}
+				
+			}
+			
+			System.out.println("Done first Data Iteration");
+			
+			for(int i = 0; i < temp2.size(); i++)
+			{
+				for(int j = 0; j < temp2.get(i).size(); j++)
+				{
+					double[] pos = {temp2.get(i).get(j).getLon(),temp2.get(i).get(j).getLat()};
+					double[] dest = {temp2.get(i).get(j).getNLon(),temp2.get(i).get(j).getNLat()};
+					Tuple<Double,Double> dst = findNextCluster( new Tuple<Double,Double>(temp2.get(i).get(j).getNLon(),temp2.get(i).get(j).getNLat()),posToLoc);
+											
+					Tuple<Double,Double> meanDst = hs.get(dst); 
+					if(i == 0)
+					{
+						/*
+						input.add(pos);
+						 
+						dest[0] = meanDst.fst();
+						dest[1] = meanDst.snd();
+						output.add(dest);
+						hours.add(temp2[i].get(j).getHTime());
+						minutes.add(temp2[i].get(j).getMTime());
+						*/
+					}
+					else if(clust.get(meanDst) != i)
+					{
+						Tuple<Double,Double> coord = new Tuple<Double,Double>(temp2.get(i).get(j).getLon(),temp2.get(i).get(j).getLat());
+						pos[0] = hs.get(coord).fst();
+						pos[1] = hs.get(coord).snd();
+						
+						input.add(pos);
+						
+						inputClust.add(i);
+						dest[0] = meanDst.fst();
+						dest[1] = meanDst.snd();
+						output.add(dest);
+						hours.add(temp2.get(i).get(j).getHTime());
+						minutes.add(temp2.get(i).get(j).getMTime());
+						outputClust.add(clust.get(hs.get(dst)));
+					}
+					
+				}
+			}
+			System.out.println("Done Formatting datastructure");
+			
 			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
 			{
 				for(int i = 0; i < input.size();i++)

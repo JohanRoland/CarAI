@@ -7,6 +7,8 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.github.davidmoten.rtree.Entry;
 import com.github.davidmoten.rtree.RTree;
@@ -306,25 +308,66 @@ public class DBSCAN {
 			else
 			{
 				c++;
-				expandCluster(e, neibors,epsilon,minPoints); // O(p^2) but marks as visited so dosn't interact mulltiplicativly with the for loop
+				//expandCluster(e, neibors,epsilon,minPoints); // O(p^2) but marks as visited so dosn't interact mulltiplicativly with the for loop
+				eClust(neibors.toList().toBlocking().first(),epsilon,minPoints);
 			}
 		}
 	
 	return c;
 	}
 	
+	private void eClust(List<Entry<PointInSpace, Geometry>> neighbours, double epsilon, int minPoints)
+	{
+		//Set<Entry<PointInSpace,Geometry>> seeds = new HashSet<Entry<PointInSpace,Geometry>>();
+		ArrayList<Entry<PointInSpace,Geometry>> seeds = new ArrayList<Entry<PointInSpace,Geometry>>(neighbours);
+		int index = 0;
+		while(index < seeds.size())
+		{
+			final Entry<PointInSpace, Geometry> e = seeds.get(index);
+			if(!e.value().isVisited())
+			{
+				e.value().markAsVisited();
+				final List<Entry<PointInSpace, Geometry>> currNeigbours = points.search(Geometries.circle(e.value().getX(), e.value().getY(), epsilon)).toList().toBlocking().first();
+				
+				if(currNeigbours.size() >= minPoints)
+				{
+					seeds.removeAll(currNeigbours);
+					seeds.addAll(currNeigbours);
+				}
+			}
+			if(e.value().getCluster()==0)
+			{
+				e.value().setCluster(c);
+			}
+			index++;
+			//System.out.println(""+seeds.size());
+		}
+	}
+	 
 	private void expandCluster(PointInSpace p, Observable<Entry<PointInSpace, Geometry>> neibors2, double epsilon, int minPoints) 
 	{
+				
 		do{
 		recNeibors=Observable.empty();
 		p.setCluster(c);
-		neibors2.forEach(
-					e-> 
-						{
-							expandClusterHelper(e.value(), epsilon,minPoints);
-						}
-				);
+		List<Entry<PointInSpace,Geometry>> test = neibors2.toList().toBlocking().first();
+		for(Entry<PointInSpace,Geometry> e : test)
+		{
+			if (!e.value().isVisited())
+			{
+				e.value().markAsVisited();
+				Observable<Entry<PointInSpace, Geometry>> neiborsOfneibors = points.search(Geometries.circle(e.value().getX(), e.value().getY(), epsilon));//getNeibors(neibors.get(i),epsilon); //O(p)
+				if(neiborsOfneibors.count().toBlocking().last() >=minPoints)
+					recNeibors=recNeibors.mergeWith(neiborsOfneibors).distinct();
+			}
+			if(e.value().getCluster()==0)
+			{
+				e.value().setCluster(c);
+			}
+
+		}
 		neibors2=recNeibors;
+		System.out.println("ny nejgaphsdfasd");
 		} 
 		while(!recNeibors.isEmpty().toBlocking().last());
 	}
@@ -334,9 +377,8 @@ public class DBSCAN {
 		{
 			neibor.markAsVisited();
 			Observable<Entry<PointInSpace, Geometry>> neiborsOfneibors = points.search(Geometries.circle(neibor.getX(), neibor.getY(), epsilon));//getNeibors(neibors.get(i),epsilon); //O(p)
-			
 			if(neiborsOfneibors.count().toBlocking().last() >=minPoints)
-				recNeibors=recNeibors.mergeWith(neiborsOfneibors);
+				recNeibors=recNeibors.mergeWith(neiborsOfneibors).distinct();
 		}
 		if(neibor.getCluster()==0)
 		{

@@ -99,7 +99,7 @@ public class PointsPlotter extends JFrame {
 			g2d.setBackground(Color.white);
 			try {
 				
-				ArrayList<DatabaseLocation> points = sc.getPosClass(1);
+				ArrayList<DatabaseLocation> points = sc.getPosClass(1,20000);
 				ArrayList<ArrayList<DatabaseLocation>> temp2 = new ArrayList<ArrayList<DatabaseLocation>>();
 				switch(clusterType)
 				{
