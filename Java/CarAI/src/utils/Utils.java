@@ -3,9 +3,24 @@ package utils;
 import java.util.ArrayList;
 
 import interfaces.DatabaseLocation;
+import predictorG.DayTime;
 
 public class Utils {
 
+	public class ConnectionData
+	{
+		private DayTime dayTime;
+
+		public DayTime getDayTime() {
+			return dayTime;
+		}
+
+		public void setDayTime(DayTime dayTime) {
+			this.dayTime = dayTime;
+		}
+		
+	}
+	
 	// TO BE CHANGED!
 	public static Tuple<Double,Double> mean(ArrayList<DatabaseLocation> in)
 	{
