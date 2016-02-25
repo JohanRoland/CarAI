@@ -447,4 +447,8 @@ public class NNData
 	{
 		return input.isEmpty() && output.isEmpty();
 	}
+
+	public ArrayList<DatabaseLocation> getQuerry() {
+		return querry;
+	}
 }

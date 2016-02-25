@@ -12,6 +12,9 @@ import java.util.Random;
 import car.CarInterface;
 import facerecognition.FaceMQTT;
 import interfaces.DatabaseLocation;
+import mashinelearning.NNData;
+import mashinelearning.PYDBSCAN;
+import predictorG.PredictorG;
 import result.LocPrediction;
 import result.Scheduler;
 import serverConnection.DBSCAN;
@@ -145,7 +148,40 @@ public class Main
     			pp.setVisible(true);
     			
     		}
-    		else 
+    		else if(args[0].equals("7"))
+    		{
+    			PredictorG graph = new PredictorG();
+    			
+    			PYDBSCAN clusters = new PYDBSCAN();
+    			NNData nn = new NNData();
+    			nn.importFromDB(1);
+    			
+    			ArrayList<ArrayList<DatabaseLocation>> temp = clusters.runDBSCAN(nn.getQuerry(), 0.002, 10, 10000);
+    			
+    			int numberOfClusters=temp.size();
+    			
+    			for(int i=0;i<numberOfClusters; i++)
+    			{
+    				graph.addNode(i);
+    			}
+    				
+    			
+    			
+    			
+    			for(int i=0; i<numberOfClusters;i++)
+    			{
+    				int size=temp.get(i).size();
+    				for(int j=0;j<size;j++)
+    				{
+    					graph.enterPath(i,temp.get(i).get(j).,temp.get(i).get(j).getHTime(),temp.get(i).get(j).getMTime(),0);
+    				}
+    			}
+    			
+    			
+    			
+    			
+    		}
+    		else
     		{
     			System.out.println("No argument provided");
     		}
