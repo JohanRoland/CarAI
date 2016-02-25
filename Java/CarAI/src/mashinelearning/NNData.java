@@ -50,6 +50,9 @@ public class NNData
 	DBSCAN tree;
 	
 	ArrayList<DatabaseLocation> querry;
+	
+	ArrayList<Tuple<Double,Double>> means;
+	
 	public NNData()
 	{
 		
@@ -60,6 +63,7 @@ public class NNData
 		inputClust = new ArrayList<Integer>();
 		outputClust = new ArrayList<Integer>();
 		viewClustPos = new HashMap<Integer, Tuple<Double,Double>>();
+		means = new ArrayList<Tuple<Double,Double>>(); 
 		nrCluster = 0;
 	}
 	
@@ -75,7 +79,20 @@ public class NNData
 	
 	public int getClosestCluster(Tuple<Double,Double> pos)
 	{
-		return tree.associateCluster(pos,0.01);
+		double dist = Double.MAX_VALUE;
+		int temp = -1;
+		for(int i = 0; i <  means.size(); i++)
+		{
+			double t = Utils.distFrom(means.get(i).fst(), means.get(i).snd(), pos.fst(), pos.snd());
+			if(dist > t)
+			{
+				dist = t;
+				temp = i+1;
+			}
+			
+		}
+		
+		return temp; //tree.associateCluster(pos,0.01);
 	}
 	
 	public void importFromDB(int id)
@@ -83,7 +100,7 @@ public class NNData
 		ServerConnection b = ServerConnection.getInstance();
 		//b= new ServerConnection();
 		try {
-			querry = b.getPosClass(id,5000);
+			querry = b.getPosClass(id,1000);
 		} catch (SQLException e) {
 			System.out.println("Error Downloading Data");
 			e.printStackTrace();
@@ -193,8 +210,8 @@ public class NNData
 					
 					
 					//GPS PARSING
-					double lat = ((double)Math.round(Double.parseDouble(coordinates[1])*10000000))/10000000;
-				 	double lon = ((double)Math.round(Double.parseDouble(coordinates[0])*10000000))/10000000;
+					double lat = ((double)Math.round(Double.parseDouble(coordinates[0])*10000000))/10000000;
+				 	double lon = ((double)Math.round(Double.parseDouble(coordinates[1])*10000000))/10000000;
 					double[] tmp =  {lon,lat};
 					input.add(tmp);
 					hours.add(h);
@@ -245,13 +262,16 @@ public class NNData
 		
 	}
 	
-	public void exportAsClustToCSV()
+	public void exportAsClustToCSV(int n)
 	{
-		tree = new DBSCAN(querry, true);	
+		//tree = new DBSCAN(querry, true);	
 		
-		int temp = tree.cluster(0.01, 2);
-		System.out.println("Finished Clustering");	
-		ArrayList<ArrayList<DatabaseLocation>> temp2 = tree.getClusterd(true);
+		//int temp = tree.cluster(0.01, 2);
+		querry =  importFromFile();
+		exportAsCoordsToCSV();
+		PYDBSCAN py = new PYDBSCAN();
+		
+		ArrayList<ArrayList<DatabaseLocation>> temp2 = py.runDBSCAN(querry, 0.002, 10, n); //tree.getClusterd(true);
 		System.out.println("Done Getting Cluster");
 		HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
 		HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();
@@ -273,6 +293,7 @@ public class NNData
 			{
 				
 				Tuple<Double,Double> mean = Utils.mean(temp2.get(i));
+				means.add(mean);
 				viewClustPos.put(i, mean);
 				for(DatabaseLocation dbl : temp2.get(i))
 				{
@@ -286,6 +307,9 @@ public class NNData
 		
 		System.out.println("Done first Data Iteration");
 		
+		hours = new ArrayList<Integer>();
+		minutes = new ArrayList<Integer>();
+		
 		for(int i = 0; i < temp2.size(); i++)
 		{
 			for(int j = 0; j < temp2.get(i).size(); j++)
@@ -293,7 +317,7 @@ public class NNData
 				double[] pos = {temp2.get(i).get(j).getLon(),temp2.get(i).get(j).getLat()};
 				double[] dest = {temp2.get(i).get(j).getNLon(),temp2.get(i).get(j).getNLat()};
 				Tuple<Double,Double> dst = findNextCluster( new Tuple<Double,Double>(temp2.get(i).get(j).getNLon(),temp2.get(i).get(j).getNLat()),posToLoc);
-										
+				
 				Tuple<Double,Double> meanDst = hs.get(dst); 
 				if(i == 0)
 				{
@@ -330,7 +354,7 @@ public class NNData
 		
 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
 		{
-			for(int i = 0; i < input.size();i++)
+			for(int i = 0; i < inputClust.size();i++)
 			{
 				/*writer.write(input.get(i)[1] + " " + input.get(i)[0] + " " + hours.get(i) + " " + minutes.get(i) + " " 
 						+ output.get(i)[1] + " " + output.get(i)[0] + "\n");*/
@@ -343,6 +367,7 @@ public class NNData
 			System.out.println("Error on creating csv file");
 			e.printStackTrace();
 		}
+		
 	}
 	
 	public void exportAsCoordsToCSV()
@@ -351,10 +376,11 @@ public class NNData
 		{
 			for(int i = 0; i < querry.size();i++)
 			{
-				writer.write(querry.get(i).getLon()+ " " + querry.get(i).getLat() + " " + (querry.get(i).getHTime()*60 + querry.get(i).getMTime()) + " " 
+				writer.write(querry.get(i).getLon()+ " " + querry.get(i).getLat() + " " + querry.get(i).getHTime() + " "+querry.get(i).getMTime() + " " 
 						+ querry.get(i).getNLon() + " " + querry.get(i).getNLat()+ "\n");
 				
 			}
+			writer.close();
 		}catch(Exception e)
 		{
 			System.out.println("Error on creating csv file");

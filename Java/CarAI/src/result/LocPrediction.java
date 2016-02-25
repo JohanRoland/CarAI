@@ -181,14 +181,14 @@ public class LocPrediction {
 		
 		nd = new NNData();
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
-		//nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml");
+		nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
 		//nd.exportToDB(id);
 		
-		nd.importFromDB(id);
+		//nd.importFromDB(id);
 
-		if(!nd.emptyData())
-		{
-			nd.exportAsClustToCSV();
+		//if(!nd.emptyData())
+		//{
+			nd.exportAsClustToCSV(10000);
 				
 			String[] descreteMTime = numArray(60);
 			String[] descreteHTime = numArray(24);
@@ -234,7 +234,7 @@ public class LocPrediction {
 			System.out.println(helper.toString());
 			System.out.println("Final model: " + bestMethod);
 			
-		}
+		//}
 		
 		//Encog.getInstance().shutdown();
 	}
@@ -247,7 +247,7 @@ public class LocPrediction {
 		}
 		if(!instanceMap.containsKey(userID))
 		{
-			instanceMap.put(userID, new LocPrediction());//userID
+			instanceMap.put(userID, new LocPrediction(userID));//userID
 		}
 		
 		return instanceMap.get(userID);
