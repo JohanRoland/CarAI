@@ -173,7 +173,8 @@ public class Main
     				int size=temp.get(i).size();
     				for(int j=0;j<size;j++)
     				{
-    					graph.enterPath(i,temp.get(i).get(j).,temp.get(i).get(j).getHTime(),temp.get(i).get(j).getMTime(),0);
+    					int cluster = 0; // need to fin what cluster it is goint to 
+    					graph.enterPath(i,cluster,temp.get(i).get(j).getHTime(),temp.get(i).get(j).getMTime(),0);
     				}
     			}
     			
