@@ -5,6 +5,7 @@ import serverConnection.DBSCAN;
 import serverConnection.ServerConnection;
 import serverConnection.ServerConnection.DBQuerry;
 import utils.*;
+import mashinelearning.NNData;
 
 import java.sql.SQLException;
 import java.sql.Time;
@@ -20,6 +21,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.encog.ConsoleStatusReportable;
 import org.encog.Encog;
+import org.encog.util.arrayutil.VectorWindow;
 import org.encog.util.csv.CSVFormat;
 import org.encog.util.csv.ReadCSV;
 import org.encog.util.logging.EncogFormatter;
@@ -88,9 +90,12 @@ public class LocPrediction {
 		format = new CSVFormat('.',' ');
 		
 		NNData nd = new NNData();
+
+		nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
+		nd.importFromFile();
 		//nd.exportToDB(1);
-		nd.importFromDB(1);
+		//nd.importFromDB(1);
 		
 		nd.exportAsCoordsToCSV();
 		
@@ -103,18 +108,18 @@ public class LocPrediction {
 		data.getNormHelper().setFormat(format); 
 		ColumnDefinition columnInLon = data.defineSourceColumn("ilon",0,ColumnType.continuous);		
 		ColumnDefinition columnInLat = data.defineSourceColumn("ilat",1,ColumnType.continuous);		
-		ColumnDefinition columnHTime = data.defineSourceColumn("hours",2,ColumnType.ordinal);
-		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",3,ColumnType.ordinal);
-		ColumnDefinition columnOutLon = data.defineSourceColumn("olon",4,ColumnType.continuous);		
-		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",5,ColumnType.continuous);	
+		//ColumnDefinition columnHTime = data.defineSourceColumn("hours",2,ColumnType.ordinal);
+		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.continuous);
+		ColumnDefinition columnOutLon = data.defineSourceColumn("olon",3,ColumnType.continuous);		
+		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",4,ColumnType.continuous);	
 		
-		columnMTime.defineClass(descreteMTime);
-		columnHTime.defineClass(descreteHTime);
+		//columnMTime.defineClass(descreteMTime);
+		//columnHTime.defineClass(descreteHTime);
 		data.analyze();
 		
 		data.defineInput(columnInLon);
 		data.defineInput(columnInLat);
-		data.defineInput(columnHTime);
+		//data.defineInput(columnHTime);
 		data.defineInput(columnMTime);
 		data.defineOutput(columnOutLon);
 		data.defineOutput(columnOutLat);
@@ -127,8 +132,8 @@ public class LocPrediction {
 		
 		data.normalize();
 		
-		data.setLeadWindowSize(0);
-		data.setLagWindowSize(3);
+		//data.setLeadWindowSize(1);
+		//data.setLagWindowSize(3);
 		
 		model.holdBackValidation(0.3, false, 1001);
 		model.selectTrainingType(data);
@@ -187,7 +192,7 @@ public class LocPrediction {
 				
 			String[] descreteMTime = numArray(60);
 			String[] descreteHTime = numArray(24);
-	 		String[] descreteClust = numArray(nd.nrCluster);
+	 		String[] descreteClust = numArray(nd.getNrCluster());
 			
 			VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
 			data =  new VersatileMLDataSet(source);
@@ -290,16 +295,15 @@ public class LocPrediction {
 		MLData output = bestMethod.compute(input);
 		String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
 		StringBuilder result = new StringBuilder();
-		result.append("[" + line[0]+ " ( " + nd.viewClustPos.get(Integer.parseInt(line[0])) + ")"+ ", " + line[1]+ ", " + line[2]+ "] ");
+		result.append("[" + line[0]+ " ( " + nd.getViewClustPos().get(Integer.parseInt(line[0])) + ")"+ ", " + line[1]+ ", " + line[2]+ "] ");
 		result.append(" -> predicted: ");
-		result.append(irisChoosen0 + " ( " + nd.viewClustPos.get(Integer.parseInt(irisChoosen0)) + ")");
+		result.append(irisChoosen0 + " ( " + nd.getViewClustPos().get(Integer.parseInt(irisChoosen0)) + ")");
 		System.out.println(result.toString());
-		return nd.viewClustPos.get(Integer.parseInt(irisChoosen0));
+		return nd.getViewClustPos().get(Integer.parseInt(irisChoosen0));
 	}
 	public Tuple<Double,Double> predictCoord()
 	{
 		String[] line = new String[4];
-		MLData input = helper.allocateInputVector();
 		
 		//Calendar c = Calendar.getInstance();
 		int hour = mqttTime.getHour();// c.get(Calendar.HOUR_OF_DAY);
@@ -307,377 +311,30 @@ public class LocPrediction {
 		
 		//EncogUtility.saveEGB(new File("networkExport.eg"), data);
 		//EncogUtility.explainErrorMSE(bestMethod, data);
+		
+		//VectorWindow window = new VectorWindow(4);
+		MLData input = helper.allocateInputVector();
+		
 		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
 		Car carData = Car.getInstance();
 		
 		line[0] = ""+carData.getPos().fst();
 		line[1] = ""+carData.getPos().snd();
-		line[2] = ""+hour;
-		line[3] = ""+minute;
+		line[2] = ""+(hour*60+minute);
+		//line[3] = ""+minute;
 		
 		helper.normalizeInputVector(line,input.getData(),false);
-		MLData output = bestMethod.compute(input);
+		MLData output = bestMethod.compute(input);		
 		String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[1];
 		String irisChoosen1 = helper.denormalizeOutputVectorToString(output)[0];
 		StringBuilder result = new StringBuilder();
+		
+		
+		
 		result.append("[" + line[0]+ ", " + line[1] +", " + line[2]+ ", " + line[3]+ "] ");
 		result.append(" -> predicted: ");
 		result.append(irisChoosen0 + ", " + irisChoosen1);
 		System.out.println(result.toString());
 		return new Tuple<Double,Double>(Double.parseDouble(irisChoosen0),Double.parseDouble(irisChoosen1));
-	}
-	
-	
-	private class NNData
-	{
-		// Inputs
-		ArrayList<double[]> input;
-		ArrayList<Integer> minutes;
-		ArrayList<Integer> hours;
-		ArrayList<Integer> inputClust;
-		
-		
-		//Outputs
-		ArrayList<double[]> output;
-		ArrayList<Integer> outputClust;
-		
-		//View Datas
-		HashMap<Integer, Tuple<Double,Double>> viewClustPos; 
-		int nrCluster;
-		
-		DBSCAN tree;
-		
-		ArrayList<DatabaseLocation> querry;
-		public NNData()
-		{
-			
-			input = new ArrayList<double[]>();
-			output = new ArrayList<double[]>();
-			minutes = new ArrayList<Integer>();
-			hours = new ArrayList<Integer>();
-			inputClust = new ArrayList<Integer>();
-			outputClust = new ArrayList<Integer>();
-			viewClustPos = new HashMap<Integer, Tuple<Double,Double>>();
-			nrCluster = 0;
-		}
-		
-		public int getClosestCluster(Tuple<Double,Double> pos)
-		{
-			return tree.associateCluster(pos,0.01);
-		}
-		
-		public void importFromDB(int id)
-		{
-			ServerConnection b = ServerConnection.getInstance();
-			//b= new ServerConnection();
-			try {
-				querry = b.getPosClass(id,5000);
-			} catch (SQLException e) {
-				System.out.println("Error Downloading Data");
-				e.printStackTrace();
-			}
-			System.out.println("Finished downloading data");
-	
-		}
-		
-		public void parseGPX(String path)
-		{
-			try
-			{
-				File xmlFile = new File(path);
-				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-				
-				Document doc  = dBuilder.parse(xmlFile);
-				
-				doc.getDocumentElement().normalize();
-				
-				NodeList nList = doc.getElementsByTagName("trkpt");
-				
-				String builder = "";
-				for(int i = 0; i < nList.getLength(); i++)
-				{
-					
-					Node nNode = nList.item(i);
-					if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-		
-						Element eElement = (Element) nNode;
-						builder = builder + eElement.getAttribute("lat") + " , " + eElement.getAttribute("lon");
-						
-					 	String time = eElement.getElementsByTagName("time").item(0).getTextContent();
-					 	int h = Integer.parseInt(time.substring(11, time.length()-6).replace(":",""));
-					 	int min = Integer.parseInt(time.substring(13, time.length()-3).replace(":",""));
-					 			
-					 	
-					 	String tmdasd= time.substring(11, time.length()-3).replace(":","");
-					 	double t = Math.floor( Double.parseDouble(tmdasd)/100);
-					 	
-					 	double lat = Double.parseDouble(eElement.getAttribute("lat"));
-					 	double lon = Double.parseDouble(eElement.getAttribute("lon"));
-						double[] tmp =  {lon,lat};
-						input.add(tmp);
-						hours.add(h);
-						minutes.add(min);
-						if(i+1 <nList.getLength())
-						{
-							Node oNode = nList.item(i+1);
-							if (oNode.getNodeType() == Node.ELEMENT_NODE) {
-								Element oElement = (Element) oNode;
-								double[] tmp2 = {Double.parseDouble(oElement.getAttribute("lon")), Double.parseDouble(oElement.getAttribute("lat"))};
-								output.add(tmp2);
-							}
-						}
-						else
-						{
-							double[] tmp2 = {lon,lat};
-							output.add(tmp2);
-						}
-					}
-					
-				}
-			
-			}
-			catch(Exception e){}
-		
-			
-		}
-		
-		public void parseKML(String path)
-		{
-			try{
-				File xmlFile = new File(path);
-				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-				
-				Document doc  = dBuilder.parse(xmlFile);
-				
-				doc.getDocumentElement().normalize();
-				
-				NodeList nList = doc.getElementsByTagName("gx:coord");
-				NodeList tList = doc.getElementsByTagName("when");
-				
-				String builder = "";
-				for(int i = nList.getLength()-1; i >= 0; i--)
-				{
-					Node nNode = nList.item(i);
-					Node tNode = tList.item(i);
-					if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-		
-						Element eElement = (Element) nNode;
-						Element tElement = (Element) tNode;
-						
-						String[] coordinates = eElement.getTextContent().split(" ");
-						String[] fullDateTime = tElement.getTextContent().substring(0, tElement.getTextContent().length()-1).split("T");
-						
-						//TIME PARSING
-						String[] splitTime = fullDateTime[1].split(":");
-						int h = Integer.parseInt(splitTime[0]);
-						int min = Integer.parseInt(splitTime[1]);;
-						
-						
-						//GPS PARSING
-						double lat = Double.parseDouble(coordinates[1]);
-					 	double lon = Double.parseDouble(coordinates[0]);
-						double[] tmp =  {lon,lat};
-						input.add(tmp);
-						hours.add(h);
-						minutes.add(min);
-						
-						if(i != 0)
-						{
-							Node oNode = nList.item(i-1);
-							if (oNode.getNodeType() == Node.ELEMENT_NODE) {
-								Element oElement = (Element) oNode;
-								String[] nCoordinates = oElement.getTextContent().split(" ");
-								double[] tmp2 = {Double.parseDouble(nCoordinates[0]), Double.parseDouble(nCoordinates[1])};
-								output.add(tmp2);
-							}
-						}
-						else
-						{
-							double[] tmp2 = {lon,lat};
-							output.add(tmp2);
-						}
-						
-					}
-				}
-				System.out.println("Done fetching data");
-			}
-			catch(Exception e)
-			{
-				
-			}
-		}
-		
-		public void exportToNN(double[][] in,double[][] out)
-		{
-			double[][] parsedInData = new double[input.size()][];
-			for(int i = 0; i < input.size(); i++)
-			{
-				parsedInData[i] = input.get(i);
-			}
-			double[][] parsedOutData = new double[output.size()][];
-			for(int i = 0; i < output.size(); i++)
-			{
-				parsedOutData[i] = output.get(i);
-			}
-			out = parsedOutData;
-			in = parsedInData; 
-			
-		}
-		
-		public void exportAsClustToCSV()
-		{
-tree = new DBSCAN(querry, true);	
-			
-			int temp = tree.cluster(0.01, 2);
-			System.out.println("Finished Clustering");	
-			ArrayList<ArrayList<DatabaseLocation>> temp2 = tree.getClusterd(true);
-			System.out.println("Done Getting Cluster");
-			HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
-			HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();
-			HashMap<Tuple<Double,Double>,DatabaseLocation> posToLoc = new HashMap<Tuple<Double,Double>,DatabaseLocation>();
-			nrCluster = temp2.size();
-			for(int i = 0; i < temp2.size();i++)
-			{
-				if(i == 0)
-				{
-					for(DatabaseLocation dbl : temp2.get(i))
-					{
-						Tuple<Double,Double> d = new Tuple<Double,Double>(dbl.getLon(),dbl.getLat());
-						hs.put(d, d);
-						clust.put(d, i);
-						posToLoc.put(d, dbl);
-					}
-				}
-				else
-				{
-					
-					Tuple<Double,Double> mean = Utils.mean(temp2.get(i));
-					viewClustPos.put(i, mean);
-					for(DatabaseLocation dbl : temp2.get(i))
-					{
-						Tuple<Double,Double> coord = new Tuple<Double,Double>(dbl.getLon(),dbl.getLat());
-						hs.put(coord,mean);
-					}
-					clust.put(mean, i);
-				}
-				
-			}
-			
-			System.out.println("Done first Data Iteration");
-			
-			for(int i = 0; i < temp2.size(); i++)
-			{
-				for(int j = 0; j < temp2.get(i).size(); j++)
-				{
-					double[] pos = {temp2.get(i).get(j).getLon(),temp2.get(i).get(j).getLat()};
-					double[] dest = {temp2.get(i).get(j).getNLon(),temp2.get(i).get(j).getNLat()};
-					Tuple<Double,Double> dst = findNextCluster( new Tuple<Double,Double>(temp2.get(i).get(j).getNLon(),temp2.get(i).get(j).getNLat()),posToLoc);
-											
-					Tuple<Double,Double> meanDst = hs.get(dst); 
-					if(i == 0)
-					{
-						/*
-						input.add(pos);
-						 
-						dest[0] = meanDst.fst();
-						dest[1] = meanDst.snd();
-						output.add(dest);
-						hours.add(temp2[i].get(j).getHTime());
-						minutes.add(temp2[i].get(j).getMTime());
-						*/
-					}
-					else if(clust.get(meanDst) != i)
-					{
-						Tuple<Double,Double> coord = new Tuple<Double,Double>(temp2.get(i).get(j).getLon(),temp2.get(i).get(j).getLat());
-						pos[0] = hs.get(coord).fst();
-						pos[1] = hs.get(coord).snd();
-						
-						input.add(pos);
-						
-						inputClust.add(i);
-						dest[0] = meanDst.fst();
-						dest[1] = meanDst.snd();
-						output.add(dest);
-						hours.add(temp2.get(i).get(j).getHTime());
-						minutes.add(temp2.get(i).get(j).getMTime());
-						outputClust.add(clust.get(hs.get(dst)));
-					}
-					
-				}
-			}
-			System.out.println("Done Formatting datastructure");
-			
-			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
-			{
-				for(int i = 0; i < input.size();i++)
-				{
-					/*writer.write(input.get(i)[1] + " " + input.get(i)[0] + " " + hours.get(i) + " " + minutes.get(i) + " " 
-							+ output.get(i)[1] + " " + output.get(i)[0] + "\n");*/
-					//for(int noise = -5 ; noise < 5; noise++)
-						writer.write(inputClust.get(i) + " " + hours.get(i) + " " + Math.floorMod((minutes.get(i)), 60) + " " 
-							+ outputClust.get(i) + "\n");
-				}
-			}catch(Exception e)
-			{
-				System.out.println("Error on creating csv file");
-				e.printStackTrace();
-			}
-		}
-		
-		public void exportAsCoordsToCSV()
-		{
-			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
-			{
-				for(int i = 0; i < querry.size();i++)
-				{
-					writer.write(querry.get(i).getLon()+ " " + querry.get(i).getLat() + " " + querry.get(i).getHTime() + " " + querry.get(i).getMTime() + " " 
-							+ querry.get(i).getNLon() + " " + querry.get(i).getNLat()+ "\n");
-					
-				}
-			}catch(Exception e)
-			{
-				System.out.println("Error on creating csv file");
-				e.printStackTrace();
-			}
-		}
-		
-		public void exportToDB(int id)
-		{
-			ServerConnection sc =  ServerConnection.getInstance(); //new ServerConnection();
-			ArrayList<DBQuerry> querry = new ArrayList<DBQuerry>();
-			
-			try {
-				for(int i = 0; i < input.size(); i++)
-				{ 
-					querry.add(new DBQuerry(input.get(i)[0], input.get(i)[1], hours.get(i), minutes.get(i), output.get(i)[0], output.get(i)[1]));
-					
-				}
-				System.out.println("Done formatting QuerryArrayList " + querry.size());
-				DBQuerry[] sendDB = querry.toArray(new DBQuerry[querry.size()]);
-				sc.replacePosData(id, sendDB );
-				//sc.addPosData(0, input.get(i)[0], input.get(i)[1], input.get(i)[2], output.get(i)[0], output.get(i)[1]);
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			
-		}
-		public Tuple<Double,Double> findNextCluster(Tuple<Double,Double> pos, HashMap<Tuple<Double,Double>,DatabaseLocation> lookup )
-		{
-			Tuple<Double,Double> temp = pos;
-			while(lookup.containsKey(temp))
-			{
-				DatabaseLocation td = lookup.get(temp);
-				temp = new Tuple<Double,Double>(td.getNLon(),td.getNLat());
-			}
-			
-			return temp;
-		}
-		
-		public boolean emptyData()
-		{
-			return input.isEmpty() && output.isEmpty();
-		}
 	}
 }

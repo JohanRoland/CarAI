@@ -15,10 +15,12 @@ public class User {
 	
 	public User(String id)
 	{
-		sc = ServerConnection.getInstance();
+		//sc = ServerConnection.getInstance();
 		if(!id.equals("") && !id.equals("0"))
 		{
-			importFromDB(id);
+			userID = 1;
+			userName = "William";
+			//importFromDB(id);
 		}
 		else if (id.equals("0"))
 		{
