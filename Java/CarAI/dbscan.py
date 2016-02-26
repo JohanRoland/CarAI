@@ -64,5 +64,5 @@ for l in unique_labels:
     of.write('\n')
 
 of.close()
-print output
+print(output)
 

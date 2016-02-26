@@ -5,12 +5,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.math.RoundingMode;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.stream.Stream;
@@ -95,12 +92,18 @@ public class NNData
 		return temp; //tree.associateCluster(pos,0.01);
 	}
 	
-	public void importFromDB(int id)
+	public void importFromDB(int id,int n)
 	{
 		ServerConnection b = ServerConnection.getInstance();
 		//b= new ServerConnection();
 		try {
-			querry = b.getPosClass(id,1000);
+			querry = b.getPosClass(id,n);
+			ArrayList<DatabaseLocation> temp = new ArrayList<DatabaseLocation>();
+			for(int i = querry.size()-1; i >= 0; i--)
+			{
+				temp.add(querry.get(i));
+			}
+			querry = temp;
 		} catch (SQLException e) {
 			System.out.println("Error Downloading Data");
 			e.printStackTrace();
@@ -262,16 +265,21 @@ public class NNData
 		
 	}
 	
+	/**
+	 * 	Runs DBSCAN on the imported data 
+	 * 
+	 * @param n Amounts of datapoints to be sampled
+	 */
 	public void exportAsClustToCSV(int n)
 	{
 		//tree = new DBSCAN(querry, true);	
 		
 		//int temp = tree.cluster(0.01, 2);
-		querry =  importFromFile();
+		//querry =  importFromFile();
 		exportAsCoordsToCSV();
 		PYDBSCAN py = new PYDBSCAN();
 		
-		ArrayList<ArrayList<DatabaseLocation>> temp2 = py.runDBSCAN(querry, 0.002, 10, n); //tree.getClusterd(true);
+		ArrayList<ArrayList<DatabaseLocation>> temp2 = py.runDBSCAN(querry, 0.001, 20, n); //tree.getClusterd(true);
 		System.out.println("Done Getting Cluster");
 		HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
 		HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();

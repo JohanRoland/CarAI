@@ -181,14 +181,16 @@ public class LocPrediction {
 		
 		nd = new NNData();
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
-		nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
+		//nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
 		//nd.exportToDB(id);
 		
-		//nd.importFromDB(id);
+		int n = 10000;
+		
+		nd.importFromDB(id,n);
 
 		//if(!nd.emptyData())
 		//{
-			nd.exportAsClustToCSV(10000);
+			nd.exportAsClustToCSV(n);
 				
 			String[] descreteMTime = numArray(60);
 			String[] descreteHTime = numArray(24);
