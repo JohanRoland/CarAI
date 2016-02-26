@@ -4,16 +4,21 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.stream.Stream;
+
+import com.google.common.io.Files;
 
 import car.CarInterface;
 import facerecognition.FaceMQTT;
 import interfaces.DatabaseLocation;
 import mashinelearning.NNData;
 import mashinelearning.PYDBSCAN;
+import predictorG.DayTime;
 import predictorG.PredictorG;
 import result.LocPrediction;
 import result.Scheduler;
@@ -155,29 +160,46 @@ public class Main
     			PYDBSCAN clusters = new PYDBSCAN();
     			NNData nn = new NNData();
     			nn.importFromDB(1);
+    			nn.exportAsClustToCSV(10000);
     			
-    			ArrayList<ArrayList<DatabaseLocation>> temp = clusters.runDBSCAN(nn.getQuerry(), 0.002, 10, 10000);
+    			//ArrayList<ArrayList<DatabaseLocation>> temp = clusters.runDBSCAN(nn.getQuerry(), 0.002, 10, 10000);
     			
-    			int numberOfClusters=temp.size();
+    			int numberOfClusters=nn.getNrCluster();
     			
     			for(int i=0;i<numberOfClusters; i++)
     			{
     				graph.addNode(i);
     			}
     				
+    			Stream<String> lines;
+				try {
+					lines = java.nio.file.Files.lines(Paths.get("coords.csv"));
+	    			lines.forEach(ss -> {
+	    				String[] s = ss.split(" " );
+	    				graph.enterPath(Integer.parseInt(s[0]), Integer.parseInt(s[3]), (Integer.parseInt(s[1])*60)+Integer.parseInt(s[2]), 0, 0);
+	    			});
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
     			
-    			
-    			
+				graph.setCurrentNode(1);
+				double[] waightFactors = {1.0,1.0,1.0,1.0};
+				System.out.println(graph.predictNextNode(3000.0,0,0, waightFactors ));
+				
+				
+    			/*
     			for(int i=0; i<numberOfClusters;i++)
     			{
     				int size=temp.get(i).size();
     				for(int j=0;j<size;j++)
     				{
     					int cluster = 0; // need to fin what cluster it is goint to 
+    					
     					graph.enterPath(i,cluster,temp.get(i).get(j).getHTime(),temp.get(i).get(j).getMTime(),0);
     				}
     			}
-    			
+    			*/
     			
     			
     			

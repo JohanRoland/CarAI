@@ -71,7 +71,7 @@ public class NNData
 	{
 		return nrCluster;
 	}
-	
+
 	public HashMap<Integer, Tuple<Double,Double>> getViewClustPos()
 	{
 		return viewClustPos;
