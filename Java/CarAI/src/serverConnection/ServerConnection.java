@@ -49,7 +49,7 @@ public class ServerConnection {
 	
 	private ServerConnection()
 	{
-		this("mydb","3306","192.168.1.29" , "car", "RigedyRigedyrektSon");
+		this("mydb","3306","54.229.54.240" , "johan", "knarkapan");
 	}
 	
 	public static ServerConnection getInstance()
@@ -163,8 +163,8 @@ public class ServerConnection {
 						
 		
 		Statement stmt = (Statement) connection.createStatement();
-		String values= "INSERT INTO positionhistorytable (ID,Lon,Lat,Hours,Minutes,nextLon,nextLat) VALUES " ;		
-		stmt.execute("DELETE FROM positionhistorytable WHERE ID="+ ID);
+		String values= "INSERT INTO PositionHistoryTable (ID,Lon,Lat,Hours,Minutes,nextLon,nextLat) VALUES " ;		
+		stmt.execute("DELETE FROM PositionHistoryTable WHERE ID="+ ID);
 		
 		int i =0;
 		try{
@@ -173,7 +173,7 @@ public class ServerConnection {
 		{
 
 			StringBuilder sb = new StringBuilder();
-			sb.append("INSERT INTO positionhistorytable (ID,Lon,Lat,Hours,Minutes,nextLon,nextLat) VALUES ");
+			sb.append("INSERT INTO PositionHistoryTable (ID,Lon,Lat,Hours,Minutes,nextLon,nextLat) VALUES ");
 			ltoh= Math.min((input.length -i), 100);
 			for(int j=i;j<(i+ltoh-1);j++)
 			{

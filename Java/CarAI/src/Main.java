@@ -11,6 +11,7 @@ import java.util.Random;
 
 import car.CarInterface;
 import facerecognition.FaceMQTT;
+import forReport.Analyze;
 import interfaces.DatabaseLocation;
 import mashinelearning.NNData;
 import mashinelearning.PYDBSCAN;
@@ -34,7 +35,9 @@ public class Main
 	
     public static void main(String[] args) {
     	
-    	//MqttTime mt = MqttTime.getInstance();
+    	MqttTime mt = MqttTime.getInstance();
+    	//Analyze.analyzeLearningData();
+    	//System.exit(0);
     	if(args.length > 0)
     	{
     		if(args[0].equals("1"))
@@ -154,7 +157,7 @@ public class Main
     			
     			PYDBSCAN clusters = new PYDBSCAN();
     			NNData nn = new NNData();
-    			nn.importFromDB(1);
+    			nn.importFromDB(1,10000);
     			
     			ArrayList<ArrayList<DatabaseLocation>> temp = clusters.runDBSCAN(nn.getQuerry(), 0.002, 10, 10000);
     			
@@ -162,7 +165,7 @@ public class Main
     			
     			for(int i=0;i<numberOfClusters; i++)
     			{
-    				graph.addNode(i);
+    				//graph.addNode(i);
     			}
     				
     			

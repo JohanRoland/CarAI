@@ -106,11 +106,11 @@ public class PointsPlotter extends JFrame {
 						break;
 					case 3:
 						NNData test3 = new NNData();
-						test3.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",1000);
+						test3.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
 						points = test3.importFromFile();
 						test3.exportAsCoordsToCSV();
 						PYDBSCAN ps =  new PYDBSCAN();
-						temp2 = ps.runDBSCAN(points,0.002,5,1000);
+						temp2 = ps.runDBSCAN(points,0.001,20,10000);
 						break;
 						
 					default:
@@ -173,10 +173,10 @@ public class PointsPlotter extends JFrame {
 				for( DatabaseLocation l: temp2.get(i))
 				{
 					
-					int y = (this.getHeight()-20)-(int)((l.getLat()-minMax.fst().fst())*scalingFac)+10;
-					int x = (int)((l.getLon()-minMax.fst().snd())*scalingFac)+10;
-					int ny = (this.getHeight()-20)-(int)((l.getNLat()-minMax.fst().fst())*scalingFac)+10;
-					int nx = (int)((l.getNLon()-minMax.fst().snd())*scalingFac)+10;
+					int x = (this.getHeight()-20)-(int)((l.getLat()-minMax.fst().fst())*scalingFac)+10;
+					int y = (int)((l.getLon()-minMax.fst().snd())*scalingFac)+10;
+					int nx = (this.getHeight()-20)-(int)((l.getNLat()-minMax.fst().fst())*scalingFac)+10;
+					int ny = (int)((l.getNLon()-minMax.fst().snd())*scalingFac)+10;
 					g2d.setPaint(makeColorGradient(2.4,2.4,2.4,0,2,4,128,127,50,i));
 					
 					g2d.drawOval(x-4, y-4, 8, 8);
