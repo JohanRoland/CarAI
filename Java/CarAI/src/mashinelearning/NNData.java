@@ -384,7 +384,7 @@ public class NNData
 		{
 			for(int i = 0; i < querry.size();i++)
 			{
-				writer.write(querry.get(i).getLon()+ " " + querry.get(i).getLat() + " " + querry.get(i).getHTime() + " "+querry.get(i).getMTime() + " " 
+				writer.write(querry.get(i).getLon()+ " " + querry.get(i).getLat() + " " + (querry.get(i).getHTime()*60+querry.get(i).getMTime()) + " " 
 						+ querry.get(i).getNLon() + " " + querry.get(i).getNLat()+ "\n");
 				
 			}
