@@ -163,16 +163,16 @@ public class Main
     			PYDBSCAN clusters = new PYDBSCAN();
     			NNData nn = new NNData();
 
-    			nn.importFromDB(1,10000);
-    			nn.exportAsClustToCSV(10000);
+    			nn.importFromDB(1,1500);
+    			nn.exportAsClustToCSV(1500);
     			
     			//ArrayList<ArrayList<DatabaseLocation>> temp = clusters.runDBSCAN(nn.getQuerry(), 0.002, 10, 10000);
     			
     			int numberOfClusters=nn.getNrCluster();
     			
-    			for(int i=0;i<numberOfClusters; i++)
+    			for(int i=1;i<=	numberOfClusters; i++)
     			{
-    				//graph.addNode(i);
+    				graph.addNode(i);
     			}
     				
     			Stream<String> lines;
@@ -181,15 +181,17 @@ public class Main
 	    			lines.forEach(ss -> {
 	    				String[] s = ss.split(" " );
 	    				graph.enterPath(Integer.parseInt(s[0]), Integer.parseInt(s[3]), (Integer.parseInt(s[1])*60)+Integer.parseInt(s[2]), 0, 0);
+	    				
 	    			});
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
     			
-				graph.setCurrentNode(1);
-				double[] waightFactors = {1.0,1.0,1.0,1.0};
-				System.out.println(graph.predictNextNode(3000.0,0,0, waightFactors ));
+				graph.setCurrentNode(2);
+				double[] waightFactors = {1.0,1.0,1.0,1.0,1.0};
+				for(int i = 0 ; i<1440; i=i+30)
+					System.out.println("prediction at time: " + i + " "+ graph.predictNextNode((double)i,0,0, waightFactors ));
 				
 				
     			/*

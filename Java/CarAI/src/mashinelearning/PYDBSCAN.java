@@ -28,7 +28,7 @@ public class PYDBSCAN {
 		int amountofClusts = -1;
 		rt = Runtime.getRuntime();
 		
-		String[] commands = {"py" , "dbscan.py", ""+eps,""+minClust,""+sample};
+		String[] commands = {"python" , "dbscan.py", ""+eps,""+minClust,""+sample};
 		
 		ArrayList<String> sb =new ArrayList<String>();
 		try {

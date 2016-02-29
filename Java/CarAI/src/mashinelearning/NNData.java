@@ -395,6 +395,36 @@ public class NNData
 			e.printStackTrace();
 		}
 	}
+	public void coordClull()
+	{
+		ArrayList<DatabaseLocation> temp = new ArrayList<DatabaseLocation>();
+		double accDist=0;
+		DBQuerry db = null;
+		for(int i =1; i<querry.size();i++)
+		{
+			accDist =+Utils.distFrom(querry.get(i).getLat(), querry.get(i).getLon(), querry.get(i).getNLat(), querry.get(i).getNLon());
+			if(accDist<500)
+			{
+				if(db==null)
+				{
+					db=(DBQuerry) querry.get(i);
+				}
+				
+			}
+			else
+			{
+				if(db==null)
+				{
+					temp.add(querry.get(i));
+				}
+				else
+				{
+					temp.add(new DBQuerry(db.getLat(),db.getLon(),db.getHTime(),db.getMTime(),querry.get(i).getNLat(),querry.get(i).getNLon()));
+					db=null;
+				}
+			}	
+		}
+	}
 	
 	public void exportToDB(int id)
 	{
