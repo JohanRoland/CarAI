@@ -10,6 +10,7 @@ public interface DatabaseLocation {
 	public double getNLat();
 	
 	public void setPos(double lat, double lon);
+	public void setNPos(double lat, double lon);
 	public boolean equals(Object o);
 	
 }

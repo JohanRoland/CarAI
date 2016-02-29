@@ -1,13 +1,25 @@
 package predictorG;
 
+import java.io.BufferedReader;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import predictorG.DayTime;
 import utils.Tuple;
-
+/**
+ * @author Knarkapan
+ * Stores a graph and the paths
+ */
 public class PredictorG {
 	
 	HashMap<Integer,Node> nodes;
+	int nummberOfNodes;
 	Node currentNode;
 	
 	
@@ -15,11 +27,19 @@ public class PredictorG {
 	{
 		nodes=new HashMap<Integer,Node>();
 		currentNode=null;
+		nummberOfNodes=0;
 	}
-	public void addNode(Node node, int cluster)
+	public void addNode(int cluster)
 	{
-		nodes.put(cluster, node);
-		
+		if(!nodes.containsKey(cluster))
+		{
+			nodes.put(cluster, new Node(cluster));
+			nummberOfNodes++;
+		}
+		else
+		{
+			throw new Error("Trying to create a cluster that exsists");
+		}
 	}
 	public void setCurrentNode(int cluster)
 	{
@@ -28,108 +48,214 @@ public class PredictorG {
 		else
 			throw new Error("No such cluster");
 	}
-	public Tuple<Tuple<Node, Double>, ArrayList<Tuple<Node, Double>>> predictNextNode(DayTime dt, double[] waightFactors)
-	{		
-		 ArrayList<Tuple<Node,ArrayList<Double>>> temp =currentNode.neibors.proxSerch(dt);
-		 ArrayList<Tuple<Node,Double>> outList = new ArrayList<Tuple<Node,Double>>();
-		 
+	public Tuple<Tuple<Integer, Double>, ArrayList<Tuple<Integer, Double>>> predictNextNode(double t,int d,int w, double[] waightFactors)
+	{
+		 DayTime dt= new DayTime(t,d,w);
+		 ArrayList<Double> temp =currentNode.neibors.proxSerch(dt);
+		 ArrayList<Tuple<Integer,Double>> outList = new ArrayList<Tuple<Integer,Double>>();
 		 double highestFactor=0;
-		 Node highestNode=null;
-		 for(Tuple<Node,ArrayList<Double>> e : temp)
+		 int highestNode=-1;
+		 
+		 for(int i=0; i<temp.size();i++)
 		 {
-			 double factor=1;
-			 int numberOfFactors=0;
-			 for(Double e2 : e.snd())
+			 if(temp.get(i)>highestFactor)
 			 {
-				 factor+=e2*waightFactors[numberOfFactors];
-				 numberOfFactors++;
+				 highestFactor=temp.get(i);
+				 highestNode=i;
 			 }
-			 factor=factor/numberOfFactors;
-			 if(factor>highestFactor)
-			 {
-				 highestFactor=factor;
-				 highestNode=e.fst();
-			 }
-			 outList.add(new Tuple<Node,Double>(e.fst(),factor));
+			 if(temp.get(i)!=0)
+				 outList.add(new Tuple<Integer,Double>(i,temp.get(i)));
 		 }
-		
-		
-		
-		return new Tuple<Tuple<Node,Double>,ArrayList<Tuple<Node,Double>>>(new Tuple<Node,Double>(highestNode, highestFactor),outList);
+		 return new Tuple<Tuple<Integer,Double>,ArrayList<Tuple<Integer,Double>>>(new Tuple<Integer,Double>(highestNode,highestFactor), outList);
+				
 	}
 
 	public void traversAndPathTo(int toCluster, double t,int d,int m)
 	{
-		Node toNode = nodes.get(toCluster);
-		currentNode.neibors.addConnection(t, d, m, toNode);	
-		currentNode = toNode;
+		if(nodes.containsKey(toCluster))
+		{
+			currentNode.neibors.addConnection(t, d, m, toCluster);	
+			currentNode = nodes.get(toCluster);
+		}
+		else
+		{
+			throw new Error("Destination node does not exsist");
+		}
 	}
 	public void enterPath(int fromCluster,int toCluster, double t,int d,int m)
 	{
+		if(!nodes.containsKey(fromCluster))
+		{
+			throw new Error("Sorce cluster dosn't exsists");
+		}
+		else if(!nodes.containsKey(toCluster))
+		{
+			throw new Error("Destination cluster dosn't exsists");
+		}
+		
 		Node fromNode = nodes.get(fromCluster);
-		Node toNode = nodes.get(toCluster);
-		fromNode.neibors.addConnection(t, d, m, toNode);
+		fromNode.neibors.addConnection(t, d, m, toCluster);
 		
 	}
-	 
-	
+/*	
+	public void savePredictorG(String dirPath, String fileName)
+	{
+		try (PrintStream out = new PrintStream(new FileOutputStream(dirPath + fileName))) {
+		out.println(nummberOfNodes);
+		
+		for(Node e: nodes.values())
+		{
+			e.saveNode(out);
+		}	
+		out.close();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}		
+		
+		
+	}
+*/
+	/*
+	public void loadPredictorG(String dirPath, String fileName)
+	{
+
+		
+		try  {
+			FileReader fileReader =  new FileReader(dirPath+fileName);
+			BufferedReader in = new BufferedReader(fileReader);
+			nummberOfNodes=Integer.parseInt(in.readLine());
+			
+			for(int i=0; i<nummberOfNodes; i++)
+			{
+				int cluster = Integer.parseInt(in.readLine());
+				nodes.put(cluster, new Node(in, cluster));
+			}
+			in.close();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}	
+		
+	}
+	*/
 	private class Node
 	{
+		int cluster;
 		ConnectionHandeler neibors;
 		
-		
-		
-		
-		
+		Node(int c)
+		{
+			cluster=c;
+			neibors = new ConnectionHandeler();
+		}
+		Node(BufferedReader fr, int c) throws IOException
+		{
+			this(c);
+			int numberConnections = Integer.parseInt(fr.readLine());
+			for(int i=0;i<numberConnections;i++)
+			{
+				String[] temp =fr.readLine().split(" ");
+				for(int j=0; j<Integer.parseInt(temp[4]); j++)
+					neibors.addConnection(Double.parseDouble(temp[1]), Integer.parseInt(temp[2]), Integer.parseInt(temp[3]), Integer.parseInt(temp[0]));
+				
+			}
+				
+			
+			
+		}
+/*
+	 	public void saveNode(PrintStream out)
+		{
+			out.println(cluster );
+			neibors.saveConnectionHandler(out);
+		}
+*/
 		private class ConnectionHandeler
 		{
-			ArrayList<Tuple<Node, DayTime>> connections;
-			
+			//[time -> [Clust, times]]
+			ArrayList<Tuple<DayTime,ArrayList<Tuple<Integer,Integer>>>> connections2;
+			//HashMap<Integer,HashMap<Integer, Tuple<Integer,DayTime>>> connections2;
 			
 			ConnectionHandeler()
 			{
-				connections = new ArrayList<Tuple<Node,DayTime>>();
+				//connections = new ArrayList<Tuple<Integer,DayTime>>();
+				//connections2 = new HashMap<Integer,HashMap<Integer, Tuple<Integer,DayTime>>>();
+				connections2 = new ArrayList<Tuple<DayTime,ArrayList<Tuple<Integer,Integer>>>>();
 			}
-			
-			void addConnection(double t,int d,int m, Node n)
+		/*	
+			public void saveConnectionHandler(PrintStream out) 
 			{
-				DayTime pl =new DayTime(t, d,m);
-				connections.add(new Tuple<Node,DayTime>(n,pl));
-			}
-
-
-			private ArrayList<Tuple<Node,ArrayList<Double>>> proxSerch(DayTime d)
-			{
-				ArrayList<Tuple<Node,ArrayList<Double>>> out = new ArrayList<Tuple<Node,ArrayList<Double>>> ();
-				for(Tuple<Node,DayTime> t : connections)
+				Set<Entry<Integer, ArrayList<Tuple<Integer, DayTime>>>> temp = connections2.entrySet();
+				
+				out.println(temp.size());
+				
+				for(Entry<Integer, ArrayList<Tuple<Integer, DayTime>>> e2 : temp)
 				{
-					ArrayList<Double> temp;	
-					double time =	t.snd().relativeDistanceT(d);
-					double day =	t.snd().relativeDistanceD(d);
-					double month =	t.snd().relativeDistanceM(d);
-					if(time*day*month>0)
-					{		
-						temp =new ArrayList<Double>();
-						temp.add(time);
-						temp.add(day);
-						temp.add(month);
-						out.add(new Tuple<Node,ArrayList<Double>>(t.fst(),temp));
-					}
-					else if(time*day>0)
+					for( Tuple<Integer, DayTime> e : e2.getValue())
 					{
-						temp =new ArrayList<Double>();
-						temp.add(time);
-						temp.add(day);
-						out.add(new Tuple<Node,ArrayList<Double>>(t.fst(),temp));
-					}else if(time>0)
-					{
-						temp =new ArrayList<Double>();
-						temp.add(time);
-						out.add(new Tuple<Node,ArrayList<Double>>(t.fst(),temp));
-						
+						out.println(e2.getKey()+" "+e.snd().getTime()+" "+e.snd().getDay()+ " "+e.snd().getMonth()+" "+e.fst());
 					}
-						
 				}
+			}
+		 */
+			void addConnection(double t,int d,int m, Integer n)
+			{
+				
+
+				
+				for(Tuple<DayTime, ArrayList<Tuple<Integer, Integer>>> e : connections2)
+				{
+					if(e.fst().getTime()==t &&e.fst().getDay()==d && e.fst().getMonth()==m )
+					{
+						ArrayList<Tuple<Integer, Integer>> temp = e.snd();
+						for(Tuple<Integer, Integer> listE : temp)
+						{
+							if(listE.fst()==n)
+							{
+								listE.setSnd(listE.snd()+1);
+								return;
+								
+							}		
+						}
+
+					}
+					
+				}
+				DayTime pl =new DayTime(t, d,m);
+				ArrayList<Tuple<Integer, Integer>> temp = new ArrayList<Tuple<Integer,Integer>>();
+				temp.add(new Tuple<Integer,Integer>(n,1));
+				connections2.add(new Tuple<DayTime,ArrayList<Tuple<Integer, Integer>>>(pl, temp));
+				
+			}
+
+
+			private ArrayList<Double> proxSerch(DayTime d)
+			{
+				
+				ArrayList<Double> out = new ArrayList<Double>();
+				
+				for(int i =0; i<connections2.size();i++)
+				{
+					out.add(0.0);
+				}
+				
+				
+				for(int i=0; i < connections2.size();i++)
+				{
+					Tuple<DayTime, ArrayList<Tuple<Integer, Integer>>> e = connections2.get(i);
+					for(Tuple<Integer, Integer> cd :e.snd())
+					{
+							
+							double factor = e.fst().relativeDistanceT(d)*(Math.log(0.1+cd.snd()/100)+3)/4;
+							if(factor>0)
+							{
+								out.set(cd.fst(), factor);
+							}
+					}
+					
+				}
+				//ArrayList<Double> listThathasZero = new ArrayList<Double>();
+				//listThathasZero.add(0.0);
+				//out.removeAll(listThathasZero);
 				return out;
 			}
 			
