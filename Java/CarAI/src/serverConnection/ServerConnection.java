@@ -292,6 +292,12 @@ public class ServerConnection {
 			this.lon = lon; 
 			this.lat = lat;
 		}
+		@Override
+		public void setNPos(double lat, double lon) {
+			nextLon=lon;
+			nextLat=lat;
+			
+		}
 			
 	}
 

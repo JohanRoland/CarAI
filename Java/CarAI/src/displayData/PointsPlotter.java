@@ -39,7 +39,7 @@ public class PointsPlotter extends JFrame {
 	private void initUI()
 	{
 		JPanel mapPane = new JPanel(new GridLayout(1,0));
-		final Surface surface = new Surface(3);
+		final Surface surface = new Surface(4);
 		//final Surface surface1 = new Surface(1);
 		mapPane.add(surface);
 		//mapPane.add(surface1);
@@ -77,6 +77,7 @@ public class PointsPlotter extends JFrame {
 			try{
 				points = new ArrayList<DatabaseLocation>();
 				temp2 = new ArrayList<ArrayList<DatabaseLocation>>();
+				
 				switch(clusterType)
 				{
 					case 0:
@@ -112,7 +113,15 @@ public class PointsPlotter extends JFrame {
 						PYDBSCAN ps =  new PYDBSCAN();
 						temp2 = ps.runDBSCAN(points,0.001,20,10000);
 						break;
-						
+					case 4:
+						NNData test4 = new NNData();
+						test4.importFromDB(1, 200000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
+						test4.coordClull();
+						points = test4.getQuerry();
+						test4.exportAsCoordsToCSV();
+						PYDBSCAN something =  new PYDBSCAN();
+						temp2 = something.runDBSCAN(points,0.001,20,200000);
+						break;						
 					default:
 						NNData test2 = new NNData();
 						test2.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
@@ -168,7 +177,7 @@ public class PointsPlotter extends JFrame {
 			double scalingFacX = (this.getHeight()-20) / maxDistX;
 			double scalingFacY = (this.getHeight()-20) /maxDistY;
 			double scalingFac = Math.min(scalingFacX, scalingFacY);
-			for(int i = 0; i < temp2.size(); i++)
+			for(int i = 1; i < temp2.size(); i++)
 			{
 				for( DatabaseLocation l: temp2.get(i))
 				{

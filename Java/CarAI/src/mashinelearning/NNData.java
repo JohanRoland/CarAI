@@ -400,11 +400,13 @@ public class NNData
 		ArrayList<DatabaseLocation> temp = new ArrayList<DatabaseLocation>();
 		double accDist=0;
 		DBQuerry db = null;
-		for(int i =1; i<querry.size();i++)
+		int counterOfRemovedCoords=0;
+		for(int i =0 ; i<querry.size()-1;i++)
 		{
-			accDist =+Utils.distFrom(querry.get(i).getLat(), querry.get(i).getLon(), querry.get(i).getNLat(), querry.get(i).getNLon());
-			if(accDist<500)
+			accDist =+Math.abs(Utils.distFrom(querry.get(i).getLat(), querry.get(i).getLon(), querry.get(i).getNLat(), querry.get(i).getNLon()));
+			if(accDist<5000 && i!=(querry.size()-2))
 			{
+				counterOfRemovedCoords++;
 				if(db==null)
 				{
 					db=(DBQuerry) querry.get(i);
@@ -413,17 +415,22 @@ public class NNData
 			}
 			else
 			{
+				accDist=0;
 				if(db==null)
 				{
 					temp.add(querry.get(i));
 				}
 				else
 				{
-					temp.add(new DBQuerry(db.getLat(),db.getLon(),db.getHTime(),db.getMTime(),querry.get(i).getNLat(),querry.get(i).getNLon()));
+					temp.add(new DBQuerry(db.getLon(),db.getLat(),db.getHTime(),db.getMTime(),querry.get(i).getNLon(),querry.get(i).getNLat()));
 					db=null;
 				}
+
 			}	
 		}
+		System.out.println("The nummber of culled coords wasr: "+counterOfRemovedCoords);
+		temp.add(querry.get(querry.size()-1));
+		querry = temp;
 	}
 	
 	public void exportToDB(int id)

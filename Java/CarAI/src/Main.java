@@ -163,8 +163,8 @@ public class Main
     			PYDBSCAN clusters = new PYDBSCAN();
     			NNData nn = new NNData();
 
-    			nn.importFromDB(1,1500);
-    			nn.exportAsClustToCSV(1500);
+    			nn.importFromDB(1,600000);
+    			nn.exportAsClustToCSV(600000);
     			
     			//ArrayList<ArrayList<DatabaseLocation>> temp = clusters.runDBSCAN(nn.getQuerry(), 0.002, 10, 10000);
     			
