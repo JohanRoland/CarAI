@@ -91,11 +91,11 @@ public class LocPrediction {
 		
 		NNData nd = new NNData();
 
-		nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
+		//nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
-		nd.importFromFile();
+		//nd.importFromFile();
 		//nd.exportToDB(1);
-		//nd.importFromDB(1);
+		nd.importFromDB(1,600000);
 		
 		nd.exportAsCoordsToCSV();
 		
@@ -135,9 +135,9 @@ public class LocPrediction {
 		//data.setLeadWindowSize(1);
 		//data.setLagWindowSize(3);
 		
-		model.holdBackValidation(0.3, false, 1001);
+		model.holdBackValidation(0.3, true, 1001);
 		model.selectTrainingType(data);
-		bestMethod = (MLRegression)model.crossvalidate(5, false);
+		bestMethod = (MLRegression)model.crossvalidate(5, true);
 		
 		
 		System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
@@ -249,7 +249,7 @@ public class LocPrediction {
 		}
 		if(!instanceMap.containsKey(userID))
 		{
-			instanceMap.put(userID, new LocPrediction(userID));//userID
+			instanceMap.put(userID, new LocPrediction());//userID
 		}
 		
 		return instanceMap.get(userID);
