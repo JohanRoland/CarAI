@@ -433,6 +433,57 @@ public class NNData
 		querry = temp;
 	}
 	
+	/**
+	 * Removes the paths that has a lower speed than the threshold 
+	 * or that has zero distance traveled or that has zero difference in time.
+	 * New paths are created linking the all coordinates like a chain as it is assumed that the
+	 * paths under the threshold where not traveling significant distances.
+	 * 
+	 */
+	public void coordClullBySpeed(double threshold)
+	{
+		ArrayList<DatabaseLocation> temp = new ArrayList<DatabaseLocation>();
+		int counterOfRemovedCoords=0;
+		DBQuerry db = null;
+		int prevTime=0;
+
+		double	dist =Math.abs(Utils.distFrom(querry.get(0).getLat(), querry.get(0).getLon(), querry.get(0).getNLat(), querry.get(0).getNLon()));
+		int lastH=querry.get(0).getHTime();
+		int lastM=querry.get(0).getMTime();
+		int oldTime = lastH*60+lastM;	
+		int lastValidPoint=0;
+
+		for(int i =1 ; i<querry.size()-1;i++)
+		{
+			
+			int time =querry.get(i).getHTime()*60+querry.get(i).getMTime();
+			
+			if((time-oldTime)!=0 && dist!=0 && ((dist*1000)/((time-oldTime)*60)>threshold || i==querry.size()-2))
+			{
+				temp.add(new DBQuerry(querry.get(lastValidPoint).getLat(),querry.get(lastValidPoint).getLon(),lastH,lastM,querry.get(i).getLat(),querry.get(i).getLon()));
+				lastH = querry.get(i).getHTime();
+				lastM = querry.get(i).getMTime();
+				lastValidPoint=i;
+				
+			}
+			else
+			{
+				counterOfRemovedCoords++;
+				
+			}
+			
+			dist = Math.abs(Utils.distFrom(querry.get(i).getLat(), querry.get(i).getLon(), querry.get(i).getNLat(), querry.get(i).getNLon()));
+			oldTime=time;	
+			
+			
+		}
+		System.out.println("The nummber of culled coords wasr: "+counterOfRemovedCoords);
+		//stemp.add(new DBQuerry(temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon(),temp.get(temp.size()-1).getHTime(),temp.get(temp.size()-1).getMTime(),temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon()));
+		querry = temp;
+	}
+
+	
+	
 	public void exportToDB(int id)
 	{
 		ServerConnection sc =  ServerConnection.getInstance(); //new ServerConnection();

@@ -22,6 +22,7 @@ import mashinelearning.PYDBSCAN;
 import predictorG.DayTime;
 import predictorG.PredictorG;
 import result.LocPrediction;
+import result.Network;
 import result.Scheduler;
 import serverConnection.DBSCAN;
 import serverConnection.KmeansSortOf;
@@ -163,8 +164,8 @@ public class Main
     			PYDBSCAN clusters = new PYDBSCAN();
     			NNData nn = new NNData();
 
-    			nn.importFromDB(1,600000);
-    			nn.exportAsClustToCSV(600000);
+    			nn.importFromDB(1,60000);
+    			nn.exportAsClustToCSV(60000);
     			
     			//ArrayList<ArrayList<DatabaseLocation>> temp = clusters.runDBSCAN(nn.getQuerry(), 0.002, 10, 10000);
     			
@@ -209,6 +210,10 @@ public class Main
     			
     			
     			
+    		}
+    		else if(args[0].equals("8"))
+    		{
+    			Network n = new Network();
     		}
     		else
     		{
