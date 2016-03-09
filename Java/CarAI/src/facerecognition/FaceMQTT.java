@@ -32,7 +32,7 @@ public class FaceMQTT implements MQTTInterface {
             client.setCallback(new Callback());
             while(!client.isConnected()){}
             client.subscribe(utopic,0);
-            fr = new FaceRecognition();
+            //fr = new FaceRecognition();
 		}
 		catch(MqttException me)
 		{
