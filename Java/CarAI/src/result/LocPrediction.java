@@ -103,7 +103,7 @@ public class LocPrediction {
 		//nd.importFromFile();
 		//nd.exportToDB(1);
 		nd.importFromDB(1,600000);
-		
+		nd.coordClullBySpeed(15.0);
 		nd.exportAsCoordsToCSV();
 		
 		String[] descreteMTime = numArray(60);
@@ -111,7 +111,7 @@ public class LocPrediction {
 		
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
 		data =  new VersatileMLDataSet(source);
-
+		
 		data.getNormHelper().setFormat(format); 
 		ColumnDefinition columnInLon = data.defineSourceColumn("ilon",0,ColumnType.continuous);		
 		ColumnDefinition columnInLat = data.defineSourceColumn("ilat",1,ColumnType.continuous);		
@@ -269,7 +269,7 @@ public class LocPrediction {
 		}
 		if(!instanceMap.containsKey(userID))
 		{
-			instanceMap.put(userID, new LocPrediction());//userID
+			instanceMap.put(userID, new LocPrediction(1));//userID
 		}
 		
 		return instanceMap.get(userID);

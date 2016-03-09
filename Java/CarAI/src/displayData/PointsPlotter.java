@@ -118,12 +118,15 @@ public class PointsPlotter extends JFrame {
 						break;
 					case 4:
 						NNData test4 = new NNData();
-						test4.importFromDB(1, 200000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
-						test4.coordClull();
+						test4.importFromDB(1, 20000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
+						test4.coordClullBySpeed(15.0);
 						points = test4.getQuerry();
+	
 						test4.exportAsCoordsToCSV();
 						PYDBSCAN something =  new PYDBSCAN();
-						temp2 = something.runDBSCAN(points,0.001,20,200000);
+						temp2 = something.runDBSCAN(points,0.001,20,20000);
+						System.out.println("Nummber of clusters; "+ temp2.size());
+						
 						break;						
 					default:
 						NNData test2 = new NNData();
@@ -171,6 +174,7 @@ public class PointsPlotter extends JFrame {
 	    
 		private void doDrawing(Graphics g)
 		{
+
 			Graphics2D g2d = (Graphics2D) g;
 			g2d.setBackground(Color.white);
 			
@@ -178,8 +182,11 @@ public class PointsPlotter extends JFrame {
 			double maxDistX = (minMax.snd().fst() - minMax.fst().fst());
 			double maxDistY = (minMax.snd().snd() - minMax.fst().snd());
 			double scalingFacX = (this.getHeight()-20) / maxDistX;
-			double scalingFacY = (this.getHeight()-20) /maxDistY;
+			double scalingFacY = (this.getWidth()-20) /maxDistY;
 			double scalingFac = Math.min(scalingFacX, scalingFacY);
+			
+			System.out.println("maxDistX: " + maxDistX + " maxDistY: " + maxDistY + "scalingFactor: "+scalingFac);
+			
 			for(int i = 1; i < temp2.size(); i++)
 			{
 				for( DatabaseLocation l: temp2.get(i))

@@ -224,8 +224,6 @@ public class ServerConnection {
 		return out;
 	}
 	
-	
-	
 	public static class DBQuerry implements DatabaseLocation
 	{
 		double lat;
