@@ -249,7 +249,7 @@ public class LocPrediction {
 		}
 		if(!instanceMap.containsKey(userID))
 		{
-			instanceMap.put(userID, new LocPrediction(1));//userID
+			instanceMap.put(userID, new LocPrediction());//userID
 		}
 		
 		return instanceMap.get(userID);

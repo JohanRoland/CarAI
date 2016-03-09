@@ -452,26 +452,42 @@ public class NNData
 		int lastM=querry.get(0).getMTime();
 		int oldTime = lastH*60+lastM;	
 		int lastValidPoint=0;
-
+		int takingAbrake=0;
+		
 		for(int i =1 ; i<querry.size()-1;i++)
 		{
 			
 			int time =querry.get(i).getHTime()*60+querry.get(i).getMTime();
 			
-			if((time-oldTime)!=0 && dist!=0 && ((dist*1000)/((time-oldTime)*60)>threshold || i==querry.size()-2))
+			 /* querry.get(i).getLat()>11.5 && querry.get(i).getLon()>56.5 && */
+			if((time-oldTime)!=0)
 			{
-				temp.add(new DBQuerry(querry.get(lastValidPoint).getLat(),querry.get(lastValidPoint).getLon(),lastH,lastM,querry.get(i).getLat(),querry.get(i).getLon()));
-				lastH = querry.get(i).getHTime();
-				lastM = querry.get(i).getMTime();
-				lastValidPoint=i;
-				
+				if(dist!=0 && ((dist*1000)/((time-oldTime)*60)>threshold || i==querry.size()-2))
+				{
+					if(takingAbrake>0)
+					{
+						temp.add(new DBQuerry(querry.get(lastValidPoint).getLat(),querry.get(lastValidPoint).getLon(),lastH,lastM,querry.get(i).getLat(),querry.get(i).getLon()));
+						lastH = querry.get(i).getHTime();
+						lastM = querry.get(i).getMTime();
+						lastValidPoint=i;
+						takingAbrake=0;
+					}
+					else
+					{
+						counterOfRemovedCoords++;
+					}
+				}
+				else
+				{
+					takingAbrake++;
+					counterOfRemovedCoords++;
+					
+				}
 			}
 			else
 			{
 				counterOfRemovedCoords++;
-				
 			}
-			
 			dist = Math.abs(Utils.distFrom(querry.get(i).getLat(), querry.get(i).getLon(), querry.get(i).getNLat(), querry.get(i).getNLon()));
 			oldTime=time;	
 			
