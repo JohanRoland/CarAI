@@ -59,7 +59,7 @@ public class FaceRecognition
 	    
 	    pers = new HashMap<Integer,Person>();
 	    
-	    Csv cs = loadCsv(pathToProj+"\\bin\\test.csv");
+	    Csv cs = loadCsv(pathToProj+"\\test.csv");
 	    
 	    imWidht =  cs.getImgs().get(0).width();
 	    imHeight =  cs.getImgs().get(0).height();
@@ -121,10 +121,10 @@ public class FaceRecognition
 	    		if(!frame.empty())
 	    		{
 	    			detectAndDisplay(frame,false);
-	    			d.add(cv.exportPerson()[cv.DRIVER]);
-	    			p.add(cv.exportPerson()[cv.PASSENGER]);
-	    			b0.add(cv.exportPerson()[cv.BACKSEAT0]);
-	    			b1.add(cv.exportPerson()[cv.BACKSEAT1]);
+	    			d.add(cv.exportPerson()[cv.DRIVER][0]);
+	    			p.add(cv.exportPerson()[cv.PASSENGER][0]);
+	    			b0.add(cv.exportPerson()[cv.BACKSEAT0][0]);
+	    			b1.add(cv.exportPerson()[cv.BACKSEAT1][0]);
 	    		}
 	    		else
 	    		{
@@ -388,7 +388,7 @@ public class FaceRecognition
 		    			append = true;
 		    		}
 		    			
-					FileWriter f = new FileWriter(Paths.get("bin\\test.csv").toFile(),append);
+					FileWriter f = new FileWriter(Paths.get("test.csv").toFile(),append);
 					f.write(p.exportToCsv());
 					f.close();
 					
@@ -440,10 +440,10 @@ public class FaceRecognition
     	{
     		if(imgs.size() == 0)
     		{
-    			new File(pathToProj+"\\bin\\data\\"+name).mkdir();
+    			new File(pathToProj+"\\data\\"+name).mkdir();
     		}
-    		Imgcodecs.imwrite(pathToProj+"\\bin\\data\\"+name+"\\"+name+imgs.size() + ".jpg", i);
-    		imgs.add(pathToProj+"\\bin\\data\\"+name+"\\"+name+imgs.size() + ".jpg");
+    		Imgcodecs.imwrite(pathToProj+"\\data\\"+name+"\\"+name+imgs.size() + ".jpg", i);
+    		imgs.add(pathToProj+"\\data\\"+name+"\\"+name+imgs.size() + ".jpg");
     	}
     	
     	/**
@@ -484,16 +484,17 @@ public class FaceRecognition
     	public int BACKSEAT0 = 2;
     	public int BACKSEAT1 = 3;
     	    	
-    	String[] internal; 
+    	String[][] internal; 
     	
     	//HashMap<String,Seat> internal;
     	
     	public CarView()
     	{
-    		internal = new String[5];
+    		internal = new String[4][];
     		for(int i = 0; i < internal.length; i++)
     		{
-    			internal[i] = "";
+    			String[] temp ={"",""} ;
+    			internal[i] = temp ;
     		}
     		//internal = new HashMap<String,Seat>();
     	}
@@ -505,7 +506,8 @@ public class FaceRecognition
     	
     	private void emptySeat(int s)
     	{
-    		internal[s] = "";
+    		String[] temp ={"",""} ;
+    		internal[s] = temp;
     	}
     	
     	private void emptyName(String s)
@@ -516,7 +518,8 @@ public class FaceRecognition
 	    		{
 	    			if(internal[i].equals(s))
 	    			{
-	    				internal[i] = "";
+	        			String[] temp ={"",""} ;
+	    				internal[i] = temp;
 	    			}
 	    		}
     		}
@@ -526,7 +529,8 @@ public class FaceRecognition
     	{
     		for(int i = 0; i < internal.length; i++)
     		{
-    			internal[i] = ""; 
+    			String[] temp ={"",""} ;
+    			internal[i] = temp; 
     		}
     	}
     	
@@ -538,12 +542,14 @@ public class FaceRecognition
     			if(p.y > imgCenter.y)
     			{
     				emptyName(name);
-    				internal[DRIVER] = name;
+    				String[] temp ={name,"1.0"} ;
+    				internal[DRIVER] = temp;
     			}
     			else
     			{
     				emptyName(name);
-    				internal[BACKSEAT0] = name;
+    				String[] temp ={name,"1.0"} ;
+    				internal[BACKSEAT0] = temp;
     			}
     		}
     		else
@@ -551,22 +557,34 @@ public class FaceRecognition
     			if(p.y > imgCenter.y)
     			{
     				emptyName(name);
-    				internal[PASSENGER] = name;
+    				String[] temp ={name,"1.0"} ;
+    				internal[PASSENGER] = temp;
     			}
     			else
     			{
     				emptyName(name);
-    				internal[BACKSEAT1] = name;
+    				String[] temp ={name,"1.0"} ;
+    				internal[BACKSEAT1] = temp;
     			}
     		}
     	}
     	
     	public void setPerson(String name, int pos)
     	{
-    		internal[pos] = name;
+    		if(name.equals(""))
+    		{
+    			String[] temp = {};
+    			internal[pos] = temp;
+    		}
+    		else
+    		{
+    			String[] temp ={name,"1.0"} ;
+    			internal[pos] = temp;
+    		}
+    		
     	}
     	
-    	public String[] exportPerson()
+    	public String[][] exportPerson()
     	{
     		return internal;
     	}
@@ -579,7 +597,7 @@ public class FaceRecognition
     	
     	public String getSeatName(int i)
     	{
-    		return internal[i];
+    		return internal[i][0];
     	}
     }
     

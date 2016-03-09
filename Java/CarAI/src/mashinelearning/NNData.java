@@ -74,6 +74,26 @@ public class NNData
 		return viewClustPos;
 	}
 	
+	public double[][] getInputData()
+	{
+		double[][] ret = new double[input.size()][]; 
+		for(int i = 0; i < input.size(); i++)
+		{
+			ret[i] = input.get(i);
+		}
+		return ret;
+	}
+	
+	public double[][] getOutputData()
+	{
+		double[][] ret = new double[output.size()][]; 
+		for(int i = 0; i < output.size(); i++)
+		{
+			ret[i] = output.get(i);
+		}
+		return ret;
+	}
+	
 	public int getClosestCluster(Tuple<Double,Double> pos)
 	{
 		double dist = Double.MAX_VALUE;

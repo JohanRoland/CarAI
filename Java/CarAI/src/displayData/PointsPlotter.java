@@ -39,7 +39,7 @@ public class PointsPlotter extends JFrame {
 	private void initUI()
 	{
 		JPanel mapPane = new JPanel(new GridLayout(1,0));
-		final Surface surface = new Surface(4);
+		final Surface surface = new Surface(3);
 		//final Surface surface1 = new Surface(1);
 		mapPane.add(surface);
 		//mapPane.add(surface1);
@@ -81,7 +81,10 @@ public class PointsPlotter extends JFrame {
 				switch(clusterType)
 				{
 					case 0:
-						points = sc.getPosClass(1,20000);
+						NNData dbtest = new NNData();
+						dbtest.importFromDB(1, 600000);
+						points = dbtest.getQuerry();
+						//points = sc.getPosClass(1,600000);
 						DBSCAN sbs = new DBSCAN(points, true); 
 						sbs.cluster(0.002,2);
 						temp2 = sbs.getClusterd(true);

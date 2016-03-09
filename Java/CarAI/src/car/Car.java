@@ -62,10 +62,41 @@ public class Car {
 	
 	public synchronized void setCar(JSONCAR car)
 	{
-		users.put(Positions.DRIVER,new User(car.DRIVER));
-		users.put(Positions.PASSENGER,new User(car.PASSENGER));
-		users.put(Positions.BACKSEAT0,new User(car.BACKSEAT0));
-		users.put(Positions.BACKSEAT1,new User(car.BACKSEAT1));
+		if(car.DRIVER.length > 1)
+		{
+			users.put(Positions.DRIVER,new User(car.DRIVER[0]));
+		}
+		else
+		{
+			users.put(Positions.DRIVER,new User(""));
+		}
+		if(car.PASSENGER.length > 1)
+		{
+			users.put(Positions.PASSENGER,new User(car.PASSENGER[0]));
+		}
+		else
+		{
+			users.put(Positions.PASSENGER,new User(""));
+		}
+		if(car.BACKSEAT0.length > 1)
+		{
+			users.put(Positions.BACKSEAT0,new User(car.BACKSEAT0[0]));
+		}
+		else
+		{
+			users.put(Positions.BACKSEAT0,new User(""));
+		}
+		if(car.BACKSEAT1.length > 1)
+		{
+			users.put(Positions.BACKSEAT1,new User(car.BACKSEAT1[0]));
+		}
+		else
+		{
+			users.put(Positions.BACKSEAT1,new User(""));
+		}
+		
+		
+		
 	}
 	
 	public synchronized void setPos(Double lon,Double lat) 
