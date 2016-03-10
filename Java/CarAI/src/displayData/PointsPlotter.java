@@ -115,7 +115,7 @@ public class PointsPlotter extends JFrame {
 						break;
 					case 4:
 						NNData test4 = new NNData();
-						test4.importFromDB(1, 20000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
+						test4.importFromDB(1, 200000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
 						test4.coordClullBySpeed(15.0);
 						points = test4.getQuerry();
 	

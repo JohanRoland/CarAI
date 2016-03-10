@@ -474,6 +474,7 @@ public class NNData
 					}
 					else
 					{
+						takingAbrake=0;
 						counterOfRemovedCoords++;
 					}
 				}
