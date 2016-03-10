@@ -3,6 +3,7 @@ package mashinelearning;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Files;
@@ -284,6 +285,47 @@ public class NNData
 		in = parsedInData; 
 		
 	}
+	
+	public ArrayList<ArrayList<DatabaseLocation>> importFromElkiClustering(String path) throws IOException
+	{
+		ArrayList<ArrayList<DatabaseLocation>> output = new ArrayList<ArrayList<DatabaseLocation>>(); 
+		HashMap<Tuple<Double,Double>,Integer> clusterMap= new HashMap<Tuple<Double,Double>,Integer>();
+		Files.walk(Paths.get(path)).forEach(filePath -> {
+		    if (Files.isRegularFile(filePath)) {
+		        try {
+					ArrayList<String> temp = (ArrayList<String>) Files.readAllLines(filePath);
+					int clustID=Integer.parseInt(filePath.toString().replaceFirst("clust_", "").replaceFirst(".txt", ""));
+					for(String a : temp)
+					{
+						if(!a.startsWith("#"))
+						{
+							String[] lonLat= a.split(" ");
+							clusterMap.put(new Tuple<Double,Double>(Double.parseDouble(lonLat[0]),Double.parseDouble(lonLat[1])),clustID);
+						}	
+					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		    }
+		});
+		for(int i = 0 ; i <= amountofClusts; i++)
+		{
+			output.add(new ArrayList<DatabaseLocation>());
+		}
+		
+		for(DatabaseLocation dl : querry)
+		{
+			int clustId = clusterMap.get(new Tuple<Double,Double>(dl.getLon(),dl.getLat()));
+			output.get(clustId).add(dl);
+		}
+		
+		return output;
+
+		
+	}
+
+	
 	
 	/**
 	 * 	Runs DBSCAN on the imported data 
