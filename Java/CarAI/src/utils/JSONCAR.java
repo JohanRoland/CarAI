@@ -46,12 +46,12 @@ public class JSONCAR {
 		{
 			sb.append(PASSENGER[0]);
 		}
-		sb.append("BACKSEAT: ");
+		sb.append(", BACKSEAT: ");
 		if(BACKSEAT0.length > 1)
 		{
 			sb.append(BACKSEAT0[0]);
 		}
-		sb.append("BACKSEAT1: ");
+		sb.append(", BACKSEAT1: ");
 		if(BACKSEAT1.length > 1)
 		{
 			sb.append( BACKSEAT1[0]);

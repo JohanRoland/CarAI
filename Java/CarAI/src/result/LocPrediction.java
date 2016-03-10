@@ -353,7 +353,7 @@ public class LocPrediction {
 		
 		
 		
-		result.append("[" + line[0]+ ", " + line[1] +", " + line[2]+ ", " + line[3]+ "] ");
+		result.append("[" + line[0]+ ", " + line[1] +", " + line[2] + "] ");
 		result.append(" -> predicted: ");
 		result.append(irisChoosen0 + ", " + irisChoosen1);
 		System.out.println(result.toString());
