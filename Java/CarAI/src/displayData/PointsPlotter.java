@@ -39,7 +39,7 @@ public class PointsPlotter extends JFrame {
 	private void initUI()
 	{
 		JPanel mapPane = new JPanel(new GridLayout(1,0));
-		final Surface surface = new Surface(3);
+		final Surface surface = new Surface(5);
 		//final Surface surface1 = new Surface(1);
 		mapPane.add(surface);
 		//mapPane.add(surface1);
@@ -77,13 +77,12 @@ public class PointsPlotter extends JFrame {
 			try{
 				points = new ArrayList<DatabaseLocation>();
 				temp2 = new ArrayList<ArrayList<DatabaseLocation>>();
-				
+				NNData data = new NNData(); 
 				switch(clusterType)
 				{
 					case 0:
-						NNData dbtest = new NNData();
-						dbtest.importFromDB(1, 600000);
-						points = dbtest.getQuerry();
+						data.importFromDB(1, 600000);
+						points = data.getQuerry();
 						//points = sc.getPosClass(1,600000);
 						DBSCAN sbs = new DBSCAN(points, true); 
 						sbs.cluster(0.002,2);
@@ -97,11 +96,10 @@ public class PointsPlotter extends JFrame {
 						break;
 						
 					case 2:
-						NNData test = new NNData();
-						test.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",1000);
-						points = test.importFromFile();
-						test.exportAsCoordsToCSV();
-						temp2 = test.importClustFromFile("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\clusterFile.csv");
+						data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",1000);
+						points = data.importFromFile();
+						data.exportAsCoordsToCSV();
+						temp2 = data.importClustFromFile("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\clusterFile.csv");
 						ArrayList<DatabaseLocation> points2 = new ArrayList<DatabaseLocation>();
 						for(int j = 1000-1; j >= 0; j--)
 						{
@@ -109,25 +107,33 @@ public class PointsPlotter extends JFrame {
 						}
 						break;
 					case 3:
-						NNData test3 = new NNData();
-						test3.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
-						points = test3.importFromFile();
-						test3.exportAsCoordsToCSV();
+						data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
+						points = data.importFromFile();
+						data.exportAsCoordsToCSV();
 						PYDBSCAN ps =  new PYDBSCAN();
 						temp2 = ps.runDBSCAN(points,0.001,20,10000);
 						break;
 					case 4:
-						NNData test4 = new NNData();
-						test4.importFromDB(1, 200000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
-						test4.coordClullBySpeed(15.0);
-						points = test4.getQuerry();
+						data.importFromDB(1, 200000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
+						data.coordClullBySpeed(15.0);
+						points = data.getQuerry();
 	
-						test4.exportAsCoordsToCSV();
+						data.exportAsCoordsToCSV();
 						PYDBSCAN something =  new PYDBSCAN();
 						temp2 = something.runDBSCAN(points,0.001,20,20000);
 						System.out.println("Nummber of clusters; "+ temp2.size());
 						
-						break;						
+						break;
+					case 5:
+						data.importFromDB(1, 600000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
+						data.coordClullBySpeed(15.0);
+						points = data.getQuerry();
+	
+						data.exportAsCoordsToCSV();
+						temp2 = data.importFromElkiClustering("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\ELKIClusters\\");
+						System.out.println("Nummber of clusters; "+ temp2.size());
+						
+						break;
 					default:
 						NNData test2 = new NNData();
 						test2.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
@@ -185,17 +191,17 @@ public class PointsPlotter extends JFrame {
 			double scalingFacY = (this.getWidth()-20) /maxDistY;
 			double scalingFac = Math.min(scalingFacX, scalingFacY);
 			
-			System.out.println("maxDistX: " + maxDistX + " maxDistY: " + maxDistY + "scalingFactor: "+scalingFac);
+			//System.out.println("maxDistX: " + maxDistX + " maxDistY: " + maxDistY + "scalingFactor: "+scalingFac);
 			
 			for(int i = 1; i < temp2.size(); i++)
 			{
 				for( DatabaseLocation l: temp2.get(i))
 				{
 					
-					int x = (this.getHeight()-20)-(int)((l.getLat()-minMax.fst().fst())*scalingFac)+10;
-					int y = (int)((l.getLon()-minMax.fst().snd())*scalingFac)+10;
-					int nx = (this.getHeight()-20)-(int)((l.getNLat()-minMax.fst().fst())*scalingFac)+10;
-					int ny = (int)((l.getNLon()-minMax.fst().snd())*scalingFac)+10;
+					int x = (int)((l.getLon()-minMax.fst().fst())*scalingFac)+10;
+					int y = (int)((l.getLat()-minMax.fst().snd())*scalingFac)+10;
+					//int nx = (this.getHeight()-20)-(int)((l.getNLat()-minMax.fst().fst())*scalingFac)+10;
+					//int ny = (int)((l.getNLon()-minMax.fst().snd())*scalingFac)+10;
 					g2d.setPaint(makeColorGradient(2.4,2.4,2.4,0,2,4,128,127,50,i));
 					
 					g2d.drawOval(x-4, y-4, 8, 8);

@@ -204,13 +204,15 @@ public class LocPrediction {
 		//nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
 		//nd.exportToDB(id);
 		
-		int n = 10000;
+		int n = 600000;
 		
 		nd.importFromDB(id,n);
+		
+		nd.coordClullBySpeed(15.0);
 
 		//if(!nd.emptyData())
 		//{
-			nd.exportAsClustToCSV(n);
+			nd.exportAsClustToCSV();
 				
 			String[] descreteMTime = numArray(60);
 			String[] descreteHTime = numArray(24);
@@ -221,20 +223,21 @@ public class LocPrediction {
 	
 			data.getNormHelper().setFormat(format); 
 	
-			ColumnDefinition columnInClust = data.defineSourceColumn("pos",0,ColumnType.nominal);		
-			ColumnDefinition columnHTime = data.defineSourceColumn("hours",1,ColumnType.ordinal);
-			ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.ordinal);
-			ColumnDefinition columnOutClust = data.defineSourceColumn("opos",3,ColumnType.nominal);
+			ColumnDefinition columnInClust = data.defineSourceColumn("pos",0,ColumnType.nominal);
+			ColumnDefinition columnMTime = data.defineSourceColumn("minutes",1,ColumnType.continuous);
+			//ColumnDefinition columnHTime = data.defineSourceColumn("hours",1,ColumnType.ordinal);
+			//ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.ordinal);
+			ColumnDefinition columnOutClust = data.defineSourceColumn("opos",2,ColumnType.nominal);
 			
 			columnInClust.defineClass(descreteClust);
-			columnMTime.defineClass(descreteMTime);
-			columnHTime.defineClass(descreteHTime);
+			//columnMTime.defineClass(descreteMTime);
+			//columnHTime.defineClass(descreteHTime);
 			columnOutClust.defineClass(descreteClust);
 			data.getNormHelper().defineUnknownValue("?");
 			data.analyze();
 	
 			data.defineInput(columnInClust);
-			data.defineInput(columnHTime);
+			//data.defineInput(columnHTime);
 			data.defineInput(columnMTime);
 			data.defineOutput(columnOutClust);
 			
@@ -269,7 +272,7 @@ public class LocPrediction {
 		}
 		if(!instanceMap.containsKey(userID))
 		{
-			instanceMap.put(userID, new LocPrediction());//userID
+			instanceMap.put(userID, new LocPrediction(userID));//userID
 		}
 		
 		return instanceMap.get(userID);
@@ -296,7 +299,7 @@ public class LocPrediction {
 	public Tuple<Double,Double> predict()
 	{
 		//ReadCSV csv = new ReadCSV(new File("coords.csv"),false,format);
-		String[] line = new String[4];
+		String[] line = new String[2];
 		MLData input = helper.allocateInputVector();
 		
 		//Calendar c = Calendar.getInstance();
@@ -310,14 +313,13 @@ public class LocPrediction {
 		
 		line[0] = ""+nd.getClosestCluster(carData.getPos());
 		//line[0] = ""+nd.getClosestCluster(new Tuple<Double,Double>(57.69661,11.97575));
-		line[1] = ""+hour;
-		line[2] = ""+minute;
+		line[1] = ""+(hour*60+minute);
 		
 		helper.normalizeInputVector(line,input.getData(),false);
 		MLData output = bestMethod.compute(input);
 		String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
 		StringBuilder result = new StringBuilder();
-		result.append("[" + line[0]+ " ( " + nd.getViewClustPos().get(Integer.parseInt(line[0])) + ")"+ ", " + line[1]+ ", " + line[2]+ "] ");
+		result.append("[" + line[0]+ " ( " + nd.getViewClustPos().get(Integer.parseInt(line[0])) + ")"+ ", " + line[1]+ "] ");
 		result.append(" -> predicted: ");
 		result.append(irisChoosen0 + " ( " + nd.getViewClustPos().get(Integer.parseInt(irisChoosen0)) + ")");
 		System.out.println(result.toString());

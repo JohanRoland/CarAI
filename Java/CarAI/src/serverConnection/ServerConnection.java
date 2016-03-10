@@ -106,8 +106,8 @@ public class ServerConnection {
 		
 		while(rs.next())
 		{
-			output[0].add(rs.getDouble("Lon"));
-			output[1].add(rs.getDouble("Lat"));
+			output[0].add(rs.getDouble("Lat"));
+			output[1].add(rs.getDouble("Lon"));
 		}
 		stmt.close();
 		return output;
@@ -123,7 +123,7 @@ public class ServerConnection {
 		
 		while(rs.next())
 		{
-			out.add(new DBQuerry(rs.getDouble("Lon"),rs.getDouble("Lat"),rs.getInt("Hours"),rs.getInt("Minutes") ,rs.getDouble("nextLon"),rs.getDouble("nextLat")));
+			out.add(new DBQuerry(rs.getDouble("Lat"),rs.getDouble("Lon"),rs.getInt("Hours"),rs.getInt("Minutes") ,rs.getDouble("nextLat"),rs.getDouble("nextLon")));
 		}
 		stmt.close();
 		return out;

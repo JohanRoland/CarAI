@@ -1,5 +1,6 @@
 package interfaces;
 
+
 public interface DatabaseLocation {
 	
 	public double getLon();

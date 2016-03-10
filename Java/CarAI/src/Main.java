@@ -165,7 +165,7 @@ public class Main
     			NNData nn = new NNData();
 
     			nn.importFromDB(1,60000);
-    			nn.exportAsClustToCSV(60000);
+    			nn.exportAsClustToCSV();
     			
     			//ArrayList<ArrayList<DatabaseLocation>> temp = clusters.runDBSCAN(nn.getQuerry(), 0.002, 10, 10000);
     			

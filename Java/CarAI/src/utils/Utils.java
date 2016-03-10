@@ -27,8 +27,8 @@ public class Utils {
 		double[] t1 = new double[2];
 		for(DatabaseLocation i : in)
 		{
-			t1[0] += i.getLon();
-			t1[1] += i.getLat();
+			t1[0] += i.getLat();
+			t1[1] += i.getLon();
 		}
 		t1[0] /= in.size();
 		t1[1] /= in.size();
@@ -63,17 +63,17 @@ public class Utils {
 		
 		for(DatabaseLocation d : in)
 		{
-			if(maxY < d.getLon())
-				maxY=d.getLon();
+			if(maxY < d.getLat())
+				maxY=d.getLat();
 				
-			if(minY > d.getLon())
-				minY = d.getLon();
+			if(minY > d.getLat())
+				minY = d.getLat();
 			
-			if(maxX < d.getLat())
-				maxX = d.getLat();
+			if(maxX < d.getLon())
+				maxX = d.getLon();
 			
-			if(minX > d.getLat())
-				minX = d.getLat();
+			if(minX > d.getLon())
+				minX = d.getLon();
 		}
 		
 		

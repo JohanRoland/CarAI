@@ -286,19 +286,24 @@ public class NNData
 		
 	}
 	
-	public ArrayList<ArrayList<DatabaseLocation>> importFromElkiClustering(String path) throws IOException
+	public ArrayList<ArrayList<DatabaseLocation>> importFromElkiClustering(String path)
 	{
 		ArrayList<ArrayList<DatabaseLocation>> output = new ArrayList<ArrayList<DatabaseLocation>>(); 
 		HashMap<Tuple<Double,Double>,Integer> clusterMap= new HashMap<Tuple<Double,Double>,Integer>();
-		
+		try {
 		Files.walk(Paths.get(path)).forEach(filePath -> {
-		    if (Files.isRegularFile(filePath)) {
-		        try {
-					ArrayList<String> temp = (ArrayList<String>) Files.readAllLines(filePath);
+		    if (Files.isRegularFile(filePath) && !filePath.toString().contains("settings")) {
+		        
+		    	amountofClusts++;
+		    	try {
+					ArrayList<String> temp;
+					temp = (ArrayList<String>) Files.readAllLines(filePath);
+					
 					int clustID=0;
-					if(!(filePath.toString()=="noise.txt"))
+					if(!(new File(filePath.toString())).getName().equals("noise.txt"))
 					{
-						clustID=Integer.parseInt(filePath.toString().replaceFirst("clust_", "").replaceFirst(".txt", ""));
+						
+						clustID=Integer.parseInt((new File(filePath.toString())).getName().replaceFirst("cluster_", "").replaceFirst(".txt", ""))+1;
 					}
 					
 					for(String a : temp)
@@ -306,16 +311,20 @@ public class NNData
 						if(!a.startsWith("#"))
 						{
 							String[] lonLat= a.split(" ");
-							clusterMap.put(new Tuple<Double,Double>(Double.parseDouble(lonLat[0]),Double.parseDouble(lonLat[1])),clustID);
+							clusterMap.put(new Tuple<Double,Double>(Double.parseDouble(lonLat[1]),Double.parseDouble(lonLat[2])),clustID);
 						}	
 					}
-				
 				} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				
+		    }
+		});
+		} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-		    }
-		});
 		for(int i = 0 ; i <= amountofClusts; i++)
 		{
 			output.add(new ArrayList<DatabaseLocation>());
@@ -323,7 +332,7 @@ public class NNData
 		
 		for(DatabaseLocation dl : querry)
 		{
-			int clustId = clusterMap.get(new Tuple<Double,Double>(dl.getLon(),dl.getLat()));
+			int clustId = clusterMap.get(new Tuple<Double,Double>(dl.getLat(),dl.getLon()));
 			output.get(clustId).add(dl);
 		}
 		
@@ -339,16 +348,16 @@ public class NNData
 	 * 
 	 * @param n Amounts of datapoints to be sampled
 	 */
-	public void exportAsClustToCSV(int n)
+	public void exportAsClustToCSV()
 	{
 		//tree = new DBSCAN(querry, true);	
 		
 		//int temp = tree.cluster(0.01, 2);
 		//querry =  importFromFile();
-		exportAsCoordsToCSV();
-		PYDBSCAN py = new PYDBSCAN();
+		//exportAsCoordsToCSV();
+		//PYDBSCAN py = new PYDBSCAN();
 		
-		ArrayList<ArrayList<DatabaseLocation>> temp2 = py.runDBSCAN(querry, 0.001, 20, n); //tree.getClusterd(true);
+		ArrayList<ArrayList<DatabaseLocation>> temp2 = importFromElkiClustering("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\ELKIClusters\\"); //py.runDBSCAN(querry, 0.001, 20, n); //tree.getClusterd(true);
 		System.out.println("Done Getting Cluster");
 		HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
 		HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();
@@ -360,7 +369,7 @@ public class NNData
 			{
 				for(DatabaseLocation dbl : temp2.get(i))
 				{
-					Tuple<Double,Double> d = new Tuple<Double,Double>(dbl.getLon(),dbl.getLat());
+					Tuple<Double,Double> d = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
 					hs.put(d, d);
 					clust.put(d, i);
 					posToLoc.put(d, dbl);
@@ -374,7 +383,7 @@ public class NNData
 				viewClustPos.put(i, mean);
 				for(DatabaseLocation dbl : temp2.get(i))
 				{
-					Tuple<Double,Double> coord = new Tuple<Double,Double>(dbl.getLon(),dbl.getLat());
+					Tuple<Double,Double> coord = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
 					hs.put(coord,mean);
 				}
 				clust.put(mean, i);
@@ -391,11 +400,17 @@ public class NNData
 		{
 			for(int j = 0; j < temp2.get(i).size(); j++)
 			{
-				double[] pos = {temp2.get(i).get(j).getLon(),temp2.get(i).get(j).getLat()};
-				double[] dest = {temp2.get(i).get(j).getNLon(),temp2.get(i).get(j).getNLat()};
-				Tuple<Double,Double> dst = findNextCluster( new Tuple<Double,Double>(temp2.get(i).get(j).getNLon(),temp2.get(i).get(j).getNLat()),posToLoc);
+				double[] pos = {temp2.get(i).get(j).getLat(),temp2.get(i).get(j).getLon()};
+				double[] dest = {temp2.get(i).get(j).getNLat(),temp2.get(i).get(j).getNLon()};
+				Tuple<Double,Double> dst = findNextCluster( new Tuple<Double,Double>(temp2.get(i).get(j).getNLat(),temp2.get(i).get(j).getNLon()),posToLoc);
 				
-				Tuple<Double,Double> meanDst = hs.get(dst); 
+				Tuple<Double,Double> meanDst = hs.get(dst);
+				
+				if(meanDst == null || clust.get(meanDst) == null)
+				{
+					break;
+				}
+				
 				if(i == 0)
 				{
 					/*
@@ -410,7 +425,7 @@ public class NNData
 				}
 				else if(clust.get(meanDst) != i)
 				{
-					Tuple<Double,Double> coord = new Tuple<Double,Double>(temp2.get(i).get(j).getLon(),temp2.get(i).get(j).getLat());
+					Tuple<Double,Double> coord = new Tuple<Double,Double>(temp2.get(i).get(j).getLat(),temp2.get(i).get(j).getLon());
 					pos[0] = hs.get(coord).fst();
 					pos[1] = hs.get(coord).snd();
 					
@@ -436,7 +451,7 @@ public class NNData
 				/*writer.write(input.get(i)[1] + " " + input.get(i)[0] + " " + hours.get(i) + " " + minutes.get(i) + " " 
 						+ output.get(i)[1] + " " + output.get(i)[0] + "\n");*/
 				//for(int noise = -5 ; noise < 5; noise++)
-					writer.write(inputClust.get(i) + " " + hours.get(i) + " " + Math.floorMod((minutes.get(i)), 60) + " " 
+					writer.write(inputClust.get(i) + " " + (hours.get(i) * 60 + minutes.get(i)) + " " 
 						+ outputClust.get(i) + "\n");
 			}
 		}catch(Exception e)
@@ -491,7 +506,7 @@ public class NNData
 				}
 				else
 				{
-					temp.add(new DBQuerry(db.getLon(),db.getLat(),db.getHTime(),db.getMTime(),querry.get(i).getNLon(),querry.get(i).getNLat()));
+					temp.add(new DBQuerry(db.getLat(),db.getLon(),db.getHTime(),db.getMTime(),querry.get(i).getNLat(),querry.get(i).getNLon()));
 					db=null;
 				}
 
@@ -607,7 +622,7 @@ public class NNData
 		while(lookup.containsKey(temp))
 		{
 			DatabaseLocation td = lookup.get(temp);
-			temp = new Tuple<Double,Double>(td.getNLon(),td.getNLat());
+			temp = new Tuple<Double,Double>(td.getNLat(),td.getNLon());
 		}
 		
 		return temp;
@@ -644,7 +659,7 @@ public class NNData
 		for(DatabaseLocation dl : querry)
 		{
 			System.out.println(show++);
-			int clustId = clusterMap.get(new Tuple<Double,Double>(dl.getLon(),dl.getLat()));
+			int clustId = clusterMap.get(new Tuple<Double,Double>(dl.getLat(),dl.getLon()));
 			output.get(clustId).add(dl);
 		}
 		
