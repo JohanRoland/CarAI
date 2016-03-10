@@ -517,42 +517,42 @@ public class NNData
 		querry = temp;
 	}
 
-public void coordCullByBox(double lon,double lat, double hight ,double width)
-{
-	double lonPrime = lon+hight;
-	double latPrime = lat+width;
-	
-	ArrayList<DatabaseLocation> temp = new ArrayList<DatabaseLocation>();
-	int counterOfRemovedCoords=0;
-
-	double	dist =Math.abs(Utils.distFrom(querry.get(0).getLat(), querry.get(0).getLon(), querry.get(0).getNLat(), querry.get(0).getNLon()));
-	int lastH=querry.get(0).getHTime();
-	int lastM=querry.get(0).getMTime();	
-	int lastValidPoint=0;
-	
-	for(int i =1 ; i<querry.size()-1;i++)
+	public void coordCullByBox(double lat,double lon, double hight ,double width)
 	{
+		double lonPrime = lon+width;
+		double latPrime = lat+hight;
 		
-			if(querry.get(i).getLat()>lat && querry.get(i).getLat()<latPrime && querry.get(i).getLon()>lon && querry.get(i).getLon()<lonPrime)
-			{
-				temp.add(new DBQuerry(querry.get(lastValidPoint).getLat(),querry.get(lastValidPoint).getLon(),lastH,lastM,querry.get(i).getLat(),querry.get(i).getLon()));
-				lastH = querry.get(i).getHTime();
-				lastM = querry.get(i).getMTime();
-				lastValidPoint=i;
+		ArrayList<DatabaseLocation> temp = new ArrayList<DatabaseLocation>();
+		int counterOfRemovedCoords=0;
+	
+		double	dist =Math.abs(Utils.distFrom(querry.get(0).getLat(), querry.get(0).getLon(), querry.get(0).getNLat(), querry.get(0).getNLon()));
+		int lastH=querry.get(0).getHTime();
+		int lastM=querry.get(0).getMTime();	
+		int lastValidPoint=0;
+		
+		for(int i =1 ; i<querry.size()-1;i++)
+		{
 			
-			}
-			else
-			{
-				counterOfRemovedCoords++;
-			}
+				if(querry.get(i).getLat()>lat && querry.get(i).getLat()<latPrime && querry.get(i).getLon()>lon && querry.get(i).getLon()<lonPrime)
+				{
+					temp.add(new DBQuerry(querry.get(lastValidPoint).getLon(),querry.get(lastValidPoint).getLat(),lastH,lastM,querry.get(i).getLon(),querry.get(i).getLat()));
+					lastH = querry.get(i).getHTime();
+					lastM = querry.get(i).getMTime();
+					lastValidPoint=i;
+				
+				}
+				else
+				{
+					counterOfRemovedCoords++;
+				}
+		}
+		System.out.println("The nummber of culled coords wasr: "+counterOfRemovedCoords);
+		//stemp.add(new DBQuerry(temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon(),temp.get(temp.size()-1).getHTime(),temp.get(temp.size()-1).getMTime(),temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon()));
+		querry = temp;
+		
+		
+		
 	}
-	System.out.println("The nummber of culled coords wasr: "+counterOfRemovedCoords);
-	//stemp.add(new DBQuerry(temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon(),temp.get(temp.size()-1).getHTime(),temp.get(temp.size()-1).getMTime(),temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon()));
-	querry = temp;
-	
-	
-	
-}
 
 	/**
 	 * Removes the paths that has a lower speed than the threshold 

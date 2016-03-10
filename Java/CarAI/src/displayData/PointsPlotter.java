@@ -127,6 +127,7 @@ public class PointsPlotter extends JFrame {
 					case 5:
 						data.importFromDB(1, 600000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
 						data.coordClullBySpeed(15.0);
+						data.coordCullByBox(57, 11, 1 , 4);
 						points = data.getQuerry();
 	
 						data.exportAsCoordsToCSV();
