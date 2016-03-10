@@ -2,12 +2,12 @@ package utils;
 
 public class JSONCAR {
 	
-	public String DRIVER = "";
-	public String PASSENGER = "";
-	public String BACKSEAT0 = "";
-	public String BACKSEAT1 = "";
+	public String[] DRIVER = {};
+	public String[] PASSENGER = {};
+	public String[] BACKSEAT0 = {};
+	public String[] BACKSEAT1 = {};
 	
-	public JSONCAR(String d,String p,String b0,String b1)
+	public JSONCAR(String[] d,String[] p,String[] b0,String[] b1)
 	{
 		DRIVER = d;
 		PASSENGER = p;
@@ -16,26 +16,48 @@ public class JSONCAR {
 	}
 	
 	
-	public void setDRIVER(String d)
+	public void setDRIVER(String[] d)
 	{
 		DRIVER = d;
 	}
-	public void setPASSENGER(String p)
+	public void setPASSENGER(String[] p)
 	{
 		PASSENGER = p;
 	}
-	public void setBACKSEAT0(String b)
+	public void setBACKSEAT0(String[] b)
 	{
 		DRIVER = b;
 	}
-	public void setBACKSEAT1(String b)
+	public void setBACKSEAT1(String[] b)
 	{
 		DRIVER = b;
 	}
 	
 	public String toString()
 	{
-		return "DRIVER: " + DRIVER + ", PASSENGER: " + PASSENGER + ", BACKSEAT: " + BACKSEAT0 +", BACKSEAT1: " + BACKSEAT1; 
+		StringBuilder sb = new StringBuilder();
+		sb.append("DRIVER: " );
+		if(DRIVER.length > 1)
+		{
+			sb.append(DRIVER[0]);
+		}
+		sb.append(", PASSENGER: ");
+		if(PASSENGER.length > 1)
+		{
+			sb.append(PASSENGER[0]);
+		}
+		sb.append(", BACKSEAT: ");
+		if(BACKSEAT0.length > 1)
+		{
+			sb.append(BACKSEAT0[0]);
+		}
+		sb.append(", BACKSEAT1: ");
+		if(BACKSEAT1.length > 1)
+		{
+			sb.append( BACKSEAT1[0]);
+		}
+		
+		return  sb.toString(); 
 	}
 }
 

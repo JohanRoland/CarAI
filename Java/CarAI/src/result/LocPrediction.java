@@ -31,6 +31,7 @@ import org.encog.ml.data.versatile.sources.CSVDataSource;
 import org.encog.ml.data.versatile.columns.ColumnDefinition;
 import org.encog.ml.data.versatile.sources.VersatileDataSource;
 import org.encog.ml.factory.MLMethodFactory;
+import org.encog.ml.genetic.MLMethodGenomeFactory;
 import org.encog.ml.model.EncogModel;
 import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.ml.MLRegression;
@@ -84,6 +85,12 @@ public class LocPrediction {
 	public Tuple<Double,Double> predictedLoc;
 	private MqttTime mqttTime;
 	private LocPrediction()
+	{
+		standardLearning();
+		//customLearning();
+	}
+	
+	private void standardLearning()
 	{
 		mqttTime = MqttTime.getInstance();
 		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
@@ -171,6 +178,19 @@ public class LocPrediction {
 		*/
 		
 		//Encog.getInstance().shutdown();
+	}
+	
+	private void customLearning()
+	{
+		mqttTime = MqttTime.getInstance();
+		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
+		format = new CSVFormat('.',' ');
+		
+		NNData nd = new NNData();
+
+		nd.importFromDB(0, 600000);
+		nd.getInputData();
+		
 	}
 	
 	private LocPrediction(int id)
@@ -327,13 +347,13 @@ public class LocPrediction {
 		
 		helper.normalizeInputVector(line,input.getData(),false);
 		MLData output = bestMethod.compute(input);		
-		String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[1];
-		String irisChoosen1 = helper.denormalizeOutputVectorToString(output)[0];
+		String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
+		String irisChoosen1 = helper.denormalizeOutputVectorToString(output)[1];
 		StringBuilder result = new StringBuilder();
 		
 		
 		
-		result.append("[" + line[0]+ ", " + line[1] +", " + line[2]+ ", " + line[3]+ "] ");
+		result.append("[" + line[0]+ ", " + line[1] +", " + line[2] + "] ");
 		result.append(" -> predicted: ");
 		result.append(irisChoosen0 + ", " + irisChoosen1);
 		System.out.println(result.toString());
