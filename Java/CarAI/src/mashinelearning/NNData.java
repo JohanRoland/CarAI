@@ -290,11 +290,17 @@ public class NNData
 	{
 		ArrayList<ArrayList<DatabaseLocation>> output = new ArrayList<ArrayList<DatabaseLocation>>(); 
 		HashMap<Tuple<Double,Double>,Integer> clusterMap= new HashMap<Tuple<Double,Double>,Integer>();
+		
 		Files.walk(Paths.get(path)).forEach(filePath -> {
 		    if (Files.isRegularFile(filePath)) {
 		        try {
 					ArrayList<String> temp = (ArrayList<String>) Files.readAllLines(filePath);
-					int clustID=Integer.parseInt(filePath.toString().replaceFirst("clust_", "").replaceFirst(".txt", ""));
+					int clustID=0;
+					if(!(filePath.toString()=="noise.txt"))
+					{
+						clustID=Integer.parseInt(filePath.toString().replaceFirst("clust_", "").replaceFirst(".txt", ""));
+					}
+					
 					for(String a : temp)
 					{
 						if(!a.startsWith("#"))
@@ -303,6 +309,7 @@ public class NNData
 							clusterMap.put(new Tuple<Double,Double>(Double.parseDouble(lonLat[0]),Double.parseDouble(lonLat[1])),clustID);
 						}	
 					}
+				
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
