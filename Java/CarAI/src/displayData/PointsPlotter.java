@@ -27,6 +27,7 @@ import serverConnection.KmeansSortOf;
 import serverConnection.ServerConnection;
 import utils.Tuple;
 import utils.Utils;
+import mashinelearning.ELKIController;
 import mashinelearning.NNData;
 import mashinelearning.PYDBSCAN;
 
@@ -47,7 +48,7 @@ public class PointsPlotter extends JFrame {
 	private void initUI()
 	{
 		JPanel mapPane = new JPanel(new GridLayout(1,0));
-		final Surface surface = new Surface(5);
+		final Surface surface = new Surface(6);
 		//final Surface surface1 = new Surface(1);
 		mapPane.add(surface);
 		//mapPane.add(surface1);
@@ -135,7 +136,9 @@ public class PointsPlotter extends JFrame {
 						
 						break;
 					case 5:
-						data.importFromDB(1, 600000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
+						data.importFromDB(1, 600000);//
+						//data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
+						//data.coordCullByDist();
 						data.coordClullBySpeed(15.0);
 						data.coordCullByBox(57, 11, 1 , 4);
 						points = data.getQuerry();
@@ -179,6 +182,29 @@ public class PointsPlotter extends JFrame {
 						component.getActionMap().put("doSomething",anAction);
 						*/
 						
+						break;
+					case 6:
+						data.importFromDB(1, 600000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
+						data.coordCullByBox(57.34, 11, 1 , 4);
+						data.coordCullByDist();
+						
+						points =  data.getQuerry();
+						
+						data.exportAsCoordsToCSV();
+						
+						File f2 = new File(".");
+						String pathToProj2 = f2.getAbsolutePath().substring(0, f2.getAbsolutePath().length()-2);
+				    	ELKIController.runElki();
+						
+						temp2 = data.importFromElkiClustering(pathToProj2+"\\ELKIClusters\\");
+						for(int t=1; t<temp2.size(); t++)
+						{
+							System.out.println(Utils.mean(temp2.get(t)));
+						}
+						System.out.println("Nummber of clusters; "+ temp2.size());
+						
+						//temp2.add(null);
+						//temp2.add(points);
 						break;
 					default:
 						NNData test2 = new NNData();
@@ -259,7 +285,7 @@ public class PointsPlotter extends JFrame {
 					g2d.setPaint(makeColorGradient(2.4,2.4,2.4,0,2,4,128,127,50,i));
 					
 					g2d.drawOval(x-4, y-4, 8, 8);
-
+					
 					//g2d.setPaint(Color.black);
 					//g2d.drawLine(x, y,nx, ny);
 				}

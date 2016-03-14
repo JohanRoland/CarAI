@@ -540,7 +540,7 @@ public class NNData
 			
 				if(querry.get(i).getLat()>lat && querry.get(i).getLat()<latPrime && querry.get(i).getLon()>lon && querry.get(i).getLon()<lonPrime)
 				{
-					temp.add(new DBQuerry(querry.get(lastValidPoint).getLon(),querry.get(lastValidPoint).getLat(),lastH,lastM,querry.get(i).getLon(),querry.get(i).getLat()));
+					temp.add(new DBQuerry(querry.get(lastValidPoint).getLat(),querry.get(lastValidPoint).getLon(),lastH,lastM,querry.get(i).getLat(),querry.get(i).getLon()));
 					lastH = querry.get(i).getHTime();
 					lastM = querry.get(i).getMTime();
 					lastValidPoint=i;
@@ -637,33 +637,49 @@ public class NNData
 		ArrayList<DatabaseLocation> temp = new ArrayList<DatabaseLocation>();
  		
 		boolean traveling = false;
-		boolean stopping = false;
+		
+		int counter = 0;
 		
 		Tuple<Double,Double> start = new Tuple<Double,Double>(0.0,0.0);
 		Tuple<Double,Double> stop = new Tuple<Double,Double>(0.0,0.0);
 		Tuple<Integer,Integer> tempTime = new Tuple<Integer,Integer>(0,0);
 		
+		double traveledDist = 0.0; 
 		for(int i = 0; i < querry.size(); i++)
 		{
-			if(Utils.distDB(querry.get(i)) < 15)
+			if(Utils.distDB(querry.get(i)) < 10)
 			{
-				if(traveling)
+				//traveledDist += Utils.distDB(querry.get(i));
+				counter++; 
+				if(traveling && counter > 7)
 				{
-					stop.setFst(querry.get(i).getLat());
-					stop.setSnd(querry.get(i).getLon());
-					temp.add(new DBQuerry(start.fst(),start.snd(),tempTime.fst(),tempTime.snd(),stop.fst(),stop.snd()));
+					stop.setFst(querry.get(i).getNLat());
+					stop.setSnd(querry.get(i).getNLon());
 					
+					temp.add(new DBQuerry(start.fst(),start.snd(),tempTime.fst(),tempTime.snd(),stop.fst(),stop.snd()));
+					traveledDist = 0.0; 
+					traveling = false;
+					counter =0;
 				}
-				
-				
+				else
+				{
+					start.setFst(querry.get(i).getLat());
+					start.setSnd(querry.get(i).getLon());
+					tempTime.setFst(querry.get(i).getHTime());
+					tempTime.setFst(querry.get(i).getMTime());
+				}
 			}
 			else
 			{
-				
+				//traveledDist += Utils.distDB(querry.get(i));
+				traveling = true;
+				counter = 0; 
 			}
+			
+			
 		}
-		
-		
+		System.out.println("Removed coords: " +(querry.size()- temp.size()));
+		querry = temp;
 	}
 	
 	public void exportToDB(int id)
