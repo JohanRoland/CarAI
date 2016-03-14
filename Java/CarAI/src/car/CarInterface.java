@@ -84,25 +84,25 @@ public class CarInterface implements MQTTInterface
 				{
 					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID());
 					Tuple<Double,Double> pred = lp.predict();
-					client.publish("carai/car/driverPred", new MqttMessage(("\"lon\":\""+pred.fst()+"\",\"lat\":\""+pred.snd() +"\"").getBytes()));
+					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 				if(car.getUser("PASSENGER").userExists())
 				{
 					lp = LocPrediction.getInstance(car.getUser("PASSENGER").getUserID());
 					Tuple<Double,Double> pred = lp.predict();
-					client.publish("carai/car/passPred", new MqttMessage(("\"lon\":\""+pred.fst()+"\",\"lat\":\""+pred.snd() +"\"").getBytes()));
+					client.publish("carai/car/passPred", new MqttMessage(("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 				if(car.getUser("BACKSEAT0").userExists())
 				{
 					lp = LocPrediction.getInstance(car.getUser("BACKSEAT0").getUserID());
 					Tuple<Double,Double> pred = lp.predict();
-					client.publish("carai/car/back0Pred", new MqttMessage(("\"lon\":\""+pred.fst()+"\",\"lat\":\""+pred.snd() +"\"").getBytes()));
+					client.publish("carai/car/back0Pred", new MqttMessage(("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 				if(car.getUser("BACKSEAT1").userExists())
 				{
 					lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID());
 					Tuple<Double,Double> pred = lp.predict();
-					client.publish("carai/car/back1Pred", new MqttMessage(("\"lon\":\""+pred.fst()+"\",\"lat\":\""+pred.snd() +"\"").getBytes()));
+					client.publish("carai/car/back1Pred", new MqttMessage(("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 			}
 			if(arg0.equals(gpstopic))

@@ -13,8 +13,8 @@ import java.util.Objects;
  */
 public class Tuple<T,F>
 {
-	private T a;
-	private F b;
+	private T lat;
+	private F lon;
 
 	/**
 	 * @param first The first value of the tuple
@@ -22,38 +22,38 @@ public class Tuple<T,F>
 	 */
 	public Tuple(T first, F second)
 	{
-		a = first;
-		b = second;
+		lat = first;
+		lon = second;
 	
 	}
 	/**
 	 * Overloads the toString method and prints the result as
 	 * ( first , second ) 
 	 */
-	public String toString(){return "("+a.toString()+","+b.toString()+")";}
+	public String toString(){return "("+lat.toString()+","+lon.toString()+")";}
 	/**
 	 * @return Returns the first value
 	 */
-	public T fst(){return a;}
+	public T fst(){return lat;}
 	/**
 	 * @return Returns the second value
 	 */
-	public F snd(){return b;}
+	public F snd(){return lon;}
 	/**
 	 * @param in The value to set the first value of the tuple
 	 * Sets the first value
 	 */
-	public void setFst(T in){a=in;}
+	public void setFst(T in){lat=in;}
 	/**
 	 * @param in The value to set the second value of the tuple
 	 * set the second value
 	 */
-	public void setSnd(F in){b=in;}
+	public void setSnd(F in){lon=in;}
 	
 	public int hashCode()
 	{
 		
-		return Objects.hash(a,b);// Math.floorMod(a.hashCode()*17+b.hashCode()*31,Integer.MAX_VALUE) ; 
+		return Objects.hash(lat,lon);// Math.floorMod(a.hashCode()*17+b.hashCode()*31,Integer.MAX_VALUE) ; 
 	}
 	
 	public boolean equals(Object obj)
@@ -64,7 +64,7 @@ public class Tuple<T,F>
 			return true; 
 		
 		Tuple rhs = (Tuple) obj;
-		if(rhs.a.equals(this.a) && rhs.b.equals(this.b))
+		if(rhs.lat.equals(this.lat) && rhs.lon.equals(this.lon))
 			return true;
 		
 		return false;

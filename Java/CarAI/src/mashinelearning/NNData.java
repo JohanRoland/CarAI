@@ -618,7 +618,39 @@ public class NNData
 		querry = temp;
 	}
 
-	
+	public void coordCullByDist()
+	{
+		ArrayList<DatabaseLocation> temp = new ArrayList<DatabaseLocation>();
+ 		
+		boolean traveling = false;
+		boolean stopping = false;
+		
+		Tuple<Double,Double> start = new Tuple<Double,Double>(0.0,0.0);
+		Tuple<Double,Double> stop = new Tuple<Double,Double>(0.0,0.0);
+		Tuple<Integer,Integer> tempTime = new Tuple<Integer,Integer>(0,0);
+		
+		for(int i = 0; i < querry.size(); i++)
+		{
+			if(Utils.distDB(querry.get(i)) < 15)
+			{
+				if(traveling)
+				{
+					stop.setFst(querry.get(i).getLat());
+					stop.setSnd(querry.get(i).getLon());
+					temp.add(new DBQuerry(start.fst(),start.snd(),tempTime.fst(),tempTime.snd(),stop.fst(),stop.snd()));
+					
+				}
+				
+				
+			}
+			else
+			{
+				
+			}
+		}
+		
+		
+	}
 	
 	public void exportToDB(int id)
 	{
