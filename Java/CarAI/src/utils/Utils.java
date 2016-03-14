@@ -53,7 +53,7 @@ public class Utils {
 	 * @param in an Arraylist containing Database Locations 
 	 * @return A Tuple of Tuples containing the min x y tuple and max x y tuple as it's first and second argument respectively
 	 */
-	public static Tuple<Tuple<Double,Double>,Tuple<Double,Double>> getGPSPlotFrame(ArrayList<DatabaseLocation> in)
+	public static Tuple<Tuple<Double,Double>,Tuple<Double,Double>> getGPSPlotFrame(ArrayList<ArrayList<DatabaseLocation>> in)
 	{
 		double maxY=Double.MIN_VALUE;
 		double maxX=Double.MIN_VALUE;
@@ -61,19 +61,27 @@ public class Utils {
 		double minX=Double.MAX_VALUE;
 		
 		
-		for(DatabaseLocation d : in)
+		for(int i=0; i<in.size();i++)
 		{
-			if(maxY < d.getLat())
-				maxY=d.getLat();
-				
-			if(minY > d.getLat())
-				minY = d.getLat();
-			
-			if(maxX < d.getLon())
-				maxX = d.getLon();
-			
-			if(minX > d.getLon())
-				minX = d.getLon();
+			ArrayList<DatabaseLocation> dl = in.get(i);
+			if(i!=0)
+			{
+				for(DatabaseLocation d : dl)
+				{
+					if(maxY < d.getLat())
+					
+						maxY=d.getLat();
+						
+					if(minY > d.getLat())
+						minY = d.getLat();
+					
+					if(maxX < d.getLon())
+						maxX = d.getLon();
+					
+					if(minX > d.getLon())
+						minX = d.getLon();
+				}
+			}
 		}
 		
 		

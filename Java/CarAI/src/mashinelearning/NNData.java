@@ -357,7 +357,11 @@ public class NNData
 		//exportAsCoordsToCSV();
 		//PYDBSCAN py = new PYDBSCAN();
 		
-		ArrayList<ArrayList<DatabaseLocation>> temp2 = importFromElkiClustering("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\ELKIClusters\\"); //py.runDBSCAN(querry, 0.001, 20, n); //tree.getClusterd(true);
+		File f = new File(".");
+		String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
+    	
+		
+		ArrayList<ArrayList<DatabaseLocation>> temp2 = importFromElkiClustering(pathToProj+"\\ELKIClusters\\"); //py.runDBSCAN(querry, 0.001, 20, n); //tree.getClusterd(true);
 		System.out.println("Done Getting Cluster");
 		HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
 		HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();
@@ -479,6 +483,7 @@ public class NNData
 			e.printStackTrace();
 		}
 	}
+/*
 	public void coordClull()
 	{
 		ArrayList<DatabaseLocation> temp = new ArrayList<DatabaseLocation>();
@@ -516,7 +521,7 @@ public class NNData
 		temp.add(querry.get(querry.size()-1));
 		querry = temp;
 	}
-
+*/
 	public void coordCullByBox(double lat,double lon, double hight ,double width)
 	{
 		double lonPrime = lon+width;
@@ -583,19 +588,28 @@ public class NNData
 			{
 				if(dist!=0 && ((dist*1000)/((time-oldTime)*60)>threshold))
 				{
-					if(takingAbrake>0)
+					if(takingAbrake>1)
 					{
-						temp.add(new DBQuerry(querry.get(lastValidPoint).getLat(),querry.get(lastValidPoint).getLon(),lastH,lastM,querry.get(i).getLat(),querry.get(i).getLon()));
-						lastH = querry.get(i).getHTime();
-						lastM = querry.get(i).getMTime();
-						lastValidPoint=i;
-						takingAbrake=0;
+						if(1000.0<Math.abs(Utils.distFrom(querry.get(lastValidPoint).getLat(),querry.get(lastValidPoint).getLon(), querry.get(i).getLat(),querry.get(i).getLon())))
+						{
+							temp.add(new DBQuerry(querry.get(lastValidPoint).getLat(),querry.get(lastValidPoint).getLon(),lastH,lastM,querry.get(i).getLat(),querry.get(i).getLon()));
+							lastH = querry.get(i).getHTime();
+							lastM = querry.get(i).getMTime();
+							lastValidPoint=i;						}
+						else
+						{
+							lastH = querry.get(i).getHTime();
+							lastM = querry.get(i).getMTime();
+							lastValidPoint=i;
+							System.out.println("Soo small!!!!");
+						}
 					}
 					else
 					{
-						takingAbrake=0;
 						counterOfRemovedCoords++;
 					}
+					takingAbrake=0;
+
 				}
 				else
 				{

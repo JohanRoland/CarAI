@@ -38,7 +38,6 @@ import displayData.PointsPlotter;
  */
 public class Main
 {
-	
     public static void main(String[] args) {
     	
     	MqttTime mt = MqttTime.getInstance();
@@ -65,13 +64,11 @@ public class Main
     		{
     			System.out.println("Schedule debug");
     		    //	Scheduler s = new Scheduler();
-    			LocPrediction lp = LocPrediction.getInstance(1);
-    			
+    			LocPrediction lp = LocPrediction.getInstance(1);   			
     		}
     		else if(args[0].equals("4"))
     		{
-    			ServerConnection sc= ServerConnection.getInstance();
-    			
+    			ServerConnection sc= ServerConnection.getInstance();    			
     			try {
 					System.out.println("Created ID: " +sc.addUserData("Johan"));
 				} catch (SQLException e) {
