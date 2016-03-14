@@ -8,14 +8,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
 import interfaces.DatabaseLocation;
+import jade.content.Concept;
+import jade.content.onto.basic.Action;
 import serverConnection.DBSCAN;
 import serverConnection.KmeansSortOf;
 import serverConnection.ServerConnection;
@@ -27,6 +33,8 @@ import mashinelearning.PYDBSCAN;
 public class PointsPlotter extends JFrame {
 
 	ServerConnection sc; 
+	double zoom=1,ofsetX=0,ofsetY=0;
+	
 	
 	
 	public PointsPlotter()
@@ -74,6 +82,7 @@ public class PointsPlotter extends JFrame {
 		{
 			initTimer();
 			clusterType = i;
+			this.setSize(600, 800);
 			try{
 				points = new ArrayList<DatabaseLocation>();
 				temp2 = new ArrayList<ArrayList<DatabaseLocation>>();
@@ -121,6 +130,7 @@ public class PointsPlotter extends JFrame {
 						data.exportAsCoordsToCSV();
 						PYDBSCAN something =  new PYDBSCAN();
 						temp2 = something.runDBSCAN(points,0.001,20,20000);
+						
 						System.out.println("Nummber of clusters; "+ temp2.size());
 						
 						break;
@@ -131,8 +141,43 @@ public class PointsPlotter extends JFrame {
 						points = data.getQuerry();
 	
 						data.exportAsCoordsToCSV();
-						temp2 = data.importFromElkiClustering("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\ELKIClusters\\");
+
+
+						File f = new File(".");
+						String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
+				    	
+						temp2 = data.importFromElkiClustering(pathToProj+"\\ELKIClusters\\");
+
+						for(int t=1; t<temp2.size(); t++)
+						{
+							System.out.println(Utils.mean(temp2.get(t)));
+						}
 						System.out.println("Nummber of clusters; "+ temp2.size());
+						
+						/*
+						AbstractAction anAction = new AbstractAction() {
+						    public void actionPerformed(ActionEvent e) {
+						        if(e.getActionCommand()=="Up")
+						        {
+						        	ofsetY++;
+						        }
+						        else if(e.getActionCommand()=="Down")
+						        {
+						        	ofsetY--;
+						        }
+						        else if(e.getActionCommand()=="Right")
+						        {
+						        	ofsetX++;
+						        }
+						        else if(e.getActionCommand()=="Left")
+						        {
+						        	ofsetX--;
+						        }
+						    }
+						};
+						component.getInputMap().put(KeyStroke.getKeyStroke("F2"),  "doSomething");
+						component.getActionMap().put("doSomething",anAction);
+						*/
 						
 						break;
 					default:
@@ -181,34 +226,45 @@ public class PointsPlotter extends JFrame {
 	    
 		private void doDrawing(Graphics g)
 		{
-
-			Graphics2D g2d = (Graphics2D) g;
-			g2d.setBackground(Color.white);
 			
-			Tuple<Tuple<Double,Double>,Tuple<Double,Double>> minMax =  Utils.getGPSPlotFrame(temp2.get(0));
+			Graphics2D g2d = (Graphics2D) g;
+
+			
+			Tuple<Tuple<Double,Double>,Tuple<Double,Double>> minMax =  Utils.getGPSPlotFrame(temp2);
 			double maxDistX = (minMax.snd().fst() - minMax.fst().fst());
 			double maxDistY = (minMax.snd().snd() - minMax.fst().snd());
-			double scalingFacX = (this.getHeight()-20) / maxDistX;
-			double scalingFacY = (this.getWidth()-20) /maxDistY;
+			
+			double scalingFacX = ( g2d.getClipBounds().width-50) / maxDistX;
+			double scalingFacY = (g2d.getClipBounds().height-50) /maxDistY;
 			double scalingFac = Math.min(scalingFacX, scalingFacY);
 			
 			//System.out.println("maxDistX: " + maxDistX + " maxDistY: " + maxDistY + "scalingFactor: "+scalingFac);
 			
 			for(int i = 1; i < temp2.size(); i++)
 			{
+				boolean hasDraw=false;
 				for( DatabaseLocation l: temp2.get(i))
 				{
 					
-					int x = (int)((l.getLon()-minMax.fst().fst())*scalingFac)+10;
-					int y = (int)((l.getLat()-minMax.fst().snd())*scalingFac)+10;
+					int x = (int) (((int)((l.getLon()-minMax.fst().fst())*scalingFac)+25)*zoom+ofsetX);
+					int y = (int) ((( g2d.getClipBounds().height-50)-(int)((l.getLat()-minMax.fst().snd())*scalingFac)+25)*zoom+ofsetY);
 					//int nx = (this.getHeight()-20)-(int)((l.getNLat()-minMax.fst().fst())*scalingFac)+10;
 					//int ny = (int)((l.getNLon()-minMax.fst().snd())*scalingFac)+10;
+					if(!hasDraw)
+					{
+						g2d.setPaint(Color.black);
+						g2d.drawString(""+i, x, y+30);
+						hasDraw=true;
+					}
 					g2d.setPaint(makeColorGradient(2.4,2.4,2.4,0,2,4,128,127,50,i));
 					
 					g2d.drawOval(x-4, y-4, 8, 8);
+
 					//g2d.setPaint(Color.black);
 					//g2d.drawLine(x, y,nx, ny);
 				}
+				
+
 				}
 			
 		}
