@@ -65,10 +65,7 @@ public class PointsPlotter extends JFrame {
 		setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
-	
-	
-	
-	
+
 	class Surface extends JPanel implements ActionListener
 	{
 		private final int DELAY = 150;
@@ -124,7 +121,7 @@ public class PointsPlotter extends JFrame {
 						break;
 					case 4:
 						data.importFromDB(1, 200000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
-						data.coordClullBySpeed(15.0);
+						data.coordCullBySpeed(15.0);
 						points = data.getQuerry();
 	
 						data.exportAsCoordsToCSV();
@@ -135,9 +132,10 @@ public class PointsPlotter extends JFrame {
 						
 						break;
 					case 5:
-						data.importFromDB(1, 600000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
-						data.coordClullBySpeed(15.0);
-						data.coordCullByBox(57, 11, 1 , 4);
+						//data.importFromDB(1, 600000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
+						data.parseCSV("dataFile.txt");
+						//data.coordCullBySpeed(15.0);
+						//data.coordCullByBox(57, 11, 1 , 4);
 						points = data.getQuerry();
 	
 						data.exportAsCoordsToCSV();

@@ -268,6 +268,32 @@ public class NNData
 			
 		}
 	}
+
+	public void parseCSV(String path)
+	{
+		querry = new ArrayList<DatabaseLocation>();
+		try {
+			Stream<String> lines = Files.lines(Paths.get(path));
+			lines.forEach(ss ->{ 
+				String[] s = ss.split(" "); 
+				double lat =  Double.parseDouble(s[0]);//((double)Math.round(Double.parseDouble(s[0])*10000000))/10000000;
+			 	double lon =  Double.parseDouble(s[1]);//((double)Math.round(Double.parseDouble(s[1])*10000000))/10000000;
+				double nlat = Double.parseDouble(s[3]);//((double)Math.round(Double.parseDouble(s[3])*10000000))/10000000;
+			 	double nlon = Double.parseDouble(s[4]);//((double)Math.round(Double.parseDouble(s[4])*10000000))/10000000;
+				querry.add(new DBQuerry(lat,lon,((int)Double.parseDouble(s[2]))/60,((int)(Double.parseDouble(s[2])))%60,nlat,nlon));				
+				}
+			);			
+			
+			
+			
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
 	
 	public void exportToNN(double[][] in,double[][] out)
 	{
@@ -341,8 +367,6 @@ public class NNData
 		
 	}
 
-	
-	
 	/**
 	 * 	Runs DBSCAN on the imported data 
 	 * 
@@ -483,45 +507,7 @@ public class NNData
 			e.printStackTrace();
 		}
 	}
-/*
-	public void coordClull()
-	{
-		ArrayList<DatabaseLocation> temp = new ArrayList<DatabaseLocation>();
-		double accDist=0;
-		DBQuerry db = null;
-		int counterOfRemovedCoords=0;
-		for(int i =0 ; i<querry.size()-1;i++)
-		{
-			accDist =+Math.abs(Utils.distFrom(querry.get(i).getLat(), querry.get(i).getLon(), querry.get(i).getNLat(), querry.get(i).getNLon()));
-			if(accDist<5000 && i!=(querry.size()-2))
-			{
-				counterOfRemovedCoords++;
-				if(db==null)
-				{
-					db=(DBQuerry) querry.get(i);
-				}
-				
-			}
-			else
-			{
-				accDist=0;
-				if(db==null)
-				{
-					temp.add(querry.get(i));
-				}
-				else
-				{
-					temp.add(new DBQuerry(db.getLat(),db.getLon(),db.getHTime(),db.getMTime(),querry.get(i).getNLat(),querry.get(i).getNLon()));
-					db=null;
-				}
 
-			}	
-		}
-		System.out.println("The nummber of culled coords wasr: "+counterOfRemovedCoords);
-		temp.add(querry.get(querry.size()-1));
-		querry = temp;
-	}
-*/
 	public void coordCullByBox(double lat,double lon, double hight ,double width)
 	{
 		double lonPrime = lon+width;
@@ -566,7 +552,7 @@ public class NNData
 	 * paths under the threshold where not traveling significant distances.
 	 * 
 	 */
-	public void coordClullBySpeed(double threshold)
+	public void coordCullBySpeed(double threshold)
 	{
 		ArrayList<DatabaseLocation> temp = new ArrayList<DatabaseLocation>();
 		int counterOfRemovedCoords=0;
@@ -601,7 +587,7 @@ public class NNData
 							lastH = querry.get(i).getHTime();
 							lastM = querry.get(i).getMTime();
 							lastValidPoint=i;
-							System.out.println("Soo small!!!!");
+							//System.out.println("Soo small!!!!");
 						}
 					}
 					else

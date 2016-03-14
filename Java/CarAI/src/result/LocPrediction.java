@@ -103,7 +103,7 @@ public class LocPrediction {
 		//nd.importFromFile();
 		//nd.exportToDB(1);
 		nd.importFromDB(1,600000);
-		nd.coordClullBySpeed(15.0);
+		nd.coordCullBySpeed(15.0);
 		nd.exportAsCoordsToCSV();
 		
 		String[] descreteMTime = numArray(60);
@@ -208,7 +208,7 @@ public class LocPrediction {
 		
 		nd.importFromDB(id,n);
 		
-		nd.coordClullBySpeed(15.0);
+		nd.coordCullBySpeed(15.0);
 
 		//if(!nd.emptyData())
 		//{
