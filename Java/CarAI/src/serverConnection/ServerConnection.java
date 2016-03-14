@@ -233,7 +233,7 @@ public class ServerConnection {
 		double nextLon;
 		double nextLat;
 		
-		public DBQuerry(double lo, double la,int hour, int min, double nlo,double nla)
+		public DBQuerry(double la, double lo,int hour, int min, double nla,double nlo)
 		{
 			this.lat = la;
 			this.lon = lo;
