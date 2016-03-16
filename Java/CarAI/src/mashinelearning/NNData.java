@@ -70,6 +70,45 @@ public class NNData
 		return nrCluster;
 	}
 
+	double[] normFromQToIn()
+	{
+		ArrayList<double[]> tempInput = new ArrayList<double[]>();
+		ArrayList<double[]> tempOut = new ArrayList<double[]>();
+
+		double[] tempOutS = {0,0};
+		double[] tempInputS={0,0,0};
+		
+		
+		for(DatabaseLocation e : querry)
+		{
+			tempInputS[0]=+e.getLon();
+			tempInputS[1]=+e.getLat();
+			tempInputS[2]=+e.getHTime()*60+e.getMTime();
+			
+			tempOutS[0]=+e.getNLon();
+			tempOutS[1]=+e.getNLat();
+			
+		}
+		tempInputS[0]=tempInputS[0]/querry.size();
+		tempInputS[1]=tempInputS[2]/querry.size();
+		tempInputS[2]=tempInputS[3]/querry.size();
+		
+		tempOutS[0]=tempOutS[0]/querry.size();
+		tempOutS[1]=tempOutS[1]/querry.size();
+		
+		for(int i=0;i<querry.size();i++)
+		{
+			tempInput.get(i)[0]=querry.get(i).getLon()/tempInputS[0];
+			tempInput.get(i)[1]=querry.get(i).getLat()/tempInputS[1];
+			tempInput.get(i)[2]=(querry.get(i).getHTime()*60+querry.get(i).getMTime())/tempInputS[2];
+			
+			tempOut.get(i)[0]=querry.get(i).getNLon()/tempOutS[0];
+			tempOut.get(i)[1]=querry.get(i).getNLat()/tempOutS[1];
+		}
+		double[] out = {tempInputS[0],tempInputS[1],tempInputS[3],tempOutS[0],tempOutS[1]};
+		return out;
+	}
+	
 	public HashMap<Integer, Tuple<Double,Double>> getViewClustPos()
 	{
 		return viewClustPos;
