@@ -13,9 +13,9 @@ import com.mysql.jdbc.Statement;
 import interfaces.DatabaseLocation;
 import utils.Tuple;
 /**
- * @author Knarkapan
+ * @author John Ekdahl
  *
- *Keeps a connection to a mySQL database, has functions to interact smoothly with 
+ * Keeps a connection to a mySQL database, has functions to interact smoothly with 
  * specific stored procedures aimed at the CarAI project.
  *
  */
@@ -46,12 +46,18 @@ public class ServerConnection {
 		    throw new IllegalStateException("Cannot connect the database!", e);
 		}
 	}
-	
+	/**
+	 * Connects to a default predifined user
+	 */
 	private ServerConnection()
 	{
 		this("mydb","3306","54.229.54.240" , "johan", "knarkapan");
 	}
-	
+	/**
+	 * Returns the active instance.
+	 * If no such instance exists a new instance will be returned. 
+	 * @return The active erverConnection 
+	 */
 	public static ServerConnection getInstance()
 	{
 		if(instance == null)
@@ -94,7 +100,13 @@ public class ServerConnection {
 
 		return rs;
 	}
-
+	/**
+	 * Using the active ServerConnection, this metod retrives the 
+	 * GPS data of the user. 
+	 * @param ID The user ID
+	 * @return returns two ArrayLists containing Latitudes and Longitudes in that order 
+	 * @throws SQLException
+	 */
 	public ArrayList<Double>[] getPosData(int ID) throws SQLException
 	{
 		Statement stmt = (Statement) connection.createStatement();
@@ -113,7 +125,15 @@ public class ServerConnection {
 		return output;
 		
 	}
-	
+	/**
+	 * Using the active ServerConnection, this method retrieves the 
+	 * GPS data up to a specified limit starting from the most recent.
+	 * Returning the result as DBQuerry s. 
+	 * @param id The user ID
+	 * @param limit The number of entries to retrieve, starting from the most recent.
+	 * @return An ArrayList of DBQuerry that represents the paths the user has taken.
+	 * @throws SQLException
+	 */
 	public ArrayList<DatabaseLocation> getPosClass(int id,int limit) throws SQLException
 	{
 		Statement stmt = (Statement) connection.createStatement();

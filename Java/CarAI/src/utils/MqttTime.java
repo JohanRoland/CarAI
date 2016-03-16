@@ -82,7 +82,9 @@ public class MqttTime implements MQTTInterface {
 		return instance;
 	}
 	
-	
+	/**
+	 * @author William
+	 */
 	private class Callback implements MqttCallback
 	{
 

@@ -3,7 +3,14 @@ package user;
 import java.util.ArrayList;
 
 import serverConnection.ServerConnection;
-
+/**
+ * A class for representing a user
+ * with an ID and an alias.
+ * This class can also store a ServerConnection,
+ * so that the user and his data can be collected
+ *  from the server.
+ * @author William
+ */
 public class User {
 
 	//User variables
