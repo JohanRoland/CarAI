@@ -21,6 +21,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.encog.ConsoleStatusReportable;
 import org.encog.Encog;
+import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.util.arrayutil.VectorWindow;
 import org.encog.util.csv.CSVFormat;
 import org.encog.util.csv.ReadCSV;
@@ -33,9 +34,21 @@ import org.encog.ml.data.versatile.sources.VersatileDataSource;
 import org.encog.ml.factory.MLMethodFactory;
 import org.encog.ml.genetic.MLMethodGenomeFactory;
 import org.encog.ml.model.EncogModel;
+import org.encog.ml.train.MLTrain;
+import org.encog.ml.train.strategy.Greedy;
+import org.encog.ml.train.strategy.HybridStrategy;
+import org.encog.ml.train.strategy.StopTrainingStrategy;
+import org.encog.neural.freeform.FreeformLayer;
+import org.encog.neural.freeform.FreeformNetwork;
+import org.encog.neural.freeform.training.FreeformBackPropagation;
+import org.encog.neural.networks.training.TrainingSetScore;
+import org.encog.neural.networks.training.anneal.NeuralSimulatedAnnealing;
+import org.encog.neural.networks.training.propagation.resilient.ResilientPropagation;
 import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.ml.MLRegression;
 import org.encog.ml.data.MLData;
+import org.encog.ml.data.MLDataSet;
+import org.encog.ml.data.basic.BasicMLDataSet;
 import org.encog.ml.data.versatile.NormalizationHelper;
 import org.encog.ml.data.versatile.VersatileMLDataSet;
 import org.encog.ml.data.versatile.columns.ColumnType;
@@ -77,6 +90,7 @@ public class LocPrediction {
 	NormalizationHelper helper;
 	MLRegression bestMethod;
 	NNData nd;
+	FreeformNetwork network;
 	
 	int nrCols = 5;
 	public double sampleIn[][] = {{0.0,0.0},{1.0,0.0},{0.0,1.0},{1.0,1.0}};
@@ -86,8 +100,8 @@ public class LocPrediction {
 	private MqttTime mqttTime;
 	private LocPrediction()
 	{
-		standardLearning();
-		//customLearning();
+		//standardLearning();
+		customLearning();
 	}
 	
 	private void standardLearning()
@@ -103,6 +117,10 @@ public class LocPrediction {
 		//nd.importFromFile();
 		//nd.exportToDB(1);
 		nd.importFromDB(1,600000);
+		nd.coordCullByBox(57.34, 11, 1 , 4);
+		//data.cullByRDP();
+		nd.coordCullByDist();
+		nd.repoint();
 		nd.coordCullBySpeed(15.0);
 		nd.exportAsCoordsToCSV();
 		
@@ -188,8 +206,108 @@ public class LocPrediction {
 		
 		NNData nd = new NNData();
 
-		nd.importFromDB(0, 600000);
-		nd.getInputData();
+		//nd.importFromDB(0, 600000);
+
+		nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
+		nd.importFromFile();
+		nd.coordCullByBox(57.34, 11, 1 , 4);
+		//data.cullByRDP();
+		nd.coordCullByDist();
+		nd.repoint();
+		//nd.coordCullBySpeed(15.0);
+		nd.exportAsCoordsToCSV();
+		
+		
+		String[] descreteMTime = numArray(60);
+		String[] descreteHTime = numArray(24);
+		
+		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
+		data =  new VersatileMLDataSet(source);
+		
+		data.getNormHelper().setFormat(format); 
+		ColumnDefinition columnInLon = data.defineSourceColumn("ilon",0,ColumnType.continuous);		
+		ColumnDefinition columnInLat = data.defineSourceColumn("ilat",1,ColumnType.continuous);		
+		//ColumnDefinition columnHTime = data.defineSourceColumn("hours",2,ColumnType.ordinal);
+		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.continuous);
+		ColumnDefinition columnOutLon = data.defineSourceColumn("olon",3,ColumnType.continuous);		
+		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",4,ColumnType.continuous);	
+		
+		//columnMTime.defineClass(descreteMTime);
+		//columnHTime.defineClass(descreteHTime);
+		data.analyze();
+		
+		data.defineInput(columnInLon);
+		data.defineInput(columnInLat);
+		//data.defineInput(columnHTime);
+		data.defineInput(columnMTime);
+		data.defineOutput(columnOutLon);
+		data.defineOutput(columnOutLat);
+		data.getNormHelper().defineUnknownValue("?");
+		
+		
+		EncogModel model = new EncogModel(data);
+		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
+		
+		model.setReport(new ConsoleStatusReportable());
+		
+		
+		data.normalize();
+		
+		helper = data.getNormHelper();
+		ArrayList<double[]> in = new ArrayList<double[]>(); 
+		ArrayList<double[]> out = new ArrayList<double[]>(); 
+		
+		data.forEach(e -> {
+			in.add(e.getInputArray());
+			out.add(e.getIdealArray());
+		});
+		
+		
+		MLDataSet trainingSet = new BasicMLDataSet(in.toArray(new double[in.size()][]),out.toArray(new double[out.size()][]));
+		
+		
+		
+		/////// CREATE NETWORK
+		network = new FreeformNetwork();
+		
+		FreeformLayer input = network.createInputLayer(3);
+		FreeformLayer hiddenLayer = network.createLayer(7);
+		FreeformLayer hiddenLayer2 = network.createLayer(7);
+		FreeformLayer output = network.createOutputLayer(2);
+		
+		network.connectLayers(input, hiddenLayer, new ActivationSigmoid(), 1.0, false);
+		//network.connectLayers(input, hiddenLayer2, new ActivationSigmoid(), 1.0, false);
+		network.connectLayers(hiddenLayer, hiddenLayer2, new ActivationSigmoid(), 1.0, false);
+		//network.connectLayers(hiddenLayer, output, new ActivationSigmoid(), 1.0, false);
+		network.connectLayers(hiddenLayer2, output, new ActivationSigmoid(), 1.0, false);
+		
+		network.reset();
+		/////// END CREATE NETWORK
+		
+		TrainingSetScore score = new TrainingSetScore(trainingSet);
+		
+		MLTrain trainAlt = new NeuralSimulatedAnnealing(network, score, 10, 2, 100);
+		
+		MLTrain train = new FreeformBackPropagation(network,trainingSet,0.00001, 0.0);// 0.7, 0.9);
+		
+		StopTrainingStrategy stop = new StopTrainingStrategy();
+		
+		train.addStrategy(new Greedy());
+		train.addStrategy(new HybridStrategy(trainAlt));
+		train.addStrategy(stop);
+		
+		int epoch = 0;
+		do
+		{
+			train.iteration();
+			System.out.println("Epoch #" + (epoch++) + " Error:" + train.getError());
+		}while(train.getError() > 0.0001 && epoch < 1000);
+			
+		
+		train.finishTraining();
+		
+		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), network);
+		
 		
 	}
 	
@@ -252,10 +370,10 @@ public class LocPrediction {
 			model.selectTrainingType(data);
 			bestMethod = (MLRegression)model.crossvalidate(5, false);
 			
-			
 			System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
 			System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
 			helper = data.getNormHelper();
+			
 			System.out.println(helper.toString());
 			System.out.println("Final model: " + bestMethod);
 			
@@ -272,7 +390,7 @@ public class LocPrediction {
 		}
 		if(!instanceMap.containsKey(userID))
 		{
-			instanceMap.put(userID, new LocPrediction(userID));//userID
+			instanceMap.put(userID, new LocPrediction());//userID
 		}
 		
 		return instanceMap.get(userID);
@@ -339,7 +457,7 @@ public class LocPrediction {
 		//VectorWindow window = new VectorWindow(4);
 		MLData input = helper.allocateInputVector();
 		
-		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
+		//EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
 		Car carData = Car.getInstance();
 		
 		line[0] = ""+carData.getPos().fst();
@@ -348,7 +466,10 @@ public class LocPrediction {
 		//line[3] = ""+minute;
 		
 		helper.normalizeInputVector(line,input.getData(),false);
-		MLData output = bestMethod.compute(input);		
+		MLData output =  network.compute(input); // bestMethod.compute(input);		
+		
+		
+		
 		String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
 		String irisChoosen1 = helper.denormalizeOutputVectorToString(output)[1];
 		StringBuilder result = new StringBuilder();

@@ -1,6 +1,7 @@
 package utils;
 
 import java.util.ArrayList;
+import org.apache.commons.math3.linear.*;
 
 import interfaces.DatabaseLocation;
 import predictorG.DayTime;
@@ -54,6 +55,37 @@ public class Utils {
 
 	    return dist;
 	}
+	
+	public static double perpendicularDistance(DatabaseLocation a,DatabaseLocation n1,DatabaseLocation n2)
+	{
+		double[] p1 = {a.getLat(),a.getLon()};
+		RealVector N1 = MatrixUtils.createRealVector(p1);
+		
+		double[] l1 = {n1.getLat(),n1.getLon()};
+		RealVector X1 = MatrixUtils.createRealVector(l1);
+		
+		
+		double[] l2 = {n2.getLat(),n2.getLon()};
+		RealVector X2 = MatrixUtils.createRealVector(l2);
+		
+		RealVector V1 = X2.subtract(X1);
+
+		RealVector V2 = X1.subtract(N1);
+		double[][] m1 = {{V1.getEntry(0),V1.getEntry(1)},{V2.getEntry(0),V2.getEntry(1)}};
+		
+		RealMatrix M1 = MatrixUtils.createRealMatrix(m1);
+		
+		double det =new LUDecomposition(M1).getDeterminant();
+		if (det < 0)
+		{
+			det = -det;
+		}
+		
+		double d =det/ X2.getDistance(X1) ;
+		
+		return d;
+	}
+	
 	/**
 	 * @param in an Arraylist containing Database Locations 
 	 * @return A Tuple of Tuples containing the min x y tuple and max x y tuple as it's first and second argument respectively
