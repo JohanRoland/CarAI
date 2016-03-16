@@ -180,27 +180,38 @@ public class PointsPlotter extends JFrame {
 						
 						break;
 					case 6:
-						data.importFromDB(1, 600000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
+						//data.importFromDB(1, 600000);//
+						//data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\OlofLoc.kml",0);
+						data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",600000);
+						data.importFromFile();
 						data.coordCullByBox(57.34, 11, 1 , 4);
+						//data.cullByRDP();
 						data.coordCullByDist();
+						data.repoint();
+						data.coordCullBySpeed(15.0);
+						
+						
 						
 						points =  data.getQuerry();
-						
-						data.exportAsCoordsToCSV();
-						
-						File f2 = new File(".");
-						String pathToProj2 = f2.getAbsolutePath().substring(0, f2.getAbsolutePath().length()-2);
-				    	ELKIController.runElki();
-						
-						temp2 = data.importFromElkiClustering(pathToProj2+"\\ELKIClusters\\");
-						for(int t=1; t<temp2.size(); t++)
+						if(false)
 						{
-							System.out.println(Utils.mean(temp2.get(t)));
+							data.exportAsCoordsToCSV();
+							
+							File f2 = new File(".");
+							String pathToProj2 = f2.getAbsolutePath().substring(0, f2.getAbsolutePath().length()-2);
+					    	ELKIController.runElki();
+							
+							temp2 = data.importFromElkiClustering(pathToProj2+"\\ELKIClusters\\");
+							for(int t=1; t<temp2.size(); t++)
+							{
+								System.out.println(Utils.mean(temp2.get(t)));
+							}
+							System.out.println("Nummber of clusters; "+ temp2.size());
 						}
-						System.out.println("Nummber of clusters; "+ temp2.size());
-						
-						//temp2.add(null);
-						//temp2.add(points);
+						else{
+							temp2.add(null);
+							temp2.add(points);
+						}
 						break;
 					default:
 						NNData test2 = new NNData();
@@ -270,8 +281,8 @@ public class PointsPlotter extends JFrame {
 					
 					int x = (int) (((int)((l.getLon()-minMax.fst().fst())*scalingFac)+25)*zoom+ofsetX);
 					int y = (int) ((( g2d.getClipBounds().height-50)-(int)((l.getLat()-minMax.fst().snd())*scalingFac)+25)*zoom+ofsetY);
-					//int nx = (this.getHeight()-20)-(int)((l.getNLat()-minMax.fst().fst())*scalingFac)+10;
-					//int ny = (int)((l.getNLon()-minMax.fst().snd())*scalingFac)+10;
+					int nx = (int) (((int)((l.getNLon()-minMax.fst().fst())*scalingFac)+25)*zoom+ofsetX);
+					int ny = (int) ((( g2d.getClipBounds().height-50)-(int)((l.getNLat()-minMax.fst().snd())*scalingFac)+25)*zoom+ofsetY);
 					if(!hasDraw)
 					{
 						g2d.setPaint(Color.black);
@@ -282,8 +293,8 @@ public class PointsPlotter extends JFrame {
 					
 					g2d.drawOval(x-4, y-4, 8, 8);
 					
-					//g2d.setPaint(Color.black);
-					//g2d.drawLine(x, y,nx, ny);
+					g2d.setPaint(Color.black);
+					g2d.drawLine(x, y,nx, ny);
 				}
 				
 

@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -613,7 +614,7 @@ public class NNData
 			{
 				if(dist!=0 && ((dist*1000)/((time-oldTime)*60)>threshold))
 				{
-					if(takingAbrake>1)
+					if(takingAbrake>0)
 					{
 						if(1000.0<Math.abs(Utils.distFrom(querry.get(lastValidPoint).getLat(),querry.get(lastValidPoint).getLon(), querry.get(i).getLat(),querry.get(i).getLon())))
 						{
@@ -660,14 +661,19 @@ public class NNData
 	public void coordCullByDist()
 	{
 		ArrayList<DatabaseLocation> temp = new ArrayList<DatabaseLocation>();
- 		
+
+ 		ArrayList<Tuple<Double,Double>> median =  new ArrayList<Tuple<Double,Double>>();
+		
 		boolean traveling = false;
 		
 		int counter = 0;
+		int tCounter = 0;
+		
 		
 		Tuple<Double,Double> start = new Tuple<Double,Double>(0.0,0.0);
 		Tuple<Double,Double> stop = new Tuple<Double,Double>(0.0,0.0);
 		Tuple<Integer,Integer> tempTime = new Tuple<Integer,Integer>(0,0);
+		
 		
 		double traveledDist = 0.0; 
 		for(int i = 0; i < querry.size(); i++)
@@ -676,28 +682,41 @@ public class NNData
 			{
 				//traveledDist += Utils.distDB(querry.get(i));
 				counter++; 
-				if(traveling && counter > 7)
-				{
-					stop.setFst(querry.get(i).getNLat());
-					stop.setSnd(querry.get(i).getNLon());
 					
-					temp.add(new DBQuerry(start.fst(),start.snd(),tempTime.fst(),tempTime.snd(),stop.fst(),stop.snd()));
-					traveledDist = 0.0; 
-					traveling = false;
-					counter =0;
-				}
-				else
-				{
-					start.setFst(querry.get(i).getLat());
-					start.setSnd(querry.get(i).getLon());
-					tempTime.setFst(querry.get(i).getHTime());
-					tempTime.setFst(querry.get(i).getMTime());
-				}
+				traveledDist = 0.0; 
+				
+
+				median.add(new Tuple<Double,Double>(querry.get(i).getLat(),querry.get(i).getLon()));
+				//start.setFst(querry.get(i).getLat());
+				//start.setSnd(querry.get(i).getLon());
+				tempTime.setFst(querry.get(i).getHTime());
+				tempTime.setSnd(querry.get(i).getMTime());
+				//tCounter = 0;
+				traveling = false;
 			}
 			else
 			{
 				//traveledDist += Utils.distDB(querry.get(i));
+				if(counter > 15)
+				{
+					stop.setFst(querry.get(i).getNLat());
+					stop.setSnd(querry.get(i).getNLon());
+					
+					/*double p1 = 0.0;
+					double p2 = 0.0;
+					
+					for(Tuple<Double,Double> d: median)
+					{
+						p1 += d.fst();
+						p2 += d.snd();
+					}*/
+					
+					temp.add(new DBQuerry(median.get(median.size()/2).fst(),median.get(median.size()/2).snd(),tempTime.fst(),tempTime.snd(),stop.fst(),stop.snd()));
+					//temp.add(new DBQuerry(p1/median.size(),p2/median.size(),tempTime.fst(),tempTime.snd(),stop.fst(),stop.snd()));
+				}
+				median.clear();
 				traveling = true;
+				//tCounter++;
 				counter = 0; 
 			}
 			
@@ -705,6 +724,59 @@ public class NNData
 		}
 		System.out.println("Removed coords: " +(querry.size()- temp.size()));
 		querry = temp;
+	}
+	
+	public ArrayList<DatabaseLocation> RDPALG(List<DatabaseLocation> pointList,double eps)
+	{
+		double dmax = 0;
+		int index = 0; 
+		
+		int end = pointList.size()-1;
+		
+		for(int i = 1; i < end-1; i++)
+		{
+			double d = Utils.perpendicularDistance(pointList.get(i), pointList.get(0), pointList.get(end));
+			if(d > dmax)
+			{
+				index = i;
+				dmax = d;
+			}
+		}
+		ArrayList<DatabaseLocation> Res = new ArrayList<DatabaseLocation>();
+		
+		if(dmax > eps)
+		{
+			ArrayList<DatabaseLocation> Res1 = (ArrayList<DatabaseLocation>)RDPALG(pointList.subList(0, index),eps);
+			ArrayList<DatabaseLocation> Res2 = (ArrayList<DatabaseLocation>)RDPALG(pointList.subList(index, end),eps);
+		
+			Res.addAll(Res1);
+			Res.addAll(Res2);
+			
+		}
+		else
+		{
+			Res.add(pointList.get(0));
+			Res.add(pointList.get(end));
+		}
+		
+		return Res;
+	}
+	
+	public void repoint()
+	{
+		for(int i = 0; i < querry.size()-1; i++)
+		{
+			querry.get(i).setNPos(querry.get(i+1).getLat(), querry.get(i+1).getLon());
+		}
+	}
+	
+	public void cullByRDP()
+	{
+		ArrayList<DatabaseLocation> temp  = RDPALG(querry,0.00001);
+		System.out.println("After RDP: " + temp.size());
+		
+		querry = temp;
+		//repoint(); 
 	}
 	
 	public void exportToDB(int id)
@@ -734,8 +806,9 @@ public class NNData
 		{ 
 			querry.add(new DBQuerry(input.get(i)[0], input.get(i)[1], hours.get(i), minutes.get(i), output.get(i)[0], output.get(i)[1]));
 		}
+		
 		System.out.println("Input size: " + input.size());
-		return querry;
+		return querry; 
 	}
 	
 	public Tuple<Double,Double> findNextCluster(Tuple<Double,Double> pos, HashMap<Tuple<Double,Double>,DatabaseLocation> lookup )
