@@ -4,9 +4,15 @@ import java.util.ArrayList;
 
 import interfaces.DatabaseLocation;
 import predictorG.DayTime;
-
+/**
+ * Contains utility functions applicable in the location prediction project CarAI.
+ * @author William and Johan
+ */
 public class Utils {
-
+/**
+ * Contains a DayTime as well as setters and getters for it
+ * @author Johan
+ */
 	public class ConnectionData
 	{
 		private DayTime dayTime;
@@ -21,7 +27,12 @@ public class Utils {
 		
 	}
 	
-	// TO BE CHANGED!
+	/**
+	 * Calculates the mean of a ArrayList of DatabaseLocations, the resulting Tuple has
+	 * rounded down values to a precision of seven decimals.
+	 * @param in
+	 * @return Returns a Tuple of doubles rounded down to seven decimals
+	 */
 	public static Tuple<Double,Double> mean(ArrayList<DatabaseLocation> in)
 	{
 		double[] t1 = new double[2];
@@ -35,12 +46,23 @@ public class Utils {
 		return new Tuple<Double,Double>(Math.floor(t1[0]*100000)/100000,Math.floor(t1[1]*100000)/100000);
 	}
 	
-	
+	/**
+	 * Calculates the distance spanned by a DatabaseLocation
+	 * @param d The object of type DatabaseLocation 
+	 * @return returns the distance as a double.
+	 */
 	public static double distDB(DatabaseLocation d)
 	{
 		return distFrom(d.getLat(),d.getLon(),d.getNLat(),d.getNLon());
 	}
-
+	/**
+	 * Calculates the distance in meters between two long-lat coordinates.
+	 * @param lat1 first Latitude
+	 * @param lng1 first Longitude
+	 * @param lat2 second Latitude
+	 * @param lng2 second Longitude
+	 * @return A double representing the distance in meters.
+	 */
 	public static double distFrom(double lat1, double lng1, double lat2, double lng2) 
 	{
 	    double earthRadius = 6371000; //meters
@@ -55,8 +77,10 @@ public class Utils {
 	    return dist;
 	}
 	/**
-	 * @param in an Arraylist containing Database Locations 
-	 * @return A Tuple of Tuples containing the min x y tuple and max x y tuple as it's first and second argument respectively
+	 * Used to calculate the edges of the long-lat space from DatabaseLocations, the input is structured as ArrayList of ArrayList of DtabaseLocations
+	 * but is iterated trough as a single list. The structure is there so that it can be interfaced with a clustered structure.
+	 * @param in an Arraylist of ArrayLists containing DatabaseLocations 
+	 * @return A Tuple of Tuples containing the min lat-long tuple and max lat-long tuple as it's first and second argument respectively
 	 */
 	public static Tuple<Tuple<Double,Double>,Tuple<Double,Double>> getGPSPlotFrame(ArrayList<ArrayList<DatabaseLocation>> in)
 	{

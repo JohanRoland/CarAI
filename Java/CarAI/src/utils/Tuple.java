@@ -49,13 +49,19 @@ public class Tuple<T,F>
 	 * set the second value
 	 */
 	public void setSnd(F in){lon=in;}
-	
+	/**
+	 * Provides a hash for the Tuple
+	 */
 	public int hashCode()
 	{
 		
 		return Objects.hash(lat,lon);// Math.floorMod(a.hashCode()*17+b.hashCode()*31,Integer.MAX_VALUE) ; 
 	}
-	
+	/**
+	 * Two Tuples are considered equal of there elements are equal.
+	 * Needless to say, this requires the elements to have an equals method
+	 * to provide a sensible output.
+	 */
 	public boolean equals(Object obj)
 	{
 		if(!(obj instanceof Tuple))

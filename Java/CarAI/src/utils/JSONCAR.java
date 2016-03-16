@@ -1,5 +1,13 @@
 package utils;
-
+/**
+ * 
+ * A class containing four fields,
+ * used to represents individuals
+ * in a four seat car.
+ * 
+ * @author William
+ *
+ */
 public class JSONCAR {
 	
 	public String[] DRIVER = {};
