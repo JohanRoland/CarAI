@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.encog.ConsoleStatusReportable;
 import org.encog.Encog;
 import org.encog.engine.network.activation.ActivationSigmoid;
+import org.encog.engine.network.activation.ActivationTANH;
 import org.encog.util.arrayutil.VectorWindow;
 import org.encog.util.csv.CSVFormat;
 import org.encog.util.csv.ReadCSV;
@@ -268,19 +269,22 @@ public class LocPrediction {
 		
 		
 		/////// CREATE NETWORK
-		network = new FreeformNetwork();
+		network = (new FreeformNetwork()).createElman(3, 7, 2, new ActivationTANH());
 		
+		/*
 		FreeformLayer input = network.createInputLayer(3);
 		FreeformLayer hiddenLayer = network.createLayer(7);
 		FreeformLayer hiddenLayer2 = network.createLayer(7);
 		FreeformLayer output = network.createOutputLayer(2);
 		
-		network.connectLayers(input, hiddenLayer, new ActivationSigmoid(), 1.0, false);
-		//network.connectLayers(input, hiddenLayer2, new ActivationSigmoid(), 1.0, false);
-		network.connectLayers(hiddenLayer, hiddenLayer2, new ActivationSigmoid(), 1.0, false);
-		//network.connectLayers(hiddenLayer, output, new ActivationSigmoid(), 1.0, false);
-		network.connectLayers(hiddenLayer2, output, new ActivationSigmoid(), 1.0, false);
 		
+		network.connectLayers(input, hiddenLayer, new ActivationTANH(), 1.0, false);
+		network.connectLayers(input, hiddenLayer2, new ActivationSigmoid(), 0.0, false);
+		network.connectLayers(hiddenLayer, hiddenLayer2, new ActivationTANH(), 0.0, false);
+		//network.connectLayers(hiddenLayer, output, new ActivationSigmoid(), 1.0, false);
+		
+		network.connectLayers(hiddenLayer2, output, new ActivationTANH(), 1.0, false);
+		*/
 		network.reset();
 		/////// END CREATE NETWORK
 		
@@ -301,12 +305,19 @@ public class LocPrediction {
 		{
 			train.iteration();
 			System.out.println("Epoch #" + (epoch++) + " Error:" + train.getError());
-		}while(train.getError() > 0.0001 && epoch < 1000);
+		}while(train.getError() > 0.0001 && epoch < 3000);
 			
 		
 		train.finishTraining();
 		
-		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), network);
+		try {
+			SerializeObject.save(new File("freeformNetworkExport.eg"), network);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		//EncogDirectoryPersistence.saveObject(, network);
 		
 		
 	}
