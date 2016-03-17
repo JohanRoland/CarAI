@@ -336,7 +336,7 @@ public class LocPrediction {
 			String[] descreteHTime = numArray(24);
 	 		String[] descreteClust = numArray(nd.getNrCluster());
 			
-			VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
+			VersatileDataSource source = new CSVDataSource(new File("faricate.csv"),false,format);
 			data =  new VersatileMLDataSet(source);
 	
 			data.getNormHelper().setFormat(format); 
@@ -347,10 +347,10 @@ public class LocPrediction {
 			//ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.ordinal);
 			ColumnDefinition columnOutClust = data.defineSourceColumn("opos",2,ColumnType.nominal);
 			
-			columnInClust.defineClass(descreteClust);
+			//columnInClust.defineClass(descreteClust);
 			//columnMTime.defineClass(descreteMTime);
 			//columnHTime.defineClass(descreteHTime);
-			columnOutClust.defineClass(descreteClust);
+			//columnOutClust.defineClass(descreteClust);
 			data.getNormHelper().defineUnknownValue("?");
 			data.analyze();
 	
@@ -368,7 +368,7 @@ public class LocPrediction {
 			
 			model.holdBackValidation(0.3, false, 1001);
 			model.selectTrainingType(data);
-			bestMethod = (MLRegression)model.crossvalidate(5, false);
+			bestMethod = (MLRegression)model.crossvalidate(50, true);
 			
 			System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
 			System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
@@ -390,7 +390,7 @@ public class LocPrediction {
 		}
 		if(!instanceMap.containsKey(userID))
 		{
-			instanceMap.put(userID, new LocPrediction());//userID
+			instanceMap.put(userID, new LocPrediction(userID));//userID
 		}
 		
 		return instanceMap.get(userID);

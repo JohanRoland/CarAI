@@ -1,16 +1,20 @@
 package predictorG;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import predictorG.DayTime;
+import result.LocPrediction;
 import utils.Tuple;
 /**
  * @author Knarkapan
@@ -21,13 +25,74 @@ public class PredictorG {
 	HashMap<Integer,Node> nodes;
 	int nummberOfNodes;
 	Node currentNode;
+	static HashMap<Integer, PredictorG> instanceMap;	
 	
-	
-	public PredictorG()
+	private PredictorG()
 	{
 		nodes=new HashMap<Integer,Node>();
 		currentNode=null;
 		nummberOfNodes=0;
+	}
+	static public PredictorG getInstance(int userID)
+	{
+
+		if(instanceMap == null)
+		{
+			instanceMap = new HashMap<Integer,PredictorG>();
+		}
+		if(!instanceMap.containsKey(userID))
+		{
+			instanceMap.put(userID, new PredictorG());//userID
+		}
+		
+		return instanceMap.get(userID);
+	}
+	/**
+	 * Resets the network and loads the batch
+	 * @param inputs An arrayList of lists containing fromCluster, toCluster, time of day, day, month
+	 */
+	public void batchLoad(ArrayList<int[]> inputs)
+	{
+		nodes=new HashMap<Integer,Node>();
+		currentNode=null;
+		nummberOfNodes=0;
+		int high=Integer.MIN_VALUE; 
+		for(int[] inp : inputs)
+		{
+			if(inp[0]>high)
+				high=inp[0];
+			
+			if(inp[1]>high)
+				high=inp[1];
+		}
+		for(int i=1; i<=high;i++)
+		{
+			this.addNode(i);
+		}
+		for(int[] inp : inputs)
+		{
+			enterPath(inp[0],inp[1], inp[2],inp[3],inp[4]);
+			
+		}
+	}
+	public void loadFromCSV(String path)
+	{
+		try {
+			ArrayList<String> reader = (ArrayList<String>) Files.readAllLines(new File(path).toPath());
+			ArrayList<int[]> batch= new ArrayList<int[]>();
+			for(String e : reader)
+			{
+				String[] arg = e.split(" ");
+				int[] temp ={Integer.parseInt(arg[0]),Integer.parseInt(arg[2]),Integer.parseInt(arg[1]),0,0};
+				batch.add(temp);
+			}
+			batchLoad(batch);
+		
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	public void addNode(int cluster)
 	{
@@ -48,7 +113,7 @@ public class PredictorG {
 		else
 			throw new Error("No such cluster");
 	}
-	public Tuple<Tuple<Integer, Double>, ArrayList<Tuple<Integer, Double>>> predictNextNode(double t,int d,int w, double[] waightFactors)
+	public Tuple<Tuple<Integer, Double>, ArrayList<Tuple<Integer, Double>>> predictNextNode(int t,int d,int w, double[] waightFactors)
 	{
 		 DayTime dt= new DayTime(t,d,w);
 		 ArrayList<Double> temp =currentNode.neibors.proxSerch(dt);
@@ -70,7 +135,7 @@ public class PredictorG {
 				
 	}
 
-	public void traversAndPathTo(int toCluster, double t,int d,int m)
+	public void traversAndPathTo(int toCluster, int t,int d,int m)
 	{
 		if(nodes.containsKey(toCluster))
 		{
@@ -82,7 +147,7 @@ public class PredictorG {
 			throw new Error("Destination node does not exsist");
 		}
 	}
-	public void enterPath(int fromCluster,int toCluster, double t,int d,int m)
+	public void enterPath(int fromCluster,int toCluster, int t,int d,int m)
 	{
 		if(!nodes.containsKey(fromCluster))
 		{
@@ -155,7 +220,7 @@ public class PredictorG {
 			{
 				String[] temp =fr.readLine().split(" ");
 				for(int j=0; j<Integer.parseInt(temp[4]); j++)
-					neibors.addConnection(Double.parseDouble(temp[1]), Integer.parseInt(temp[2]), Integer.parseInt(temp[3]), Integer.parseInt(temp[0]));
+					neibors.addConnection(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]), Integer.parseInt(temp[3]), Integer.parseInt(temp[0]));
 				
 			}
 				
@@ -197,7 +262,7 @@ public class PredictorG {
 				}
 			}
 		 */
-			void addConnection(double t,int d,int m, Integer n)
+			void addConnection(int t,int d,int m, Integer n)
 			{
 				
 
@@ -233,7 +298,7 @@ public class PredictorG {
 				
 				ArrayList<Double> out = new ArrayList<Double>();
 				
-				for(int i =0; i<connections2.size();i++)
+				for(int i =0; i<nummberOfNodes+1;i++)			//??
 				{
 					out.add(0.0);
 				}
@@ -253,9 +318,9 @@ public class PredictorG {
 					}
 					
 				}
-				//ArrayList<Double> listThathasZero = new ArrayList<Double>();
+				ArrayList<Double> listThathasZero = new ArrayList<Double>();
 				//listThathasZero.add(0.0);
-				//out.removeAll(listThathasZero);
+				out.removeAll(listThathasZero);
 				return out;
 			}
 			

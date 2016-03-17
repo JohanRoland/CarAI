@@ -1,5 +1,7 @@
 package car;
 
+import java.util.ArrayList;
+
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -11,9 +13,11 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import com.google.gson.*;
 
 import interfaces.MQTTInterface;
+import predictorG.PredictorG;
 import result.LocPrediction;
 import utils.JSONCAR;
 import utils.Tuple;
+import utils.Utils;
 
 public class CarInterface implements MQTTInterface
 {
@@ -23,17 +27,19 @@ public class CarInterface implements MQTTInterface
 	String utopic = "carai/car";
 	String ftopic = "carai/face/car";
 	String gpstopic = "carai/car/gps";
+	String graphTopic = "carai/graph";
 	
 	String content = "Java to car interface";
 	String clientId = "CarIf";
 	
 	Car car; 
+	boolean graphNotCalled=true;
 	
 	public CarInterface()
 	{
 		car = Car.getInstance(); 
 		MemoryPersistence persistence = new MemoryPersistence();
-		
+
 		try{
 			client = new MqttAsyncClient(broker,clientId,persistence); 
 			connOpts = new MqttConnectOptions();
@@ -44,6 +50,7 @@ public class CarInterface implements MQTTInterface
 	      //client.subscribe(utopic,0);
 	        client.subscribe(ftopic, 0);
 	        client.subscribe(gpstopic,0);
+	        client.subscribe(graphTopic, 0);
 	        
 		}
 		catch(MqttException me) {
@@ -62,6 +69,7 @@ public class CarInterface implements MQTTInterface
 		public void connectionLost(Throwable arg0) {
 			// TODO Auto-generated method stub
 			System.out.println("CarInterface mqtt connection closed");
+			arg0.printStackTrace();
 		}
 
 		@Override
@@ -83,7 +91,7 @@ public class CarInterface implements MQTTInterface
 				if(car.getUser("DRIVER").userExists())
 				{
 					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID());
-					Tuple<Double,Double> pred = lp.predictCoord();
+					Tuple<Double,Double> pred = lp.predict();
 					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 				if(car.getUser("PASSENGER").userExists())
@@ -112,8 +120,55 @@ public class CarInterface implements MQTTInterface
 				System.out.println("lon: " + gpsPos.fst() + " lat: " + gpsPos.snd());
 				car.setPos(Double.parseDouble(gpsPos.fst()),Double.parseDouble( gpsPos.snd()));
 			}
+			if(arg0.equals(graphTopic))
+			{
+				
+
+				PredictorG graph;
+				graph = PredictorG.getInstance(1);
+				if(graphNotCalled)
+				{
+					graph.loadFromCSV("fabricatedData.csv");
+					graphNotCalled=false;
+				}
+				Gson gs = new Gson();
+				Tuple<String,String> args = gs.fromJson(new String(arg1.getPayload()), Tuple.class);
+				graph.setCurrentNode(Integer.parseInt(args.fst()));
+				Tuple<Tuple<Integer, Double>, ArrayList<Tuple<Integer, Double>>> temp = graph.predictNextNode(Integer.parseInt(args.snd()), 0, 0, null);
+				System.out.println(temp);
+				switch(temp.fst().fst())
+				{
+				case 1:
+					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+57.685289+"\",\"lon\":\""+11.946477+"\"}").getBytes())); // hem
+					break;
+				case 2:
+					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+57.696878+"\",\"lon\":\""+11.975853+"\"}").getBytes())); // jobb
+					break;
+				case 3:
+					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+57.699042+"\",\"lon\":\""+11.977489+"\"}").getBytes())); // mat 1
+				break;
+				case 4:
+					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+57.706636+"\",\"lon\":\""+11.979626+"\"}").getBytes())); // mat 2
+					
+					break;
+				case 5:
+					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+57.699489+"\",\"lon\":\""+11.952700+"\"}").getBytes())); // mat 3
+					break;
+				case 6:
+					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+57.703559+"\",\"lon\":\""+11.964807+"\"}").getBytes())); // Gym
+				break;
+				case 7:
+					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+57.700774+"\",\"lon\":\""+11.950863+"\"}").getBytes()));// Matafär
+				break;
+				default:
+				break;
+				}
+				
+				
+			}
 
 		}
+
 	}
 	
 }

@@ -6,14 +6,14 @@ import java.lang.Double;
 
 	public class DayTime
 	{
-		private double time;
+		private int time;
 		private int day;
 		private int month;
 		
 		
-		double getTime(){return time;}
+		int getTime(){return time;}
 		
-		DayTime(double in, int d,int m)
+		DayTime(int in, int d,int m)
 		{
 			time=in;
 			day=d;
