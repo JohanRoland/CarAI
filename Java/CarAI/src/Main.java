@@ -157,7 +157,7 @@ public class Main
     		}
     		else if(args[0].equals("7"))
     		{
-    			PredictorG graph = new PredictorG();
+    			PredictorG graph = PredictorG.getInstance(1);
     			
     			PYDBSCAN clusters = new PYDBSCAN();
     			NNData nn = new NNData();
@@ -190,7 +190,7 @@ public class Main
 				graph.setCurrentNode(2);
 				double[] waightFactors = {1.0,1.0,1.0,1.0,1.0};
 				for(int i = 0 ; i<1440; i=i+30)
-					System.out.println("prediction at time: " + i + " "+ graph.predictNextNode((double)i,0,0, waightFactors ));
+					System.out.println("prediction at time: " + i + " "+ graph.predictNextNode(i,0,0, waightFactors ));
 				
 				
     			/*

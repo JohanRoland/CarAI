@@ -452,6 +452,7 @@ public class LocPrediction {
 		
 		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
 		
+
 		//}
 		
 		//Encog.getInstance().shutdown();
