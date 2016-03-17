@@ -53,7 +53,7 @@ import org.encog.ml.data.basic.BasicMLDataSet;
 import org.encog.ml.data.versatile.NormalizationHelper;
 import org.encog.ml.data.versatile.VersatileMLDataSet;
 import org.encog.ml.data.versatile.columns.ColumnType;
-
+import org.encog.ml.data.versatile.normalizers.strategies.NormalizationStrategy;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -101,13 +101,73 @@ public class LocPrediction {
 	private MqttTime mqttTime;
 	private LocPrediction()
 	{
+		mqttTime = MqttTime.getInstance();
 		//standardLearning();
-		customLearning();
+		//customLearning();
+		importNetwork();
+	}
+	
+	private void importNetwork()
+	{
+		
+		//network =  (FreeformNetwork)EncogDirectoryPersistence.loadObject(new File("networkExport.eg"));
+		bestMethod = (MLRegression)EncogDirectoryPersistence.loadObject(new File("networkExport.eg"));	
+		
+		format = new CSVFormat('.',' ');
+		
+		NNData nd = new NNData();
+
+		nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
+		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
+		nd.importFromFile();
+		//nd.exportToDB(1);
+		//nd.importFromDB(1,600000);
+		nd.coordCullByBox(57.34, 11, 1 , 4);
+		//data.cullByRDP();
+		nd.coordCullByDist();
+		nd.repoint();
+		//nd.coordCullBySpeed(15.0);
+		nd.exportAsCoordsToCSV();
+		
+		String[] descreteMTime = numArray(60);
+		String[] descreteHTime = numArray(24);
+		
+		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
+		data =  new VersatileMLDataSet(source);
+		
+		data.getNormHelper().setFormat(format); 
+		ColumnDefinition columnInLon = data.defineSourceColumn("ilon",0,ColumnType.continuous);		
+		ColumnDefinition columnInLat = data.defineSourceColumn("ilat",1,ColumnType.continuous);		
+		//ColumnDefinition columnHTime = data.defineSourceColumn("hours",2,ColumnType.ordinal);
+		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.continuous);
+		ColumnDefinition columnOutLon = data.defineSourceColumn("olon",3,ColumnType.continuous);		
+		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",4,ColumnType.continuous);	
+		
+		//columnMTime.defineClass(descreteMTime);
+		//columnHTime.defineClass(descreteHTime);
+		data.analyze();
+		
+		data.defineInput(columnInLon);
+		data.defineInput(columnInLat);
+		//data.defineInput(columnHTime);
+		data.defineInput(columnMTime);
+		data.defineOutput(columnOutLon);
+		data.defineOutput(columnOutLat);
+		data.getNormHelper().defineUnknownValue("?");
+		
+		EncogModel model = new EncogModel(data);
+		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
+		
+		model.setReport(new ConsoleStatusReportable());
+		
+		data.normalize();
+		helper = data.getNormHelper();
+		
 	}
 	
 	private void standardLearning()
 	{
-		mqttTime = MqttTime.getInstance();
+		
 		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
 		format = new CSVFormat('.',' ');
 		
@@ -122,7 +182,7 @@ public class LocPrediction {
 		//data.cullByRDP();
 		nd.coordCullByDist();
 		nd.repoint();
-		nd.coordCullBySpeed(15.0);
+		//nd.coordCullBySpeed(15.0);
 		nd.exportAsCoordsToCSV();
 		
 		String[] descreteMTime = numArray(60);
@@ -171,6 +231,8 @@ public class LocPrediction {
 		helper = data.getNormHelper();
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
+
+		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
 		
 		//ReadCSV csv = new ReadCSV(new File("coords.csv"),false,format);
 		//String[] line = new String[4];
@@ -341,53 +403,55 @@ public class LocPrediction {
 
 		//if(!nd.emptyData())
 		//{
-			nd.exportAsClustToCSV();
-				
-			String[] descreteMTime = numArray(60);
-			String[] descreteHTime = numArray(24);
-	 		String[] descreteClust = numArray(nd.getNrCluster());
+		nd.exportAsClustToCSV();
 			
-			VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
-			data =  new VersatileMLDataSet(source);
-	
-			data.getNormHelper().setFormat(format); 
-	
-			ColumnDefinition columnInClust = data.defineSourceColumn("pos",0,ColumnType.nominal);
-			ColumnDefinition columnMTime = data.defineSourceColumn("minutes",1,ColumnType.continuous);
-			//ColumnDefinition columnHTime = data.defineSourceColumn("hours",1,ColumnType.ordinal);
-			//ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.ordinal);
-			ColumnDefinition columnOutClust = data.defineSourceColumn("opos",2,ColumnType.nominal);
-			
-			columnInClust.defineClass(descreteClust);
-			//columnMTime.defineClass(descreteMTime);
-			//columnHTime.defineClass(descreteHTime);
-			columnOutClust.defineClass(descreteClust);
-			data.getNormHelper().defineUnknownValue("?");
-			data.analyze();
-	
-			data.defineInput(columnInClust);
-			//data.defineInput(columnHTime);
-			data.defineInput(columnMTime);
-			data.defineOutput(columnOutClust);
-			
-			EncogModel model = new EncogModel(data);
-			model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
-			
-			model.setReport(new ConsoleStatusReportable());
-			
-			data.normalize();
-			
-			model.holdBackValidation(0.3, false, 1001);
-			model.selectTrainingType(data);
-			bestMethod = (MLRegression)model.crossvalidate(5, false);
-			
-			System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
-			System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
-			helper = data.getNormHelper();
-			
-			System.out.println(helper.toString());
-			System.out.println("Final model: " + bestMethod);
-			
+		String[] descreteMTime = numArray(60);
+		String[] descreteHTime = numArray(24);
+ 		String[] descreteClust = numArray(nd.getNrCluster());
+		
+		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
+		data =  new VersatileMLDataSet(source);
+
+		data.getNormHelper().setFormat(format); 
+
+		ColumnDefinition columnInClust = data.defineSourceColumn("pos",0,ColumnType.nominal);
+		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",1,ColumnType.continuous);
+		//ColumnDefinition columnHTime = data.defineSourceColumn("hours",1,ColumnType.ordinal);
+		//ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.ordinal);
+		ColumnDefinition columnOutClust = data.defineSourceColumn("opos",2,ColumnType.nominal);
+		
+		columnInClust.defineClass(descreteClust);
+		//columnMTime.defineClass(descreteMTime);
+		//columnHTime.defineClass(descreteHTime);
+		columnOutClust.defineClass(descreteClust);
+		data.getNormHelper().defineUnknownValue("?");
+		data.analyze();
+
+		data.defineInput(columnInClust);
+		//data.defineInput(columnHTime);
+		data.defineInput(columnMTime);
+		data.defineOutput(columnOutClust);
+		
+		EncogModel model = new EncogModel(data);
+		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
+		
+		model.setReport(new ConsoleStatusReportable());
+		
+		data.normalize();
+		
+		model.holdBackValidation(0.3, false, 1001);
+		model.selectTrainingType(data);
+		bestMethod = (MLRegression)model.crossvalidate(5, false);
+		
+		System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
+		System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
+		helper = data.getNormHelper();
+		
+		System.out.println(helper.toString());
+		System.out.println("Final model: " + bestMethod);
+		
+		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
+		
 		//}
 		
 		//Encog.getInstance().shutdown();
@@ -402,6 +466,15 @@ public class LocPrediction {
 		if(!instanceMap.containsKey(userID))
 		{
 			instanceMap.put(userID, new LocPrediction());//userID
+		}
+		else
+		{
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		return instanceMap.get(userID);
@@ -437,7 +510,7 @@ public class LocPrediction {
 		
 		//EncogUtility.saveEGB(new File("networkExport.eg"), data);
 		//EncogUtility.explainErrorMSE(bestMethod, data);
-		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
+		
 		Car carData = Car.getInstance();
 		
 		line[0] = ""+nd.getClosestCluster(carData.getPos());
@@ -477,7 +550,7 @@ public class LocPrediction {
 		//line[3] = ""+minute;
 		
 		helper.normalizeInputVector(line,input.getData(),false);
-		MLData output =  network.compute(input); // bestMethod.compute(input);		
+		MLData output = bestMethod.compute(input);	// network.compute(input); // 
 		
 		
 		

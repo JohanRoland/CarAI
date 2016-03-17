@@ -62,6 +62,7 @@ public class CarInterface implements MQTTInterface
 		public void connectionLost(Throwable arg0) {
 			// TODO Auto-generated method stub
 			System.out.println("CarInterface mqtt connection closed");
+			arg0.printStackTrace();
 		}
 
 		@Override
