@@ -148,8 +148,7 @@ public class CarInterface implements MQTTInterface
 					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+57.699042+"\",\"lon\":\""+11.977489+"\"}").getBytes())); // mat 1
 				break;
 				case 4:
-					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+57.706636+"\",\"lon\":\""+11.979626+"\"}").getBytes())); // mat 2
-					
+					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+57.706636+"\",\"lon\":\""+11.979626+"\"}").getBytes())); // mat 2		
 					break;
 				case 5:
 					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+57.699489+"\",\"lon\":\""+11.952700+"\"}").getBytes())); // mat 3

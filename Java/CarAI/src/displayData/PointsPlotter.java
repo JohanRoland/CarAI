@@ -48,8 +48,9 @@ public class PointsPlotter extends JFrame {
 	private void initUI()
 	{
 		JPanel mapPane = new JPanel(new GridLayout(1,0));
-		final Surface surface = new Surface(5);
-		//final Surface surface1 = new Surface(1);
+		final Surface surface = new Surface(8);
+		//final Surface surface1 = new Surface(8);
+		
 		mapPane.add(surface);
 		//mapPane.add(surface1);
 		add(mapPane);
@@ -180,10 +181,10 @@ public class PointsPlotter extends JFrame {
 						
 						break;
 					case 6:
-						//data.importFromDB(1, 600000);//
+						data.importFromDB(1, 600000);//
 						//data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\OlofLoc.kml",0);
-						data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",600000);
-						data.importFromFile();
+						//data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",600000);
+						//data.importFromFile();
 						data.coordCullByBox(57.34, 11, 1 , 4);
 						//data.cullByRDP();
 						data.coordCullByDist();
@@ -212,6 +213,14 @@ public class PointsPlotter extends JFrame {
 							temp2.add(null);
 							temp2.add(points);
 						}
+						break;
+					case 8:
+						data.importFromDB(1, 600000);
+						data.coordCullByBox(57.34, 11, 1 , 1.5);
+						points=data.getQuerry();
+						temp2.add(null);
+						temp2.add(points);
+						
 						break;
 					default:
 						NNData test2 = new NNData();
