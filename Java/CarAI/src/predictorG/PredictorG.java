@@ -167,6 +167,7 @@ public class PredictorG {
 	private class Node
 	{
 		
+		@SuppressWarnings("unused")
 		int cluster;
 		ConnectionHandeler neibors;
 		
@@ -175,6 +176,7 @@ public class PredictorG {
 			cluster=c;
 			neibors = new ConnectionHandeler();
 		}
+		@SuppressWarnings("unused")
 		Node(BufferedReader fr, int c) throws IOException
 		{
 			this(c);
@@ -183,12 +185,8 @@ public class PredictorG {
 			{
 				String[] temp =fr.readLine().split(" ");
 				for(int j=0; j<Integer.parseInt(temp[4]); j++)
-					neibors.addConnection(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]), Integer.parseInt(temp[3]), Integer.parseInt(temp[0]));
-				
-			}
-				
-			
-			
+					neibors.addConnection(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]), Integer.parseInt(temp[3]), Integer.parseInt(temp[0]),Integer.parseInt(temp[5]));
+			}			
 		}
 		private class ConnectionHandeler
 		{
@@ -201,6 +199,10 @@ public class PredictorG {
 				connections2 = new ArrayList<Tuple<DayTime,ArrayList<Tuple<Tuple<Integer,Integer>, Integer>>>>();
 			}
 			void addConnection(int t,int d,int m, Integer n)
+			{
+				addConnection(t, d, m, n, Calendar.getInstance().get(Calendar.DAY_OF_YEAR));
+			}
+			void addConnection(int t,int d,int m, Integer n, int timeStamp)
 			{	
 				for(Tuple<DayTime, ArrayList<Tuple<Tuple<Integer, Integer>, Integer>>> e : connections2)
 				{
@@ -213,7 +215,7 @@ public class PredictorG {
 							if( e1.fst().fst()==n)
 							{
 								e1.fst().setSnd(e1.fst().snd()+1);
-								e1.setSnd(Calendar.getInstance().get(Calendar.DAY_OF_YEAR));
+								e1.setSnd(timeStamp);
 								return;		
 							}
 						}
@@ -225,30 +227,6 @@ public class PredictorG {
 				connections2.add(new Tuple<DayTime,ArrayList<Tuple<Tuple<Integer, Integer>,Integer>>>(pl, temp));
 				
 			}
-
-/*
-			private updateValid()
-			{
-				Calendar temp2 = Calendar.getInstance();
-				
-				int dateDiff = temp2.get(Calendar.DAY_OF_YEAR)-e1.snd();
-				if(dateDiff<0)
-				{
-					int toEOY = 365 - e1.snd();
-					dateDiff= toEOY+temp2.get(Calendar.DAY_OF_YEAR);
-					
-				}
-				
-				if(14<dateDiff)
-				{
-					
-				}
-				else
-				{
-					
-				}
-			}
-	*/		
 			private ArrayList<Double> proxSerch(DayTime d)
 			{
 				

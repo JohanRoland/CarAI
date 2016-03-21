@@ -32,7 +32,7 @@ import utils.Utils;
 public class NNData
 {
 	// Inputs
-	ArrayList<double[]> input;
+
 	ArrayList<Integer> minutes;
 	ArrayList<Integer> hours;
 	ArrayList<Integer> inputClust;
@@ -55,7 +55,7 @@ public class NNData
 	public NNData()
 	{
 		
-		input = new ArrayList<double[]>();
+		
 		output = new ArrayList<double[]>();
 		minutes = new ArrayList<Integer>();
 		hours = new ArrayList<Integer>();
@@ -114,7 +114,7 @@ public class NNData
 	{
 		return viewClustPos;
 	}
-	
+	/*
 	public double[][] getInputData()
 	{
 		double[][] ret = new double[input.size()][]; 
@@ -124,6 +124,7 @@ public class NNData
 		}
 		return ret;
 	}
+	*/
 	
 	public double[][] getOutputData()
 	{
@@ -204,27 +205,26 @@ public class NNData
 				 	
 				 	String tmdasd= time.substring(11, time.length()-3).replace(":","");
 				 	double t = Math.floor( Double.parseDouble(tmdasd)/100);
-				 	
 				 	double lat = Double.parseDouble(eElement.getAttribute("lat"));
 				 	double lon = Double.parseDouble(eElement.getAttribute("lon"));
 					double[] tmp =  {lon,lat};
-					input.add(tmp);
-					hours.add(h);
-					minutes.add(min);
+					double[] tmp2= new double[2];
 					if(i+1 <nList.getLength())
 					{
 						Node oNode = nList.item(i+1);
 						if (oNode.getNodeType() == Node.ELEMENT_NODE) {
 							Element oElement = (Element) oNode;
-							double[] tmp2 = {Double.parseDouble(oElement.getAttribute("lon")), Double.parseDouble(oElement.getAttribute("lat"))};
-							output.add(tmp2);
+							tmp2[0] = Double.parseDouble(oElement.getAttribute("lon"));
+							tmp2[0]	= Double.parseDouble(oElement.getAttribute("lat"));
 						}
 					}
 					else
 					{
-						double[] tmp2 = {lon,lat};
-						output.add(tmp2);
+						tmp2[0] = lon;
+						tmp2[1] = lat;
+
 					}
+					querry.add(new DBQuerry(tmp[0], tmp[1], min, h, tmp2[0],tmp2[1]));
 				}
 				
 			}
@@ -277,10 +277,7 @@ public class NNData
 					double lat = ((double)Math.round(Double.parseDouble(coordinates[0])*10000000))/10000000;
 				 	double lon = ((double)Math.round(Double.parseDouble(coordinates[1])*10000000))/10000000;
 					double[] tmp =  {lon,lat};
-					input.add(tmp);
-					hours.add(h);
-					minutes.add(min);
-					
+					double[] tmp2=new double[2];
 					if(i != 0)
 					{
 						Node oNode = nList.item(i-1);
@@ -289,16 +286,18 @@ public class NNData
 							String[] nCoordinates = oElement.getTextContent().split(" ");
 							double lat2 = ((double)Math.round(Double.parseDouble(nCoordinates[1])*10000000))/10000000;
 						 	double lon2 = ((double)Math.round(Double.parseDouble(nCoordinates[0])*10000000))/10000000;
-							double[] tmp2 = {lat2,lon2};
-							output.add(tmp2);
+							tmp2[0]	=lat2;
+							tmp2[1] = lon2;
+
 						}
 					}
 					else
 					{
-						double[] tmp2 = {lon,lat};
-						output.add(tmp2);
+						tmp2[0]=lon;
+						tmp2[1]= lat;
+						
 					}
-					
+					querry.add(new DBQuerry(tmp[0], tmp[1], min, h, tmp2[0],tmp2[1]));
 				}
 			}
 			System.out.println("Done fetching data");
@@ -328,13 +327,13 @@ public class NNData
 			
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 		
 	}
 	
-	
+	/*
 	public void exportToNN(double[][] in,double[][] out)
 	{
 		double[][] parsedInData = new double[input.size()][];
@@ -350,7 +349,7 @@ public class NNData
 		out = parsedOutData;
 		in = parsedInData; 
 		
-	}
+	}*/
 	
 	public ArrayList<ArrayList<DatabaseLocation>> importFromElkiClustering(String path)
 	{
@@ -497,15 +496,17 @@ public class NNData
 					pos[0] = hs.get(coord).fst();
 					pos[1] = hs.get(coord).snd();
 					
-					input.add(pos);
 					
 					inputClust.add(i);
+					
 					dest[0] = meanDst.fst();
 					dest[1] = meanDst.snd();
-					output.add(dest);
+					
+					
 					hours.add(temp2.get(i).get(j).getHTime());
 					minutes.add(temp2.get(i).get(j).getMTime());
-					outputClust.add(clust.get(hs.get(dst)));
+					
+					querry.add(new DBQuerry(pos[0], pos[1], temp2.get(i).get(j).getHTime(), temp2.get(i).get(j).getMTime(), dest[0], dest[1]));
 				}
 				
 			}
@@ -785,10 +786,7 @@ public class NNData
 		ArrayList<DBQuerry> querry = new ArrayList<DBQuerry>();
 		
 		try {
-			for(int i = 0; i < input.size(); i++)
-			{ 
-				querry.add(new DBQuerry(input.get(i)[0], input.get(i)[1], hours.get(i), minutes.get(i), output.get(i)[0], output.get(i)[1]));
-			}
+			
 			System.out.println("Done formatting QuerryArrayList " + querry.size());
 			DBQuerry[] sendDB = querry.toArray(new DBQuerry[querry.size()]);
 			sc.replacePosData(id, sendDB );
@@ -799,17 +797,7 @@ public class NNData
 		
 	}
 	
-	public ArrayList<DatabaseLocation> importFromFile()
-	{
-		querry = new ArrayList<DatabaseLocation>();
-		for(int i = 0; i < input.size(); i++)
-		{ 
-			querry.add(new DBQuerry(input.get(i)[0], input.get(i)[1], hours.get(i), minutes.get(i), output.get(i)[0], output.get(i)[1]));
-		}
-		
-		System.out.println("Input size: " + input.size());
-		return querry; 
-	}
+	
 	
 	public Tuple<Double,Double> findNextCluster(Tuple<Double,Double> pos, HashMap<Tuple<Double,Double>,DatabaseLocation> lookup )
 	{
@@ -861,10 +849,6 @@ public class NNData
 		return output;
 	}
 	
-	public boolean emptyData()
-	{
-		return input.isEmpty() && output.isEmpty();
-	}
 
 	public ArrayList<DatabaseLocation> getQuerry() {
 		return querry;
