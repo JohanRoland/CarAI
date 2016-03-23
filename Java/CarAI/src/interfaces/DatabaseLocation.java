@@ -7,6 +7,11 @@ public interface DatabaseLocation {
 	public double getLat();
 	public int getMTime();
 	public int getHTime();
+	public int getDay();
+	public int getMonth();
+	public boolean isWeekday();
+	public int getDayOfWeek();
+	
 	public double getNLon();
 	public double getNLat();
 	

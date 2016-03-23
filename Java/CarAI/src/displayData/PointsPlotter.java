@@ -22,12 +22,12 @@ import javax.swing.Timer;
 import interfaces.DatabaseLocation;
 import jade.content.Concept;
 import jade.content.onto.basic.Action;
-import serverConnection.DBSCAN;
-import serverConnection.KmeansSortOf;
 import serverConnection.ServerConnection;
 import utils.Tuple;
 import utils.Utils;
+import mashinelearning.DBSCAN;
 import mashinelearning.ELKIController;
+import mashinelearning.KmeansSortOf;
 import mashinelearning.NNData;
 import mashinelearning.PYDBSCAN;
 

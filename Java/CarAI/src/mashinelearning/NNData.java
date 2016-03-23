@@ -23,7 +23,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import interfaces.DatabaseLocation;
-import serverConnection.DBSCAN;
 import serverConnection.ServerConnection;
 import serverConnection.ServerConnection.DBQuerry;
 import utils.Tuple;
@@ -271,7 +270,10 @@ public class NNData
 					String[] splitTime = fullDateTime[1].split(":");
 					int h = Integer.parseInt(splitTime[0]);
 					int min = Integer.parseInt(splitTime[1]);;
-					
+					String[] splitDate = fullDateTime[1].split("-");
+					int y = Integer.parseInt(splitDate[0]);
+					int m = Integer.parseInt(splitDate[1]);
+					int d = Integer.parseInt(splitDate[2]);
 					
 					//GPS PARSING
 					double lat = ((double)Math.round(Double.parseDouble(coordinates[0])*10000000))/10000000;
@@ -297,7 +299,7 @@ public class NNData
 						tmp2[1]= lat;
 						
 					}
-					querry.add(new DBQuerry(tmp[0], tmp[1], min, h, tmp2[0],tmp2[1]));
+					querry.add(new DBQuerry(tmp[0], tmp[1],y,m,d, min, h, tmp2[0],tmp2[1]));
 				}
 			}
 			System.out.println("Done fetching data");

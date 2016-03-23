@@ -1,10 +1,10 @@
 package result;
 
 import interfaces.DatabaseLocation;
-import serverConnection.DBSCAN;
 import serverConnection.ServerConnection;
 import serverConnection.ServerConnection.DBQuerry;
 import utils.*;
+import mashinelearning.DBSCAN;
 import mashinelearning.NNData;
 
 import java.sql.SQLException;
