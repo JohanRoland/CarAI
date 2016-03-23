@@ -104,7 +104,7 @@ public class PointsPlotter extends JFrame {
 						
 					case 2:
 						data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",1000);
-						points = data.importFromFile();
+						points = data.getQuerry();
 						data.exportAsCoordsToCSV();
 						temp2 = data.importClustFromFile("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\clusterFile.csv");
 						ArrayList<DatabaseLocation> points2 = new ArrayList<DatabaseLocation>();
@@ -115,7 +115,7 @@ public class PointsPlotter extends JFrame {
 						break;
 					case 3:
 						data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
-						points = data.importFromFile();
+						points = data.getQuerry();
 						data.exportAsCoordsToCSV();
 						PYDBSCAN ps =  new PYDBSCAN();
 						temp2 = ps.runDBSCAN(points,0.001,20,10000);
@@ -180,10 +180,10 @@ public class PointsPlotter extends JFrame {
 						
 						break;
 					case 6:
-						//data.importFromDB(1, 600000);//
+						data.importFromDB(1, 600000);//
 						//data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\OlofLoc.kml",0);
-						data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",600000);
-						data.importFromFile();
+						//data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",600000);
+						//data.importFromFile();
 						data.coordCullByBox(57.34, 11, 1 , 4);
 						//data.cullByRDP();
 						data.coordCullByDist();
@@ -213,11 +213,18 @@ public class PointsPlotter extends JFrame {
 							temp2.add(points);
 						}
 						break;
-					default:
-						NNData test2 = new NNData();
-						test2.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
+					case 8:
+						data.importFromDB(1, 600000);
+						data.coordCullByBox(57.34, 11, 1 , 1.5);
+						points=data.getQuerry();
+						temp2.add(null);
+						temp2.add(points);
 						
-						points = test2.importFromFile();
+						break;
+					default:
+						data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
+						
+						points = data.getQuerry();
 						ArrayList<DatabaseLocation> points3 = new ArrayList<DatabaseLocation>();
 						for(int j = points.size()-1; j >= 0; j--)
 						{

@@ -15,6 +15,7 @@ import com.google.common.io.Files;
 
 import car.CarInterface;
 import facerecognition.FaceMQTT;
+import facerecognition.FaceRecognition;
 import forReport.Analyze;
 import interfaces.DatabaseLocation;
 import mashinelearning.NNData;
@@ -53,13 +54,12 @@ public class Main
     		}
     		else if(args[0].equals("2"))
     		{
-    			System.out.println("FaceRecognition debug");
+    			//System.out.println("FaceRecognition debug");
     			
     			FaceMQTT f = new FaceMQTT();
     			CarInterface cf = new CarInterface();
     			
-    			//FaceRecognition f = new FaceRecognition();
-    	    	//f.start(true);
+    			
     		}
     		else if(args[0].equals("3"))
     		{

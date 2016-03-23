@@ -106,20 +106,26 @@ public class LocPrediction {
 		//customLearning();
 		importNetwork();
 	}
-	
 	private void importNetwork()
+	{
+		importNetwork(
+				"networkExport.eg",
+				"D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml");
+	}
+	private void importNetwork(String networkFile, String dataFile)
 	{
 		
 		//network =  (FreeformNetwork)EncogDirectoryPersistence.loadObject(new File("networkExport.eg"));
-		bestMethod = (MLRegression)EncogDirectoryPersistence.loadObject(new File("networkExport.eg"));	
+		bestMethod = (MLRegression)EncogDirectoryPersistence.loadObject(new File(networkFile));	
 		
 		format = new CSVFormat('.',' ');
 		
 		NNData nd = new NNData();
 
 		/*nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
+		nd.parseKML(dataFile,0);
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
-		nd.importFromFile();
+		
 		//nd.exportToDB(1);
 		//nd.importFromDB(1,600000);
 		nd.coordCullByBox(57.34, 11, 1 , 4);
@@ -280,7 +286,6 @@ public class LocPrediction {
 		//nd.importFromDB(0, 600000);
 
 		nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
-		nd.importFromFile();
 		nd.coordCullByBox(57.34, 11, 1 , 4);
 		//data.cullByRDP();
 		nd.coordCullByDist();
@@ -399,25 +404,26 @@ public class LocPrediction {
 		format = new CSVFormat('.',' ');
 		
 		nd = new NNData();
+		/*
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 		//nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
 		//nd.exportToDB(id);
 		
 		int n = 600000;
 		
-		nd.importFromDB(id,n);
+		//nd.importFromDB(id,n);
 		
 		nd.coordCullBySpeed(15.0);
 
 		//if(!nd.emptyData())
 		//{
 		nd.exportAsClustToCSV();
-			
+		*/	
 		String[] descreteMTime = numArray(60);
 		String[] descreteHTime = numArray(24);
- 		String[] descreteClust = numArray(nd.getNrCluster());
+ 		String[] descreteClust = numArray(7/*nd.getNrCluster()*/);
 		
-		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
+		VersatileDataSource source = new CSVDataSource(new File("fabricatedData.csv"),false,format);
 		data =  new VersatileMLDataSet(source);
 
 		data.getNormHelper().setFormat(format); 
@@ -447,18 +453,18 @@ public class LocPrediction {
 		
 		data.normalize();
 		
-		model.holdBackValidation(0.3, false, 1001);
+		model.holdBackValidation(0.3, true, 1001);
 		model.selectTrainingType(data);
-		bestMethod = (MLRegression)model.crossvalidate(5, false);
+		bestMethod =(MLRegression)EncogDirectoryPersistence.loadObject(new File("networkExport.eg")); // (MLRegression)model.crossvalidate(20, true);
 		
-		System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
-		System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
+		//System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
+		//System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
 		helper = data.getNormHelper();
 		
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
 		
-		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
+		//EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
 		
 
 		//}
@@ -474,14 +480,13 @@ public class LocPrediction {
 		}
 		if(!instanceMap.containsKey(userID))
 		{
-			instanceMap.put(userID, new LocPrediction());//userID
+			instanceMap.put(userID, new LocPrediction(userID));//
 		}
 		else
 		{
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -506,24 +511,20 @@ public class LocPrediction {
 		return out;
 				
 	}
-	
 	public Tuple<Double,Double> predict()
 	{
-		//ReadCSV csv = new ReadCSV(new File("coords.csv"),false,format);
+		int temp = nd.getClosestCluster(Car.getInstance().getPos());
+		return predict(temp);
+	}
+	public Tuple<Double,Double> predict(int cluster)
+	{
 		String[] line = new String[2];
 		MLData input = helper.allocateInputVector();
 		
-		//Calendar c = Calendar.getInstance();
 		int hour = mqttTime.getHour();// c.get(Calendar.HOUR_OF_DAY);
 		int minute = mqttTime.getMinute(); //c.get(Calendar.MINUTE);
 		
-		//EncogUtility.saveEGB(new File("networkExport.eg"), data);
-		//EncogUtility.explainErrorMSE(bestMethod, data);
-		
-		Car carData = Car.getInstance();
-		
-		line[0] = ""+nd.getClosestCluster(carData.getPos());
-		//line[0] = ""+nd.getClosestCluster(new Tuple<Double,Double>(57.69661,11.97575));
+		line[0] = ""+cluster;
 		line[1] = ""+(hour*60+minute);
 		
 		helper.normalizeInputVector(line,input.getData(),false);

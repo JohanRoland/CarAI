@@ -9,6 +9,8 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -17,7 +19,7 @@ import predictorG.DayTime;
 import result.LocPrediction;
 import utils.Tuple;
 /**
- * @author Knarkapan
+ * @author Johan Ekdahl
  * Stores a graph and the paths
  */
 public class PredictorG {
@@ -56,7 +58,7 @@ public class PredictorG {
 		nodes=new HashMap<Integer,Node>();
 		currentNode=null;
 		nummberOfNodes=0;
-		int high=Integer.MIN_VALUE; 
+		int high=Integer.MIN_VALUE;
 		for(int[] inp : inputs)
 		{
 			if(inp[0]>high)
@@ -162,48 +164,10 @@ public class PredictorG {
 		fromNode.neibors.addConnection(t, d, m, toCluster);
 		
 	}
-/*	
-	public void savePredictorG(String dirPath, String fileName)
-	{
-		try (PrintStream out = new PrintStream(new FileOutputStream(dirPath + fileName))) {
-		out.println(nummberOfNodes);
-		
-		for(Node e: nodes.values())
-		{
-			e.saveNode(out);
-		}	
-		out.close();
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}		
-		
-		
-	}
-*/
-	/*
-	public void loadPredictorG(String dirPath, String fileName)
-	{
-
-		
-		try  {
-			FileReader fileReader =  new FileReader(dirPath+fileName);
-			BufferedReader in = new BufferedReader(fileReader);
-			nummberOfNodes=Integer.parseInt(in.readLine());
-			
-			for(int i=0; i<nummberOfNodes; i++)
-			{
-				int cluster = Integer.parseInt(in.readLine());
-				nodes.put(cluster, new Node(in, cluster));
-			}
-			in.close();
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}	
-		
-	}
-	*/
 	private class Node
 	{
+		
+		@SuppressWarnings("unused")
 		int cluster;
 		ConnectionHandeler neibors;
 		
@@ -212,6 +176,7 @@ public class PredictorG {
 			cluster=c;
 			neibors = new ConnectionHandeler();
 		}
+		@SuppressWarnings("unused")
 		Node(BufferedReader fr, int c) throws IOException
 		{
 			this(c);
@@ -220,79 +185,48 @@ public class PredictorG {
 			{
 				String[] temp =fr.readLine().split(" ");
 				for(int j=0; j<Integer.parseInt(temp[4]); j++)
-					neibors.addConnection(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]), Integer.parseInt(temp[3]), Integer.parseInt(temp[0]));
-				
-			}
-				
-			
-			
+					neibors.addConnection(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]), Integer.parseInt(temp[3]), Integer.parseInt(temp[0]),Integer.parseInt(temp[5]));
+			}			
 		}
-/*
-	 	public void saveNode(PrintStream out)
-		{
-			out.println(cluster );
-			neibors.saveConnectionHandler(out);
-		}
-*/
 		private class ConnectionHandeler
 		{
-			//[time -> [Clust, times]]
-			ArrayList<Tuple<DayTime,ArrayList<Tuple<Integer,Integer>>>> connections2;
-			//HashMap<Integer,HashMap<Integer, Tuple<Integer,DayTime>>> connections2;
+			//[time -> [Clust, times, Day of last entry]]
+			ArrayList<Tuple<DayTime,ArrayList<Tuple<Tuple<Integer,Integer>,Integer>>>> connections2;
+
 			
 			ConnectionHandeler()
 			{
-				//connections = new ArrayList<Tuple<Integer,DayTime>>();
-				//connections2 = new HashMap<Integer,HashMap<Integer, Tuple<Integer,DayTime>>>();
-				connections2 = new ArrayList<Tuple<DayTime,ArrayList<Tuple<Integer,Integer>>>>();
+				connections2 = new ArrayList<Tuple<DayTime,ArrayList<Tuple<Tuple<Integer,Integer>, Integer>>>>();
 			}
-		/*	
-			public void saveConnectionHandler(PrintStream out) 
-			{
-				Set<Entry<Integer, ArrayList<Tuple<Integer, DayTime>>>> temp = connections2.entrySet();
-				
-				out.println(temp.size());
-				
-				for(Entry<Integer, ArrayList<Tuple<Integer, DayTime>>> e2 : temp)
-				{
-					for( Tuple<Integer, DayTime> e : e2.getValue())
-					{
-						out.println(e2.getKey()+" "+e.snd().getTime()+" "+e.snd().getDay()+ " "+e.snd().getMonth()+" "+e.fst());
-					}
-				}
-			}
-		 */
 			void addConnection(int t,int d,int m, Integer n)
 			{
-				
-
-				
-				for(Tuple<DayTime, ArrayList<Tuple<Integer, Integer>>> e : connections2)
+				addConnection(t, d, m, n, Calendar.getInstance().get(Calendar.DAY_OF_YEAR));
+			}
+			void addConnection(int t,int d,int m, Integer n, int timeStamp)
+			{	
+				for(Tuple<DayTime, ArrayList<Tuple<Tuple<Integer, Integer>, Integer>>> e : connections2)
 				{
 					if(e.fst().getTime()==t &&e.fst().getDay()==d && e.fst().getMonth()==m )
 					{
-						ArrayList<Tuple<Integer, Integer>> temp = e.snd();
-						for(Tuple<Integer, Integer> listE : temp)
+						ArrayList<Tuple<Tuple<Integer, Integer>,Integer>> temp = e.snd();
+						
+						for(Tuple<Tuple<Integer, Integer>, Integer> e1 : temp)
 						{
-							if(listE.fst()==n)
+							if( e1.fst().fst()==n)
 							{
-								listE.setSnd(listE.snd()+1);
-								return;
-								
-							}		
+								e1.fst().setSnd(e1.fst().snd()+1);
+								e1.setSnd(timeStamp);
+								return;		
+							}
 						}
-
 					}
-					
 				}
 				DayTime pl =new DayTime(t, d,m);
-				ArrayList<Tuple<Integer, Integer>> temp = new ArrayList<Tuple<Integer,Integer>>();
-				temp.add(new Tuple<Integer,Integer>(n,1));
-				connections2.add(new Tuple<DayTime,ArrayList<Tuple<Integer, Integer>>>(pl, temp));
+				ArrayList<Tuple<Tuple<Integer, Integer>,Integer>> temp = new ArrayList<Tuple<Tuple<Integer,Integer>,Integer>>();
+				temp.add(new Tuple<Tuple<Integer,Integer>,Integer>(new Tuple<Integer,Integer>(n,1), Calendar.getInstance().get(Calendar.DAY_OF_YEAR)));
+				connections2.add(new Tuple<DayTime,ArrayList<Tuple<Tuple<Integer, Integer>,Integer>>>(pl, temp));
 				
 			}
-
-
 			private ArrayList<Double> proxSerch(DayTime d)
 			{
 				
@@ -306,27 +240,34 @@ public class PredictorG {
 				
 				for(int i=0; i < connections2.size();i++)
 				{
-					Tuple<DayTime, ArrayList<Tuple<Integer, Integer>>> e = connections2.get(i);
-					for(Tuple<Integer, Integer> cd :e.snd())
-					{
-							
-							double factor = e.fst().relativeDistanceT(d)*(Math.log(0.1+cd.snd()/100)+3)/4;
-							if(factor>0)
-							{
-								out.set(cd.fst(), factor);
-							}
-					}
+					Tuple<DayTime, ArrayList<Tuple<Tuple<Integer, Integer>, Integer>>> e = connections2.get(i);
 					
+					
+					
+					for(Tuple<Tuple<Integer, Integer>, Integer> cd :e.snd())
+					{
+						Calendar temp2 = Calendar.getInstance();
+						int dateDiff = temp2.get(Calendar.DAY_OF_YEAR)-cd.snd();
+						if(dateDiff<0)
+						{
+							int toEOY = 365 - cd.snd();
+							dateDiff= toEOY+temp2.get(Calendar.DAY_OF_YEAR);
+							
+						}
+						
+						double factor = e.fst().relativeDistanceT(d)*(Math.log(0.1+cd.snd()/100)+3)/4;
+						if(factor>0 && 14>dateDiff)
+						{
+							out.set(cd.fst().fst(), factor);
+						}
+					}
 				}
 				ArrayList<Double> listThathasZero = new ArrayList<Double>();
-				//listThathasZero.add(0.0);
+				listThathasZero.add(0.0);
 				out.removeAll(listThathasZero);
 				return out;
 			}
-			
 		}
-
-	
 	}
 
 }
