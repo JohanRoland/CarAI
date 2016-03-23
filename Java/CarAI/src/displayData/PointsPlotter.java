@@ -48,7 +48,7 @@ public class PointsPlotter extends JFrame {
 	private void initUI()
 	{
 		JPanel mapPane = new JPanel(new GridLayout(1,0));
-		final Surface surface = new Surface(5);
+		final Surface surface = new Surface(6);
 		//final Surface surface1 = new Surface(1);
 		mapPane.add(surface);
 		//mapPane.add(surface1);

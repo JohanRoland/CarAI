@@ -537,7 +537,7 @@ public class NNData
 			for(int i = 0; i < querry.size();i++)
 			{
 				writer.write(querry.get(i).getLat()+ " " + querry.get(i).getLon() + " " + (querry.get(i).getHTime()*60+querry.get(i).getMTime()) + " " 
-						+ querry.get(i).getNLat() + " " + querry.get(i).getNLon()+ "\n");
+						+ (querry.get(i).getNLat()-querry.get(i).getLat()) + " " + (querry.get(i).getNLon() - querry.get(i).getLon())+ "\n");
 				
 			}
 			writer.close();

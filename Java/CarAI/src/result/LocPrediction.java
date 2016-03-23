@@ -117,7 +117,7 @@ public class LocPrediction {
 		
 		NNData nd = new NNData();
 
-		nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
+		/*nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 		nd.importFromFile();
 		//nd.exportToDB(1);
@@ -128,7 +128,7 @@ public class LocPrediction {
 		nd.repoint();
 		//nd.coordCullBySpeed(15.0);
 		nd.exportAsCoordsToCSV();
-		
+	*/
 		String[] descreteMTime = numArray(60);
 		String[] descreteHTime = numArray(24);
 		
@@ -177,18 +177,26 @@ public class LocPrediction {
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 		//nd.importFromFile();
 		//nd.exportToDB(1);
-		nd.importFromDB(1,600000);
-		nd.coordCullByBox(57.34, 11, 1 , 4);
+		
+		
+		//nd.importFromDB(1,600000);
+		//nd.coordCullByBox(57.34, 11, 1 , 4);
+		
 		//data.cullByRDP();
-		nd.coordCullByDist();
-		nd.repoint();
+		
+		//nd.coordCullByDist();
+		//nd.repoint();
+		
 		//nd.coordCullBySpeed(15.0);
-		nd.exportAsCoordsToCSV();
+		
+		//nd.exportAsCoordsToCSV();
 		
 		String[] descreteMTime = numArray(60);
 		String[] descreteHTime = numArray(24);
 		
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
+		//VersatileDataSource source = new CSVDataSource(new File("fabCoordData.csv"),false,format);
+		
 		data =  new VersatileMLDataSet(source);
 		
 		data.getNormHelper().setFormat(format); 
@@ -223,7 +231,7 @@ public class LocPrediction {
 		
 		model.holdBackValidation(0.3, true, 1001);
 		model.selectTrainingType(data);
-		bestMethod = (MLRegression)model.crossvalidate(5, true);
+		bestMethod = (MLRegression)model.crossvalidate(20, true);
 		
 		
 		System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
@@ -331,9 +339,9 @@ public class LocPrediction {
 		
 		
 		/////// CREATE NETWORK
-		network = (new FreeformNetwork()).createElman(3, 7, 2, new ActivationTANH());
+		network = new FreeformNetwork(); //(new FreeformNetwork()).createElman(3, 7, 2, new ActivationTANH());
 		
-		/*
+		
 		FreeformLayer input = network.createInputLayer(3);
 		FreeformLayer hiddenLayer = network.createLayer(7);
 		FreeformLayer hiddenLayer2 = network.createLayer(7);
@@ -346,7 +354,7 @@ public class LocPrediction {
 		//network.connectLayers(hiddenLayer, output, new ActivationSigmoid(), 1.0, false);
 		
 		network.connectLayers(hiddenLayer2, output, new ActivationTANH(), 1.0, false);
-		*/
+		
 		network.reset();
 		/////// END CREATE NETWORK
 		
@@ -555,8 +563,8 @@ public class LocPrediction {
 		
 		
 		
-		String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
-		String irisChoosen1 = helper.denormalizeOutputVectorToString(output)[1];
+		double irisChoosen0 = carData.getPos().fst() + Double.parseDouble(helper.denormalizeOutputVectorToString(output)[0]);
+		double irisChoosen1 = carData.getPos().snd() + Double.parseDouble(helper.denormalizeOutputVectorToString(output)[1]);
 		StringBuilder result = new StringBuilder();
 		
 		
@@ -565,6 +573,6 @@ public class LocPrediction {
 		result.append(" -> predicted: ");
 		result.append(irisChoosen0 + ", " + irisChoosen1);
 		System.out.println(result.toString());
-		return new Tuple<Double,Double>(Double.parseDouble(irisChoosen0),Double.parseDouble(irisChoosen1));
+		return new Tuple<Double,Double>(irisChoosen0,irisChoosen1);
 	}
 }

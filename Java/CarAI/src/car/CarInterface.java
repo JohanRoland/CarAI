@@ -26,6 +26,7 @@ public class CarInterface implements MQTTInterface
 	
 	String utopic = "carai/car";
 	String ftopic = "carai/face/car";
+	String desttopic = "carai/car/dest";
 	String gpstopic = "carai/car/gps";
 	String graphTopic = "carai/graph";
 	
@@ -50,6 +51,7 @@ public class CarInterface implements MQTTInterface
 	      //client.subscribe(utopic,0);
 	        client.subscribe(ftopic, 0);
 	        client.subscribe(gpstopic,0);
+	        client.subscribe(desttopic,0);
 	        client.subscribe(graphTopic, 0);
 	        
 		}
@@ -86,12 +88,17 @@ public class CarInterface implements MQTTInterface
 				Gson gs = new Gson(); 
 				JSONCAR carjs =  gs.fromJson(new String(arg1.getPayload()), JSONCAR.class );
 				System.out.println(carjs.toString());
-				LocPrediction lp;
+				
 				car.setCar(carjs);
+			}
+			
+			if(arg0.equals(desttopic))
+			{
+				LocPrediction lp;
 				if(car.getUser("DRIVER").userExists())
 				{
 					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID());
-					Tuple<Double,Double> pred = lp.predict();
+					Tuple<Double,Double> pred = lp.predictCoord();
 					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 				if(car.getUser("PASSENGER").userExists())
@@ -149,7 +156,6 @@ public class CarInterface implements MQTTInterface
 				break;
 				case 4:
 					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+57.706636+"\",\"lon\":\""+11.979626+"\"}").getBytes())); // mat 2
-					
 					break;
 				case 5:
 					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+57.699489+"\",\"lon\":\""+11.952700+"\"}").getBytes())); // mat 3
