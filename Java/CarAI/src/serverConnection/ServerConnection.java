@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 import com.mysql.jdbc.CallableStatement;
 import com.mysql.jdbc.Connection;
@@ -355,8 +357,10 @@ public class ServerConnection {
 			return (out < 6);
 		}
 		public int getDayOfWeek() {
-			Calendar c = Calendar.getInstance();
-			c.set(year, month, day);
+			Calendar c = new GregorianCalendar();// Calendar.getInstance();
+			c.set(Calendar.YEAR, year);
+			c.set(Calendar.MONTH, month);
+			c.set(Calendar.DATE, day);
 			int out = c.get(Calendar.DAY_OF_WEEK);
 			return out;
 		}

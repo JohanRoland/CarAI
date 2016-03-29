@@ -9,6 +9,7 @@ public interface DatabaseLocation {
 	public int getHTime();
 	public int getDay();
 	public int getMonth();
+	public int getYear();
 	public boolean isWeekday();
 	public int getDayOfWeek();
 	

@@ -83,22 +83,42 @@ public class CarInterface implements MQTTInterface
 		@Override
 		public void messageArrived(String arg0, MqttMessage arg1) throws Exception {
 			// TODO Auto-generated method stub
+			LocPrediction lp;
 			if(arg0.equals(ftopic))
 			{
 				Gson gs = new Gson(); 
 				JSONCAR carjs =  gs.fromJson(new String(arg1.getPayload()), JSONCAR.class );
 				System.out.println(carjs.toString());
 				
+				
 				car.setCar(carjs);
+				
+				if(car.getUser("DRIVER").userExists())
+				{
+					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID());
+				}
+				if(car.getUser("PASSENGER").userExists())
+				{
+					lp = LocPrediction.getInstance(car.getUser("PASSENGER").getUserID());
+				}
+				if(car.getUser("BACKSEAT0").userExists())
+				{
+					lp = LocPrediction.getInstance(car.getUser("BACKSEAT0").getUserID());
+				}
+				if(car.getUser("BACKSEAT1").userExists())
+				{
+					lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID());
+				}
+				
 			}
 			
 			if(arg0.equals(desttopic))
 			{
-				LocPrediction lp;
+				
 				if(car.getUser("DRIVER").userExists())
 				{
 					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID());
-					Tuple<Double,Double> pred = lp.predictCoord();
+					Tuple<Double,Double> pred = lp.predict();
 					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 				if(car.getUser("PASSENGER").userExists())
