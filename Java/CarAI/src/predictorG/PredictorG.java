@@ -118,7 +118,7 @@ public class PredictorG {
 	public Tuple<Tuple<Integer, Double>, ArrayList<Tuple<Integer, Double>>> predictNextNode(int t,int d,int w, double[] waightFactors)
 	{
 		 DayTime dt= new DayTime(t,d,w);
-		 ArrayList<Double> temp =currentNode.neibors.proxSerch(dt);
+		 ArrayList<Double> temp =currentNode.neibors.proxSerch(dt, 40);
 		 ArrayList<Tuple<Integer,Double>> outList = new ArrayList<Tuple<Integer,Double>>();
 		 double highestFactor=0;
 		 int highestNode=-1;
@@ -190,13 +190,13 @@ public class PredictorG {
 		}
 		private class ConnectionHandeler
 		{
-			//[time -> [Clust, times, Day of last entry]]
-			ArrayList<Tuple<DayTime,ArrayList<Tuple<Tuple<Integer,Integer>,Integer>>>> connections2;
+			//[time -> [Clust, Day of last entry]]
+			ArrayList<Tuple<DayTime,ArrayList<Tuple<Integer,Integer>>>> connections2;
 
 			
 			ConnectionHandeler()
 			{
-				connections2 = new ArrayList<Tuple<DayTime,ArrayList<Tuple<Tuple<Integer,Integer>, Integer>>>>();
+				connections2 = new ArrayList<Tuple<DayTime,ArrayList<Tuple<Integer,Integer>>>>();
 			}
 			void addConnection(int t,int d,int m, Integer n)
 			{
@@ -204,31 +204,29 @@ public class PredictorG {
 			}
 			void addConnection(int t,int d,int m, Integer n, int timeStamp)
 			{	
-				for(Tuple<DayTime, ArrayList<Tuple<Tuple<Integer, Integer>, Integer>>> e : connections2)
+				 //ArrayList<Tuple<Integer, Integer>> listOfEntries= new  ArrayList<Tuple<Integer, Integer>>();
+				 				
+				for(Tuple<DayTime, ArrayList<Tuple<Integer, Integer>>> e : connections2)
 				{
 					if(e.fst().getTime()==t &&e.fst().getDay()==d && e.fst().getMonth()==m )
 					{
-						ArrayList<Tuple<Tuple<Integer, Integer>,Integer>> temp = e.snd();
-						
-						for(Tuple<Tuple<Integer, Integer>, Integer> e1 : temp)
-						{
-							if( e1.fst().fst()==n)
-							{
-								e1.fst().setSnd(e1.fst().snd()+1);
-								e1.setSnd(timeStamp);
-								return;		
-							}
-						}
+						e.snd().add(new Tuple<Integer,Integer>(n,timeStamp));
+						return;
+								
 					}
 				}
 				DayTime pl =new DayTime(t, d,m);
-				ArrayList<Tuple<Tuple<Integer, Integer>,Integer>> temp = new ArrayList<Tuple<Tuple<Integer,Integer>,Integer>>();
-				temp.add(new Tuple<Tuple<Integer,Integer>,Integer>(new Tuple<Integer,Integer>(n,1), Calendar.getInstance().get(Calendar.DAY_OF_YEAR)));
-				connections2.add(new Tuple<DayTime,ArrayList<Tuple<Tuple<Integer, Integer>,Integer>>>(pl, temp));
+				ArrayList<Tuple<Integer, Integer>> temp = new ArrayList<Tuple<Integer,Integer>>();
+				temp.add(new Tuple<Integer,Integer>(n, Calendar.getInstance().get(Calendar.DAY_OF_YEAR)));
+				connections2.add(new Tuple<DayTime,ArrayList<Tuple<Integer, Integer>>>(pl, temp));
 				
 			}
-			private ArrayList<Double> proxSerch(DayTime d)
+			private ArrayList<Double> proxSerch(DayTime d, int timeInterval)
 			{
+				
+				boolean matchingD=false;
+				boolean matchingM=false;
+				
 				
 				ArrayList<Double> out = new ArrayList<Double>();
 				
@@ -240,31 +238,54 @@ public class PredictorG {
 				
 				for(int i=0; i < connections2.size();i++)
 				{
-					Tuple<DayTime, ArrayList<Tuple<Tuple<Integer, Integer>, Integer>>> e = connections2.get(i);
+					Tuple<DayTime, ArrayList<Tuple<Integer, Integer>>> e = connections2.get(i);
 					
-					
-					
-					for(Tuple<Tuple<Integer, Integer>, Integer> cd :e.snd())
+					if(e.fst().getTime()+timeInterval>d.getTime() && e.fst().getTime()-timeInterval<d.getTime())
 					{
-						Calendar temp2 = Calendar.getInstance();
-						int dateDiff = temp2.get(Calendar.DAY_OF_YEAR)-cd.snd();
-						if(dateDiff<0)
+						for(Tuple<Integer, Integer> cd :e.snd())
 						{
-							int toEOY = 365 - cd.snd();
-							dateDiff= toEOY+temp2.get(Calendar.DAY_OF_YEAR);
+							Calendar temp2 = Calendar.getInstance();
+							int dateDiff = temp2.get(Calendar.DAY_OF_YEAR)-cd.snd();
+							if(dateDiff<0)
+							{
+								int toEOY = 365 - cd.snd();
+								dateDiff= toEOY+temp2.get(Calendar.DAY_OF_YEAR);
+								
+							}
 							
-						}
-						
-						double factor = e.fst().relativeDistanceT(d)*(Math.log(0.1+cd.snd()/100)+3)/4;
-						if(factor>0 && 14>dateDiff)
-						{
-							out.set(cd.fst().fst(), factor);
+							double factorT = e.fst().relativeDistanceT(d);//*(Math.log(0.1+cd.snd()/100)+3)/4;
+							
+							if(matchingD)
+							{
+								if(e.fst().getDay()!=d.getDay())
+									factorT=0;
+							}
+							else if(e.fst().getDay()==d.getDay())
+							{
+								matchingD=true;
+								out.set(cd.fst(),0.0);
+							}
+							if(matchingM)
+							{
+								if(e.fst().getDay()!=d.getDay())
+									factorT=0;
+							}
+							else if(e.fst().getDay()==d.getDay())
+							{
+								matchingM=true;
+								out.set(cd.fst(),0.0);
+							}
+							
+							if(factorT>0 && 14>dateDiff)
+							{
+								out.set(cd.fst(), out.get(cd.fst())+factorT);
+							}
 						}
 					}
 				}
-				ArrayList<Double> listThathasZero = new ArrayList<Double>();
-				listThathasZero.add(0.0);
-				out.removeAll(listThathasZero);
+				//ArrayList<Double> listThathasZero = new ArrayList<Double>();
+				//listThathasZero.add(0.0);
+				//out.removeAll(listThathasZero);
 				return out;
 			}
 		}

@@ -1,43 +1,24 @@
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Paths;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.stream.Stream;
-
-import com.google.common.io.Files;
 
 import car.CarInterface;
 import facerecognition.FaceMQTT;
-import facerecognition.FaceRecognition;
-import forReport.Analyze;
 import interfaces.DatabaseLocation;
 import mashinelearning.NNData;
 import mashinelearning.PYDBSCAN;
-import predictorG.DayTime;
 import predictorG.PredictorG;
 import result.LocPrediction;
 import result.Network;
-import result.Scheduler;
 import serverConnection.DBSCAN;
-import serverConnection.KmeansSortOf;
 import serverConnection.ServerConnection;
 import utils.MqttTime;
-import utils.Tuple;
-import utils.Utils;
 import displayData.PointsPlotter;
 
-/**
- *  Main class for CarAI
- * @author Axhav
- *
- */
 public class Main
 {
     public static void main(String[] args) {
