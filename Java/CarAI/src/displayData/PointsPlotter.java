@@ -22,12 +22,12 @@ import javax.swing.Timer;
 import interfaces.DatabaseLocation;
 import jade.content.Concept;
 import jade.content.onto.basic.Action;
-import serverConnection.DBSCAN;
-import serverConnection.KmeansSortOf;
 import serverConnection.ServerConnection;
 import utils.Tuple;
 import utils.Utils;
+import mashinelearning.DBSCAN;
 import mashinelearning.ELKIController;
+import mashinelearning.KmeansSortOf;
 import mashinelearning.NNData;
 import mashinelearning.PYDBSCAN;
 
@@ -48,9 +48,8 @@ public class PointsPlotter extends JFrame {
 	private void initUI()
 	{
 		JPanel mapPane = new JPanel(new GridLayout(1,0));
-		final Surface surface = new Surface(8);
-		//final Surface surface1 = new Surface(8);
-		
+		final Surface surface = new Surface(6);
+		//final Surface surface1 = new Surface(1);
 		mapPane.add(surface);
 		//mapPane.add(surface1);
 		add(mapPane);
@@ -134,7 +133,8 @@ public class PointsPlotter extends JFrame {
 						
 						break;
 					case 5:
-						//data.importFromDB(1, 600000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
+						//data.importFromDB(1, 600000);//
+						data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
 						data.parseCSV("dataFile.txt");
 						//data.coordCullBySpeed(15.0);
 						//data.coordCullByBox(57, 11, 1 , 4);
@@ -181,20 +181,21 @@ public class PointsPlotter extends JFrame {
 						
 						break;
 					case 6:
-						data.importFromDB(1, 600000);//
+						//data.importFromDB(1, 600000);//
 						//data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\OlofLoc.kml",0);
-						//data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",600000);
+						data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
 						//data.importFromFile();
 						data.coordCullByBox(57.34, 11, 1 , 4);
 						//data.cullByRDP();
 						data.coordCullByDist();
-						data.repoint();
-						data.coordCullBySpeed(15.0);
+						//data.coordCullByDist();
+						//data.repoint();
+						//data.coordCullBySpeed(15.0);
 						
-						
+						data.exportAsCoordsWithDateToCSV();
 						
 						points =  data.getQuerry();
-						if(false)
+						if(true)
 						{
 							data.exportAsCoordsToCSV();
 							
@@ -208,6 +209,7 @@ public class PointsPlotter extends JFrame {
 								System.out.println(Utils.mean(temp2.get(t)));
 							}
 							System.out.println("Nummber of clusters; "+ temp2.size());
+							data.exportAsClustToCSV();
 						}
 						else{
 							temp2.add(null);
@@ -301,11 +303,16 @@ public class PointsPlotter extends JFrame {
 					
 					g2d.drawOval(x-4, y-4, 8, 8);
 					
-					g2d.setPaint(Color.black);
-					g2d.drawLine(x, y,nx, ny);
+					//g2d.setPaint(Color.black);
+					//g2d.drawLine(x, y,nx, ny);
+				
+					//int px = (int) (((int)((11.951428392713707-minMax.fst().fst())*scalingFac)+25)*zoom+ofsetX);
+					//int py = (int) ((( g2d.getClipBounds().height-50)-(int)((57.61810787414581-minMax.fst().snd())*scalingFac)+25)*zoom+ofsetY);
+					//g2d.setPaint(Color.green);
+					//g2d.drawOval(px-4, py-4, 8, 8);
+					
 				}
 				
-
 				}
 			
 		}

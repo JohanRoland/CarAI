@@ -1,4 +1,4 @@
-package serverConnection;
+package mashinelearning;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -10,6 +10,7 @@ import com.github.davidmoten.rtree.geometry.Geometry;
 
 import interfaces.DatabaseLocation;
 import rx.Observable;
+import serverConnection.PointInSpace;
 import utils.Tuple;
 
 public class KmeansSortOf 

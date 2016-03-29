@@ -1,4 +1,4 @@
-package serverConnection;
+package mashinelearning;
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -17,6 +17,9 @@ import com.github.davidmoten.rtree.geometry.*;
 import interfaces.DatabaseLocation;
 import rx.Observable;
 import rx.observables.BlockingObservable;
+import serverConnection.PointInSpace;
+import serverConnection.ServerConnection;
+import serverConnection.ServerConnection.DBQuerry;
 import rx.Observable.OnSubscribe;
 import utils.Tuple;
 /**************************************************************

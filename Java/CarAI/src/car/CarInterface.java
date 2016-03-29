@@ -26,6 +26,7 @@ public class CarInterface implements MQTTInterface
 	
 	String utopic = "carai/car";
 	String ftopic = "carai/face/car";
+	String desttopic = "carai/car/dest";
 	String gpstopic = "carai/car/gps";
 	String graphTopic = "carai/graph";
 	
@@ -50,6 +51,7 @@ public class CarInterface implements MQTTInterface
 	      //client.subscribe(utopic,0);
 	        client.subscribe(ftopic, 0);
 	        client.subscribe(gpstopic,0);
+	        client.subscribe(desttopic,0);
 	        client.subscribe(graphTopic, 0);
 	        
 		}
@@ -81,13 +83,38 @@ public class CarInterface implements MQTTInterface
 		@Override
 		public void messageArrived(String arg0, MqttMessage arg1) throws Exception {
 			// TODO Auto-generated method stub
+			LocPrediction lp;
 			if(arg0.equals(ftopic))
 			{
 				Gson gs = new Gson(); 
 				JSONCAR carjs =  gs.fromJson(new String(arg1.getPayload()), JSONCAR.class );
 				System.out.println(carjs.toString());
-				LocPrediction lp;
+				
+				
 				car.setCar(carjs);
+				
+				if(car.getUser("DRIVER").userExists())
+				{
+					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID());
+				}
+				if(car.getUser("PASSENGER").userExists())
+				{
+					lp = LocPrediction.getInstance(car.getUser("PASSENGER").getUserID());
+				}
+				if(car.getUser("BACKSEAT0").userExists())
+				{
+					lp = LocPrediction.getInstance(car.getUser("BACKSEAT0").getUserID());
+				}
+				if(car.getUser("BACKSEAT1").userExists())
+				{
+					lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID());
+				}
+				
+			}
+			
+			if(arg0.equals(desttopic))
+			{
+				
 				if(car.getUser("DRIVER").userExists())
 				{
 					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID());
@@ -148,7 +175,7 @@ public class CarInterface implements MQTTInterface
 					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+57.699042+"\",\"lon\":\""+11.977489+"\"}").getBytes())); // mat 1
 				break;
 				case 4:
-					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+57.706636+"\",\"lon\":\""+11.979626+"\"}").getBytes())); // mat 2		
+					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+57.706636+"\",\"lon\":\""+11.979626+"\"}").getBytes())); // mat 2
 					break;
 				case 5:
 					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+57.699489+"\",\"lon\":\""+11.952700+"\"}").getBytes())); // mat 3

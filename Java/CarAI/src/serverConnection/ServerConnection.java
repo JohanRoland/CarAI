@@ -5,6 +5,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 import com.mysql.jdbc.CallableStatement;
 import com.mysql.jdbc.Connection;
@@ -252,6 +255,9 @@ public class ServerConnection {
 		int hours;
 		double nextLon;
 		double nextLat;
+		int day;
+		int month;
+		int year;
 		
 		public DBQuerry(double la, double lo,int hour, int min, double nla,double nlo)
 		{
@@ -262,6 +268,19 @@ public class ServerConnection {
 			nextLat = nla;
 			nextLon = nlo;
 		}
+		public DBQuerry(double la, double lo,int year,int month,int day,int hour, int min, double nla,double nlo)
+		{
+			this.lat = la;
+			this.lon = lo;
+			minutes = min;
+			hours = hour;
+			nextLat = nla;
+			nextLon = nlo;
+			this.year = year;
+			this.month = month;
+			this.day = day;
+		}
+		
 		public boolean equals(Object o)
 		{
 			if(o==null)
@@ -305,6 +324,19 @@ public class ServerConnection {
 			return nextLat;
 		}
 		
+		public int getDay()
+		{
+			return day;
+		}
+		public int getMonth()
+		{
+			return month;
+		}
+		public int getYear()
+		{
+			return year;
+		}
+		
 		public void setPos(double lon, double lat)
 		{
 			this.lon = lon; 
@@ -315,6 +347,22 @@ public class ServerConnection {
 			nextLon=lon;
 			nextLat=lat;
 			
+		}
+		
+		
+		public boolean isWeekday() {
+			Calendar c = Calendar.getInstance();
+			c.set(year, month, day);
+			int out = c.get(Calendar.DAY_OF_WEEK);
+			return (out < 6);
+		}
+		public int getDayOfWeek() {
+			Calendar c = new GregorianCalendar();// Calendar.getInstance();
+			c.set(Calendar.YEAR, year);
+			c.set(Calendar.MONTH, month);
+			c.set(Calendar.DATE, day);
+			int out = c.get(Calendar.DAY_OF_WEEK);
+			return out;
 		}
 			
 	}

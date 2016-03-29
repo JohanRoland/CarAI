@@ -9,6 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -114,7 +116,10 @@ public class FaceRecognition
 	    	ArrayList<String> p = new ArrayList<String>();
 	    	ArrayList<String> b0 = new ArrayList<String>();
 	    	ArrayList<String> b1 = new ArrayList<String>();
-	    	
+	    	ArrayList<String> dc = new ArrayList<String>();
+	    	ArrayList<String> pc = new ArrayList<String>();
+	    	ArrayList<String> b0c = new ArrayList<String>();
+	    	ArrayList<String> b1c = new ArrayList<String>();
 	    	for(int i = 0; i < 10; i++)
 	    	{
 	    		vc.read(frame);
@@ -122,9 +127,16 @@ public class FaceRecognition
 	    		{
 	    			detectAndDisplay(frame,false);
 	    			d.add(cv.exportPerson()[cv.DRIVER][0]);
+	    			dc.add(cv.exportPerson()[cv.DRIVER][1]);
+	    			
 	    			p.add(cv.exportPerson()[cv.PASSENGER][0]);
+	    			pc.add(cv.exportPerson()[cv.PASSENGER][1]);
+	    			
 	    			b0.add(cv.exportPerson()[cv.BACKSEAT0][0]);
+	    			b0c.add(cv.exportPerson()[cv.BACKSEAT0][1]);
+	    			
 	    			b1.add(cv.exportPerson()[cv.BACKSEAT1][0]);
+	    			b1c.add(cv.exportPerson()[cv.BACKSEAT1][1]);
 	    		}
 	    		else
 	    		{
@@ -132,39 +144,86 @@ public class FaceRecognition
 	    		}
 	    	}
 	    	
-	    	c.setPerson(getPop(d.toArray(new String[d.size()])),cv.DRIVER);
-	    	c.setPerson(getPop(p.toArray(new String[p.size()])),cv.PASSENGER);
-	    	c.setPerson(getPop(b0.toArray(new String[b0.size()])),cv.BACKSEAT0);
-	    	c.setPerson(getPop(b1.toArray(new String[b1.size()])),cv.BACKSEAT1);
+	    	c.setPerson(getPop(d.toArray(new String[d.size()]),dc.toArray(new String[dc.size()])),cv.DRIVER);
+	    	c.setPerson(getPop(p.toArray(new String[p.size()]),pc.toArray(new String[pc.size()])),cv.PASSENGER);
+	    	c.setPerson(getPop(b0.toArray(new String[b0.size()]),b0c.toArray(new String[b0c.size()])),cv.BACKSEAT0);
+	    	c.setPerson(getPop(b1.toArray(new String[b1.size()]),b1c.toArray(new String[b1c.size()])),cv.BACKSEAT1);
 	    }
 	    vc.release();
     	return c.exportJSONPerson();
     }
     
-    private String getPop(String[] a)
+    private String[] getPop(String[] a,String[] c)
     {
-    	int count = 1, tempc;
-    	String pop = a[0];
-    	String temp = "";
     	
-    	for(int i = 0; i < a.length -1; i++)
+    	// Empty Check
+    	List<String> check1 = new ArrayList<String>();
+    	Collections.addAll(check1, a);
+    	check1.removeAll(Arrays.asList(""));
+    	a = check1.toArray(new String[check1.size()]);
+    	check1.clear();
+    	Collections.addAll(check1, c);
+    	check1.removeAll(Arrays.asList(""));
+    	c = check1.toArray(new String[check1.size()]);
+    	if(a.length != 0 && c.length != 0)
     	{
-    		temp = a[i];
-    		tempc= 0;
-    		for(int j = 1; j < a.length ;j++)
-    		{
-    			if(temp.equals(a[j]))
-    			{
-    				tempc++;
-    			}
-    		}
-    		if(tempc > count)
-    		{
-    			count = tempc;
-    			pop = temp; 
-    		}
+	    	int count = 1, tempc;
+	    	String pop = a[0];
+	    	String temp = "";
+	    	
+	    	HashMap<String,ArrayList<Double>> conf = new HashMap<String,ArrayList<Double>>();
+	    	
+	    	for(int i = 0; i < a.length -1; i++)
+	    	{
+	    		temp = a[i];
+	    		
+	    		tempc= 0;
+	    		for(int j = 1; j < a.length ;j++)
+	    		{
+	    			if(temp.equals(a[j]))
+	    			{
+	    				tempc++;
+	    			}
+	    		}
+	    		if(tempc > count)
+	    		{
+	    			count = tempc;
+	    			pop = temp; 
+	    		}
+	    	}
+	    	
+	    	for(int i = 0; i < a.length; i++)
+	    	{
+	    		if(!conf.containsKey(a[i]))
+	    		{
+	    			conf.put(a[i], new ArrayList<Double>());
+	    		}
+	    		
+	    		
+	    		
+	    		if(!c[i].equals(""))
+	    		{
+	    			double td = Double.parseDouble(c[i].replace(",", "."));
+	    			
+	    			if(td <= 100)
+	    				conf.get(a[i]).add(1 - (td/100));
+	    			else
+	    				conf.get(a[i]).add(0.0);
+	    		}
+			}
+	    	
+	    	double oc = conf.get(temp).stream().mapToDouble(d -> d).average().getAsDouble();
+	    	if(oc > 0.3)
+	    		oc = 1; 
+	    		
+	    	String[] out = {temp,""+oc};
+	    	return out;
     	}
-    	return temp;
+    	else
+    	{
+    		String[] out = {};
+	    	return out;
+    	}
     }
     
     /**
@@ -247,7 +306,7 @@ public class FaceRecognition
 		
 			Imgproc.putText(frame, textBox, new Point(pos_x,pos_y), 0, 1.0, new Scalar(0,255,0));
 			
-			cv.parsePerson(nameString, center, new Point(frame.cols()/2,frame.rows()/2));
+			cv.parsePerson(nameString, new DecimalFormat("#.##").format(conf[0]), center, new Point(frame.cols()/2,frame.rows()/2));
 		
     		
     	}
@@ -534,7 +593,7 @@ public class FaceRecognition
     		}
     	}
     	
-    	public void parsePerson(String name,Point p, Point imgCenter)
+    	public void parsePerson(String name,String conf,Point p, Point imgCenter)
     	{
     		
     		if(p.x > imgCenter.x)
@@ -542,13 +601,13 @@ public class FaceRecognition
     			if(p.y > imgCenter.y)
     			{
     				emptyName(name);
-    				String[] temp ={name,"1.0"} ;
+    				String[] temp ={name,conf} ;
     				internal[DRIVER] = temp;
     			}
     			else
     			{
     				emptyName(name);
-    				String[] temp ={name,"1.0"} ;
+    				String[] temp ={name,conf} ;
     				internal[BACKSEAT0] = temp;
     			}
     		}
@@ -557,19 +616,19 @@ public class FaceRecognition
     			if(p.y > imgCenter.y)
     			{
     				emptyName(name);
-    				String[] temp ={name,"1.0"} ;
+    				String[] temp ={name,conf} ;
     				internal[PASSENGER] = temp;
     			}
     			else
     			{
     				emptyName(name);
-    				String[] temp ={name,"1.0"} ;
+    				String[] temp ={name,conf} ;
     				internal[BACKSEAT1] = temp;
     			}
     		}
     	}
     	
-    	public void setPerson(String name, int pos)
+    	public void setPerson(String[] name, int pos)
     	{
     		if(name.equals(""))
     		{
@@ -578,7 +637,7 @@ public class FaceRecognition
     		}
     		else
     		{
-    			String[] temp ={name,"1.0"} ;
+    			String[] temp = name;
     			internal[pos] = temp;
     		}
     		

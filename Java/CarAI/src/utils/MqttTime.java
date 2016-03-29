@@ -1,6 +1,8 @@
 package utils;
 
+import java.text.DateFormatSymbols;
 import java.util.Calendar;
+import java.util.Locale;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
@@ -21,10 +23,12 @@ public class MqttTime implements MQTTInterface {
 	MqttConnectOptions connOpts;
 	
 	String utopic = "carai/time/set";
+	String dtopic = "carai/day/set";
 	String clientId = "timemqtt";
 	
 	int minute;
 	int hour;
+	int dayofweek;
 	boolean defaultTime;
 	
 	private MqttTime()
@@ -32,6 +36,7 @@ public class MqttTime implements MQTTInterface {
 		cal = Calendar.getInstance();
 		minute = cal.get(Calendar.MINUTE);
 		hour = cal.get(Calendar.HOUR_OF_DAY);
+		dayofweek = cal.get(Calendar.DAY_OF_WEEK);
 		defaultTime = true;
 		MemoryPersistence persistence = new MemoryPersistence();
 		try
@@ -43,6 +48,7 @@ public class MqttTime implements MQTTInterface {
             client.setCallback(new Callback());
             while(!client.isConnected()){}
             client.subscribe(utopic,0);
+            client.subscribe(dtopic,0);
 		}
 		catch(MqttException me)
 		{
@@ -71,6 +77,15 @@ public class MqttTime implements MQTTInterface {
 			return cal.get(Calendar.HOUR_OF_DAY);
 		}
 		return hour;
+	}
+	
+	public int getDayOfWeek()
+	{
+		if(defaultTime)
+		{
+			return cal.get(Calendar.DAY_OF_WEEK);
+		}
+		return dayofweek;
 	}
 	
 	public static MqttTime getInstance()
@@ -115,6 +130,15 @@ public class MqttTime implements MQTTInterface {
 				}
 			}
 			
+			if(arg0.equals(dtopic))
+			{
+				String day = new String(arg1.getPayload());
+				dayofweek = Integer.parseInt(day);
+				DateFormatSymbols dfs = new DateFormatSymbols(Locale.getDefault());
+				
+				System.out.println("Day set to " + dfs.getWeekdays()[dayofweek]);
+				defaultTime = false;
+			}
 		}
 		
 	}

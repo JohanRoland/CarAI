@@ -23,7 +23,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import interfaces.DatabaseLocation;
-import serverConnection.DBSCAN;
 import serverConnection.ServerConnection;
 import serverConnection.ServerConnection.DBQuerry;
 import utils.Tuple;
@@ -35,6 +34,7 @@ public class NNData
 
 	ArrayList<Integer> minutes;
 	ArrayList<Integer> hours;
+	ArrayList<Integer> days;
 	ArrayList<Integer> inputClust;
 	
 	
@@ -237,7 +237,9 @@ public class NNData
 	
 	public void parseKML(String path,int amount)
 	{
+		System.out.println("Reading KML File");
 		try{
+			querry = new ArrayList<DatabaseLocation>();
 			File xmlFile = new File(path);
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -271,7 +273,10 @@ public class NNData
 					String[] splitTime = fullDateTime[1].split(":");
 					int h = Integer.parseInt(splitTime[0]);
 					int min = Integer.parseInt(splitTime[1]);;
-					
+					String[] splitDate = fullDateTime[0].split("-");
+					int y = Integer.parseInt(splitDate[0]);
+					int m = Integer.parseInt(splitDate[1]);
+					int d = Integer.parseInt(splitDate[2]);
 					
 					//GPS PARSING
 					double lat = ((double)Math.round(Double.parseDouble(coordinates[0])*10000000))/10000000;
@@ -297,14 +302,14 @@ public class NNData
 						tmp2[1]= lat;
 						
 					}
-					querry.add(new DBQuerry(tmp[0], tmp[1], min, h, tmp2[0],tmp2[1]));
+					querry.add(new DBQuerry(tmp[0], tmp[1],y,m,d, h,min, tmp2[0],tmp2[1]));
 				}
 			}
 			System.out.println("Done fetching data");
 		}
 		catch(Exception e)
 		{
-			
+			e.printStackTrace();
 		}
 	}
 
@@ -430,31 +435,27 @@ public class NNData
 		HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();
 		HashMap<Tuple<Double,Double>,DatabaseLocation> posToLoc = new HashMap<Tuple<Double,Double>,DatabaseLocation>();
 		nrCluster = temp2.size();
-		for(int i = 0; i < temp2.size();i++)
+		
+		
+		for(DatabaseLocation dbl : temp2.get(0))
 		{
-			if(i == 0)
+			Tuple<Double,Double> d = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
+			hs.put(d, d);
+			clust.put(d, 0);
+			posToLoc.put(d, dbl);
+		}
+		for(int i = 1; i < temp2.size();i++)
+		{
+			
+			Tuple<Double,Double> mean = Utils.mean(temp2.get(i));
+			means.add(mean);
+			viewClustPos.put(i, mean);
+			for(DatabaseLocation dbl : temp2.get(i))
 			{
-				for(DatabaseLocation dbl : temp2.get(i))
-				{
-					Tuple<Double,Double> d = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
-					hs.put(d, d);
-					clust.put(d, i);
-					posToLoc.put(d, dbl);
-				}
+				Tuple<Double,Double> coord = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
+				hs.put(coord,mean);
 			}
-			else
-			{
-				
-				Tuple<Double,Double> mean = Utils.mean(temp2.get(i));
-				means.add(mean);
-				viewClustPos.put(i, mean);
-				for(DatabaseLocation dbl : temp2.get(i))
-				{
-					Tuple<Double,Double> coord = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
-					hs.put(coord,mean);
-				}
-				clust.put(mean, i);
-			}
+			clust.put(mean, i);
 			
 		}
 		
@@ -462,25 +463,27 @@ public class NNData
 		
 		hours = new ArrayList<Integer>();
 		minutes = new ArrayList<Integer>();
+		days = new ArrayList<Integer>();
 		
-		for(int i = 0; i < temp2.size(); i++)
+		for(int i = 1; i < temp2.size(); i++)
 		{
 			for(int j = 0; j < temp2.get(i).size(); j++)
 			{
 				double[] pos = {temp2.get(i).get(j).getLat(),temp2.get(i).get(j).getLon()};
 				double[] dest = {temp2.get(i).get(j).getNLat(),temp2.get(i).get(j).getNLon()};
 				Tuple<Double,Double> dst = findNextCluster( new Tuple<Double,Double>(temp2.get(i).get(j).getNLat(),temp2.get(i).get(j).getNLon()),posToLoc);
+				int test = getClosestCluster(dst);
 				
-				Tuple<Double,Double> meanDst = hs.get(dst);
+				Tuple<Double,Double> meanDst = viewClustPos.get(test);// hs.get(dst);
 				
-				if(meanDst == null || clust.get(meanDst) == null)
+				if(meanDst == null)
 				{
-					break;
+					System.out.println("mean was null for" + dst);
 				}
-				
+				/*
+					
 				if(i == 0)
 				{
-					/*
 					input.add(pos);
 					 
 					dest[0] = meanDst.fst();
@@ -488,9 +491,10 @@ public class NNData
 					output.add(dest);
 					hours.add(temp2[i].get(j).getHTime());
 					minutes.add(temp2[i].get(j).getMTime());
-					*/
 				}
-				else if(clust.get(meanDst) != i)
+					*/
+				
+				if(clust.get(meanDst) != i)
 				{
 					Tuple<Double,Double> coord = new Tuple<Double,Double>(temp2.get(i).get(j).getLat(),temp2.get(i).get(j).getLon());
 					pos[0] = hs.get(coord).fst();
@@ -505,8 +509,9 @@ public class NNData
 					
 					hours.add(temp2.get(i).get(j).getHTime());
 					minutes.add(temp2.get(i).get(j).getMTime());
-					
-					querry.add(new DBQuerry(pos[0], pos[1], temp2.get(i).get(j).getHTime(), temp2.get(i).get(j).getMTime(), dest[0], dest[1]));
+					days.add(temp2.get(i).get(j).getDayOfWeek());
+					outputClust.add(clust.get(meanDst));
+					//querry.add(new DBQuerry(pos[0], pos[1], temp2.get(i).get(j).getHTime(), temp2.get(i).get(j).getMTime(), dest[0], dest[1]));
 				}
 				
 			}
@@ -520,7 +525,7 @@ public class NNData
 				/*writer.write(input.get(i)[1] + " " + input.get(i)[0] + " " + hours.get(i) + " " + minutes.get(i) + " " 
 						+ output.get(i)[1] + " " + output.get(i)[0] + "\n");*/
 				//for(int noise = -5 ; noise < 5; noise++)
-					writer.write(inputClust.get(i) + " " + (hours.get(i) * 60 + minutes.get(i)) + " " 
+					writer.write(inputClust.get(i) + " "+ days.get(i) + " " + (hours.get(i) * 60 + minutes.get(i)) + " " 
 						+ outputClust.get(i) + "\n");
 			}
 		}catch(Exception e)
@@ -538,7 +543,25 @@ public class NNData
 			for(int i = 0; i < querry.size();i++)
 			{
 				writer.write(querry.get(i).getLat()+ " " + querry.get(i).getLon() + " " + (querry.get(i).getHTime()*60+querry.get(i).getMTime()) + " " 
-						+ querry.get(i).getNLat() + " " + querry.get(i).getNLon()+ "\n");
+						+ querry.get(i).getNLat() + " " + querry.get(i).getNLon() + "\n");
+				
+			}
+			writer.close();
+		}catch(Exception e)
+		{
+			System.out.println("Error on creating csv file");
+			e.printStackTrace();
+		}
+	}
+	
+	public void exportAsCoordsWithDateToCSV()
+	{
+		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
+		{
+			for(int i = 0; i < querry.size();i++)
+			{
+				writer.write(querry.get(i).getLat()+ " " + querry.get(i).getLon() + " " + querry.get(i).getDayOfWeek() +" " + (querry.get(i).getHTime()*60+querry.get(i).getMTime()) + " " 
+						+ querry.get(i).getNLat() + " " + querry.get(i).getNLon() + "\n");
 				
 			}
 			writer.close();
@@ -560,6 +583,9 @@ public class NNData
 		double	dist =Math.abs(Utils.distFrom(querry.get(0).getLat(), querry.get(0).getLon(), querry.get(0).getNLat(), querry.get(0).getNLon()));
 		int lastH=querry.get(0).getHTime();
 		int lastM=querry.get(0).getMTime();	
+		int lastY=querry.get(0).getYear();
+		int lastMo=querry.get(0).getMonth();
+		int lastD=querry.get(0).getDay();
 		int lastValidPoint=0;
 		
 		for(int i =1 ; i<querry.size()-1;i++)
@@ -567,9 +593,12 @@ public class NNData
 			
 				if(querry.get(i).getLat()>lat && querry.get(i).getLat()<latPrime && querry.get(i).getLon()>lon && querry.get(i).getLon()<lonPrime)
 				{
-					temp.add(new DBQuerry(querry.get(lastValidPoint).getLat(),querry.get(lastValidPoint).getLon(),lastH,lastM,querry.get(i).getLat(),querry.get(i).getLon()));
+					temp.add(new DBQuerry(querry.get(lastValidPoint).getLat(),querry.get(lastValidPoint).getLon(),lastY,lastMo,lastD,lastH,lastM,querry.get(i).getLat(),querry.get(i).getLon()));
 					lastH = querry.get(i).getHTime();
 					lastM = querry.get(i).getMTime();
+					lastY=querry.get(i).getYear();
+					lastMo=querry.get(i).getMonth();
+					lastD=querry.get(i).getDay();
 					lastValidPoint=i;
 				
 				}
@@ -601,6 +630,9 @@ public class NNData
 		double	dist =Math.abs(Utils.distFrom(querry.get(0).getLat(), querry.get(0).getLon(), querry.get(0).getNLat(), querry.get(0).getNLon()));
 		int lastH=querry.get(0).getHTime();
 		int lastM=querry.get(0).getMTime();
+		int lastY=querry.get(0).getYear();
+		int lastMo=querry.get(0).getMonth();
+		int lastD=querry.get(0).getDay();
 		int oldTime = lastH*60+lastM;	
 		int lastValidPoint=0;
 		int takingAbrake=0;
@@ -619,14 +651,21 @@ public class NNData
 					{
 						if(1000.0<Math.abs(Utils.distFrom(querry.get(lastValidPoint).getLat(),querry.get(lastValidPoint).getLon(), querry.get(i).getLat(),querry.get(i).getLon())))
 						{
-							temp.add(new DBQuerry(querry.get(lastValidPoint).getLat(),querry.get(lastValidPoint).getLon(),lastH,lastM,querry.get(i).getLat(),querry.get(i).getLon()));
+							temp.add(new DBQuerry(querry.get(lastValidPoint).getLat(),querry.get(lastValidPoint).getLon(),lastY,lastMo,lastD,lastH,lastM,querry.get(i).getLat(),querry.get(i).getLon()));
 							lastH = querry.get(i).getHTime();
 							lastM = querry.get(i).getMTime();
-							lastValidPoint=i;						}
+							lastY=querry.get(i).getYear();
+							lastMo=querry.get(i).getMonth();
+							lastD=querry.get(i).getDay();
+							lastValidPoint=i;						
+						}
 						else
 						{
 							lastH = querry.get(i).getHTime();
 							lastM = querry.get(i).getMTime();
+							lastY=querry.get(i).getYear();
+							lastMo=querry.get(i).getMonth();
+							lastD=querry.get(i).getDay();
 							lastValidPoint=i;
 							//System.out.println("Soo small!!!!");
 						}
@@ -665,7 +704,9 @@ public class NNData
 
  		ArrayList<Tuple<Double,Double>> median =  new ArrayList<Tuple<Double,Double>>();
 		
-		boolean traveling = false;
+
+		boolean first = true;
+		boolean newTravel = false;
 		
 		int counter = 0;
 		int tCounter = 0;
@@ -674,54 +715,87 @@ public class NNData
 		Tuple<Double,Double> start = new Tuple<Double,Double>(0.0,0.0);
 		Tuple<Double,Double> stop = new Tuple<Double,Double>(0.0,0.0);
 		Tuple<Integer,Integer> tempTime = new Tuple<Integer,Integer>(0,0);
-		
+		int day =0;
+		int month =0;
+		int year =0;
 		
 		double traveledDist = 0.0; 
 		for(int i = 0; i < querry.size(); i++)
 		{
-			if(Utils.distDB(querry.get(i)) < 10)
+			if(Utils.distDB(querry.get(i)) < 25)
 			{
 				//traveledDist += Utils.distDB(querry.get(i));
-				counter++; 
-					
-				traveledDist = 0.0; 
-				
 
+				
 				median.add(new Tuple<Double,Double>(querry.get(i).getLat(),querry.get(i).getLon()));
-				//start.setFst(querry.get(i).getLat());
-				//start.setSnd(querry.get(i).getLon());
+
 				tempTime.setFst(querry.get(i).getHTime());
 				tempTime.setSnd(querry.get(i).getMTime());
-				//tCounter = 0;
-				traveling = false;
+				day = querry.get(i).getDay();
+				month = querry.get(i).getMonth();
+				year = querry.get(i).getYear();
+				
+				
+				counter++; 				
+
 			}
 			else
 			{
 				//traveledDist += Utils.distDB(querry.get(i));
-				if(counter > 15)
-				{
-					stop.setFst(querry.get(i).getNLat());
-					stop.setSnd(querry.get(i).getNLon());
-					
-					/*double p1 = 0.0;
+				
+				if(counter > 10)
+				{	
+					double p1 = 0.0;
 					double p2 = 0.0;
 					
 					for(Tuple<Double,Double> d: median)
 					{
 						p1 += d.fst();
 						p2 += d.snd();
-					}*/
+					}
 					
-					temp.add(new DBQuerry(median.get(median.size()/2).fst(),median.get(median.size()/2).snd(),tempTime.fst(),tempTime.snd(),stop.fst(),stop.snd()));
-					//temp.add(new DBQuerry(p1/median.size(),p2/median.size(),tempTime.fst(),tempTime.snd(),stop.fst(),stop.snd()));
+					if(first)
+					{
+						start.setFst(Math.floor((p1/median.size())*1000000)/1000000);
+						start.setSnd(Math.floor((p2/median.size())*1000000)/1000000);
+						
+					}
+					else
+					{
+						stop.setFst(Math.floor((p1/median.size())*1000000)/1000000);
+						stop.setSnd(Math.floor((p2/median.size())*1000000)/1000000);
+						
+					}
+					newTravel = true;
 				}
-				median.clear();
-				traveling = true;
+				else
+				{
+					newTravel = false;
+				}
+				median.clear();	
+			
 				//tCounter++;
 				counter = 0; 
 			}
 			
-			
+			if(newTravel)
+			{
+				
+				//temp.add(new DBQuerry(median.get(median.size()/2).fst(),median.get(median.size()/2).snd(),year,month,day,tempTime.fst(),tempTime.snd(),stop.fst(),stop.snd()));
+				if(!first)
+				{
+					if(Utils.distFrom(start.fst(),start.snd(), stop.fst(),stop.snd()) > 100)
+					{
+						temp.add(new DBQuerry(start.fst(),start.snd(),year,month,day,tempTime.fst(),tempTime.snd(),stop.fst(),stop.snd()));
+					}
+					
+					start.setFst(stop.fst());
+					start.setSnd(stop.snd());
+				}
+				
+				first = false;
+				newTravel = false;
+			}
 		}
 		System.out.println("Removed coords: " +(querry.size()- temp.size()));
 		querry = temp;
