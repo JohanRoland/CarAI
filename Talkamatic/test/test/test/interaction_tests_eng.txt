@@ -1,0 +1,35 @@
+--- main menu
+S> What would you like to do?
+U> call john
+S> Calling John.
+
+
+--- querry test number
+S> What would you like to do?
+U> What is John 's number
+S> John 's number is 0701234567.
+
+
+--- querry test number 2
+S> What would you like to do?
+U> tell me a phone number
+S> Whose number?
+U> john
+S> John 's number is 0701234567.
+
+
+--- Valid test
+S> What would you like to do?
+U> call andy
+S> Andy has no phone number.
+
+
+--- Valid test2
+S> What would you like to do?
+U> What is Andy 's number
+S> Andy has no phone number.
+
+--- whoami
+S> What would you like to do?
+U> whoami
+S> You are William.

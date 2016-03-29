@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ontology name="TestOntology">
+  <action name="call"/>
+  <action name="greetUser"/>
+  <action name="navigate"/>
+  <action name="setTemp"/>
+  <action name="setPos"/>
+  <sort name="contact" dynamic="true"/>
+  <sort name="phone_number" dynamic="true"/>
+  <sort name="u_name" dynamic="true"/>
+  <sort name="locs" dynamic="true"/>
+  <sort name="car_seat" dynamic="true"/>
+  <predicate name="selected_contact" sort="contact"/>
+  <predicate name="phone_number_of_contact" sort="phone_number"/>
+  <predicate name="user_name" sort="u_name" />
+  <predicate name="location" sort="locs"/>
+  <predicate name="gpsdata" sort="locs"/>
+  <predicate name="incar" sort="u_name"/>
+  <predicate name="seat0" sort="car_seat"/>
+  <predicate name="seat1" sort="car_seat"/>
+  <predicate name="seat2" sort="car_seat"/>
+  <predicate name="seat3" sort="car_seat"/>
+  <predicate name="car_not_empty" sort="boolean"/>
+  <predicate name="temperature" sort="real"/>
+  <predicate name="startup" sort="boolean"/>
+</ontology>
