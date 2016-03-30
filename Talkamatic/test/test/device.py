@@ -65,17 +65,17 @@ class TestDevice:
 #                    result.append(recognized_entity)
 #            return result
 
-    class setPos(DeviceAction):
+    class setDest(DeviceAction):
       PARAMETERS = []
       def perform(self):
         return True
 
-    class SetPos(DeviceAction):
-      PARAMETERS = ["gpsdata.grammar_entry"]
+    class SetDest(DeviceAction):
+      PARAMETERS = ["destdata.grammar_entry"]
       def perform(self,gps):
         return True
 
-    class gpsdata(DeviceWHQuery):  
+    class destdata(DeviceWHQuery):  
       def perform(self):
         gps = ACTIVE_USER.DESTINATION 
         gps_entity = {
@@ -262,13 +262,18 @@ class TestDevice:
                   print("Connected with result code "+str(rc))
                   client.subscribe("carai/talkamatic/user")
                   client.subscribe("carai/talkamatic/gps")
+                  client.subscribe("carai/car/gps")
               def on_message(client, userdata, msg):
                   if msg.topic == "carai/talkamatic/user":
                     ACTIVE_USER.importFromJSON(msg.payload) 
                     self.device.handler.notify_started("greetUser")
                   if msg.topic == "carai/talkamatic/gps":
                     ACTIVE_USER.importGPS(msg.payload)
-                    self.device.handler.notify_started("setPos")     
+                    self.device.handler.notify_started("setDest")
+                  if msg.topic == "carai/car/gps":
+                    ACTIVE_USER.importGPS(msg.payload)
+                    self.device.handler.notify_started("setPos")
+                       
               client = mqtt.Client()
               client.on_connect = on_connect
               client.on_message = on_message

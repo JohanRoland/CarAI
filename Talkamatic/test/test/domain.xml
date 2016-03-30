@@ -45,10 +45,10 @@
 
   <!--<confidence_profile predicate="user_name" name="relaxed" trust="0.9" acknowledge="0.6" check="0.3" /> -->
 
-  <goal type="resolve" question_type="wh_question" predicate="gpsdata">
+  <goal type="resolve" question_type="wh_question" predicate="destdata">
     <plan>
 			<!-- <findout type="wh_question" predicate="gpsData"/> -->
-      <dev_query device="TestDevice" type="wh_question" predicate="gpsdata"/>
+      <dev_query device="TestDevice" type="wh_question" predicate="destdata"/>
     </plan>
     <!--<postcond><device_activity_terminated action="gpsData"/></postcond> -->
   </goal>
@@ -90,10 +90,10 @@
     </plan>
 	</goal>
   
-	<goal type="handle" action="setPos">
+	<goal type="handle" action="setDest">
 		<plan>
-			<findout type="wh_question" predicate="gpsdata"/>
-			<dev_perform action="SetPos" device="TestDevice" postconfirm="true"/>	
+			<findout type="wh_question" predicate="destdata"/>
+			<dev_perform action="SetDest" device="TestDevice" postconfirm="true"/>	
       <jumpto type="perform" action="top"/>
     </plan>	
 	</goal>
