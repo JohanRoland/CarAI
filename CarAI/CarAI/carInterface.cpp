@@ -1,4 +1,0 @@
-/*
-carInterface comunicates with the native car perifirals like GPS.
-
-*/
