@@ -21,6 +21,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.encog.ConsoleStatusReportable;
 import org.encog.Encog;
+import org.encog.app.analyst.AnalystFileFormat;
+import org.encog.app.analyst.EncogAnalyst;
+import org.encog.app.analyst.csv.normalize.AnalystNormalizeCSV;
+import org.encog.app.analyst.wizard.AnalystWizard;
 import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.engine.network.activation.ActivationTANH;
 import org.encog.util.arrayutil.VectorWindow;
@@ -247,6 +251,8 @@ public class LocPrediction {
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
 
+		
+		
 		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
 		//ReadCSV csv = new ReadCSV(new File("coords.csv"),false,format);
 		//String[] line = new String[4];
@@ -458,7 +464,7 @@ public class LocPrediction {
 		
 		model.holdBackValidation(0.3, true, 1001);
 		model.selectTrainingType(data);
-		bestMethod =(MLRegression)model.crossvalidate(20, true);//(MLRegression)EncogDirectoryPersistence.loadObject(new File("networkExport.eg")); // 
+		bestMethod =(MLRegression)EncogDirectoryPersistence.loadObject(new File("networkExport.eg")); //  (MLRegression)model.crossvalidate(20, true);//
 		
 		//System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
 		//System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
@@ -466,8 +472,7 @@ public class LocPrediction {
 		
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
-		
-		//EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
+		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
 		
 
 		//}
@@ -567,6 +572,8 @@ public class LocPrediction {
 		//line[3] = ""+minute;
 		
 		helper.normalizeInputVector(line,input.getData(),false);
+		
+		
 		MLData output = bestMethod.compute(input);	// network.compute(input); // 
 		
 		
