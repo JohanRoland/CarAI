@@ -34,7 +34,8 @@ POI = {
   (57.706636,11.979626) : "max",
   (57.699489,11.952700) : "burger king",
   (57.703559,11.964807) : "gym2",
-  (57.700774,11.950863) : "store"
+  (57.700774,11.950863) : "store",
+  (57.714492,11.972654) : "Tegner"
 }
 
 class State: 
@@ -50,6 +51,8 @@ class State:
   }
 
   DESTINATION =""
+  GPSDEST = (0,0)
+  LOCATION = (0,0)
 
   def isInited(self): 
     if self.INITED:
@@ -84,7 +87,7 @@ class State:
         CARSTATE[seat] = (x[0],float(x[1]))
         print("changed " + seat + " to " + USERS[CARSTATE[seat][0]] +" with confidence " + str(CARSTATE[seat][1]))
 
-  def importGPS(self,js_string):
+  def importDest(self,js_string):
     parsed_json = json.loads(js_string,parse_float=Decimal)
     out = ""
     comp = 100000
@@ -94,7 +97,14 @@ class State:
         comp = dist  
         out = POI[loc]
     self.DESTINATION = out
+    self.GPSDEST = (float(parsed_json['lat']),float(parsed_json['lon']))
     return out
+
+  def importGPS(self,js_string):
+    parsed_json = json.loads(js_string,parse_float=Decimal)
+    pos = (float(parsed_json['lat']),float(parsed_json['lon']))
+    self.LOCATION = pos
+    return pos
 
   def distToPoint(self,p1,p2):
     dx = float(p2["lon"])-p1[1]

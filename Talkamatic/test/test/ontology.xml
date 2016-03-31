@@ -5,7 +5,6 @@
   <action name="navigate"/>
   <action name="setTemp"/>
   <action name="setDest"/>
-  <action name="getPos"/>
   <sort name="contact" dynamic="true"/>
   <sort name="phone_number" dynamic="true"/>
   <sort name="u_name" dynamic="true"/>
@@ -16,7 +15,8 @@
   <predicate name="user_name" sort="u_name" />
   <predicate name="location" sort="locs"/>
   <predicate name="destdata" sort="locs"/>
-  <predicate name="gpsdata" sort="locs"/>
+  <predicate name="gpsdata" sort="locs"/> 
+  <predicate name="timetodest" sort="locs"/>
   <predicate name="incar" sort="u_name"/>
   <predicate name="seat0" sort="car_seat"/>
   <predicate name="seat1" sort="car_seat"/>
