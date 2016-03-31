@@ -1,7 +1,12 @@
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+
 from tdm.tdmlib import *#EntityRecognizer,DeviceAction,DeviceWHQuery,Validity,DeviceMethod
 from test.contacts import CONTACT_NUMBERS,LOCATIONS, State,USERS,POI
 import paho.mqtt.client as mqtt
 
+from Python.GeoData import dist
+#print(sys.path)
 class TestDevice:
     class Call(DeviceAction):
         PARAMETERS = ["selected_contact.grammar_entry"]
@@ -65,6 +70,24 @@ class TestDevice:
 #                    result.append(recognized_entity)
 #            return result
 
+######################## GPS ###################
+
+#
+#     POS
+#
+
+    class gpsdata(DeviceWHQuery):
+      def perform(self):
+        gps = str(ACTIVE_USER.LOCATION)
+        gps_entity = {
+          "grammar_entry" : gps,
+          }
+        return [gps_entity]
+      
+    
+#
+#     DEST
+#
     class setDest(DeviceAction):
       PARAMETERS = []
       def perform(self):
@@ -97,6 +120,24 @@ class TestDevice:
                     }
                     result.append(recognized_entity)
             return result
+
+#
+#       ETA
+#
+    class timetodest(DeviceWHQuery):
+      def perform(self):
+        pos = ACTIVE_USER.LOCATION
+        dest = ACTIVE_USER.GPSDEST
+        eta = "-1"
+        if pos != (0,0):
+          if dest != (0,0):
+            di,eta = dist(pos[0],pos[1],dest[0],dest[1])
+        entity = {
+          "grammar_entry": eta
+          }
+        return [entity]
+
+#################### END GPS #####################
 
 #
 #       Airconditioning
@@ -268,11 +309,10 @@ class TestDevice:
                     ACTIVE_USER.importFromJSON(msg.payload) 
                     self.device.handler.notify_started("greetUser")
                   if msg.topic == "carai/talkamatic/gps":
-                    ACTIVE_USER.importGPS(msg.payload)
+                    ACTIVE_USER.importDest(msg.payload)
                     self.device.handler.notify_started("setDest")
                   if msg.topic == "carai/car/gps":
                     ACTIVE_USER.importGPS(msg.payload)
-                    self.device.handler.notify_started("setPos")
                        
               client = mqtt.Client()
               client.on_connect = on_connect

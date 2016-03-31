@@ -52,6 +52,18 @@
     </plan>
     <!--<postcond><device_activity_terminated action="gpsData"/></postcond> -->
   </goal>
+  
+  <goal type="resolve" question_type="wh_question" predicate="gpsdata">
+    <plan>
+      <dev_query device="TestDevice" type="wh_question" predicate="gpsdata"/>
+    </plan>
+  </goal>
+
+  <goal type="resolve" question_type="wh_question" predicate="timetodest">
+    <plan>
+      <dev_query device="TestDevice" type="wh_question" predicate="timetodest"/>
+    </plan>
+  </goal>
 
   <goal type="resolve" question_type="wh_question" predicate="seat0">
     <plan>

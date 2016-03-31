@@ -108,6 +108,19 @@
   </answer>
 <!--           END SEAT VERIFICATION                  -->
 
+
+<!--                    GPS                           -->
+<!-- Loc -->
+  <question speaker="user" predicate="gpsdata" type="wh_question">
+    Where are we
+  </question>
+  <question speaker="all" predicate="gpsdata" type="wh_question">
+    the gps location
+  </question>
+  <answer speaker="system" predicate="gpsdata">
+    We are at <slot type="individual" predicate="gpsdata"/>
+  </answer>
+<!-- Dest -->
 	<question speaker="user" predicate="destdata" type="wh_question">
 		Where are we going
 	</question>
@@ -118,7 +131,22 @@
     We are going to <slot type="individual" predicate="destdata"/>
   </answer>
   
+<!-- Time to det -->
 
+	<question speaker="user" predicate="timetodest" type="wh_question">
+		<one-of>
+      <item>When will we arrive</item>
+      <item>eta</item>
+    </one-of>
+	</question>
+    <question speaker="all" predicate="timetodest" type="wh_question">
+    time to arrival
+  </question> 
+	<answer speaker="system" predicate="timetodest">
+    We will be there in  <slot type="individual" predicate="timetodest"/>
+  </answer>
+
+<!--            END GPS                           -->
 
   <action name="greetUser">greet</action>
   <report action="greetUser" status="started">-</report>
