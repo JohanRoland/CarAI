@@ -105,6 +105,7 @@
 	<goal type="handle" action="setDest">
 		<plan>
 			<findout type="wh_question" predicate="destdata"/>
+      <findout type="wh_question" predicate="timetodest"/>
 			<dev_perform action="SetDest" device="TestDevice" postconfirm="true"/>	
       <jumpto type="perform" action="top"/>
     </plan>	
