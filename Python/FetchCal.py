@@ -1,6 +1,7 @@
 from __future__ import print_function
 import httplib2
 import os
+import sys
 
 from apiclient import discovery
 import oauth2client
@@ -22,10 +23,10 @@ except ImportError:
 # at ~/.credentials/calendar-python-quickstart.json
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json'
-APPLICATION_NAME = 'Google Calendar API Python Quickstart'
+APPLICATION_NAME = 'CarAI calendar fetch'
 
 
-def get_credentials():
+def get_credentials(userID):
     """Gets valid user credentials from storage.
 
     If nothing has been stored, or if the stored credentials are invalid,
@@ -35,7 +36,10 @@ def get_credentials():
         Credentials, the obtained credential.
     """
     home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.credentials')
+    project_dir = os.path.dirname(os.path.abspath(__file__))
+    user_dir = os.path.join(project_dir,'users') 
+    user_dir2 = os.path.join(user_dir,'{}'.format(userID))
+    credential_dir = os.path.join(user_dir2, '.credentials') #os.path.join(home_dir, '.credentials')
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
     credential_path = os.path.join(credential_dir,
@@ -62,7 +66,10 @@ def main():
     Creates a Google Calendar API service object and outputs a list of the next
     10 events on the user's calendar.
     """
-    credentials = get_credentials()
+    if len(sys.argv) < 1:
+      raise(NameError('No user added to path'))      
+    
+    credentials = get_credentials(1)
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
 
@@ -80,9 +87,12 @@ def main():
     client.connect("54.229.54.240", 1883, 60)
     for event in events:
         start = event['start'].get('dateTime', event['start'].get('date'))
+        loc = 'unknown'
+        if 'location' in event:
+          loc = event['location']
         client.publish("carai/usr/cal",json.dumps(event))
         client.loop(1) #timeout 1 sec
-        print(start, event['summary'])
+        print(start, event['summary'],loc)
 
 
 if __name__ == '__main__':
