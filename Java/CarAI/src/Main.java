@@ -56,7 +56,7 @@ public class Main
     			try {
 					System.out.println("Created ID: " +sc.addUserData("Johan"));
 				} catch (SQLException e) {
-					System.out.println("You SUCK!!");
+					System.out.println("Faild to add user");
 					e.printStackTrace();
 				}
     			

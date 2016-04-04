@@ -6,7 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -173,7 +175,55 @@ public class NNData
 		System.out.println("Finished downloading data");
 
 	}
-	
+
+	public void parsGeoEntry(String path)
+	{
+		try {
+			Files.walk(Paths.get(path)).
+				forEach(filePath -> {
+					ArrayList<String> lines;
+					try {
+						lines = (ArrayList<String>) Files.readAllLines(filePath);
+
+						for(int i=0; i<lines.size()-1;i++)
+						{
+							String[] params = lines.get(i).split(",");
+							String[] paramsN = lines.get(i+1).split(",");
+							
+							String[] date = params[6].split("-");
+							String[] time = params[7].split(":");
+							
+							querry.add(
+										new DBQuerry
+										   (
+												   	Double.parseDouble(params[0]),
+													Double.parseDouble(params[1]),
+													Integer.parseInt(date[0]),
+													Integer.parseInt(date[1]),
+													Integer.parseInt(date[2]),
+													Integer.parseInt(time[0]),
+													Integer.parseInt(time[1]),
+													Double.parseDouble(paramsN[0]),
+													Double.parseDouble(paramsN[1])
+										   )
+									);
+						}
+					} 
+					catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+									
+				}
+				
+			);
+		} 
+		catch (Exception e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
 	public void parseGPX(String path)
 	{
 		try
