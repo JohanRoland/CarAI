@@ -2,10 +2,10 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
 from tdm.tdmlib import *#EntityRecognizer,DeviceAction,DeviceWHQuery,Validity,DeviceMethod
-from test.contacts import CONTACT_NUMBERS,LOCATIONS, State,USERS,POI
+from test.contacts import CONTACT_NUMBERS,LOCATIONS, State,POI
 import paho.mqtt.client as mqtt
 
-from Python.GeoData import dist
+from Python.GeoData import dist,locInfo
 #print(sys.path)
 class TestDevice:
     class Call(DeviceAction):
@@ -78,9 +78,10 @@ class TestDevice:
 
     class gpsdata(DeviceWHQuery):
       def perform(self):
-        gps = str(ACTIVE_USER.LOCATION)
+        gps = ACTIVE_STATE.LOCATION
+        road = locInfo(gps[0],gps[1]).split(',')[0]
         gps_entity = {
-          "grammar_entry" : gps,
+          "grammar_entry" : road,
           }
         return [gps_entity]
       
@@ -94,13 +95,13 @@ class TestDevice:
         return True
 
     class SetDest(DeviceAction):
-      PARAMETERS = ["destdata.grammar_entry"]
-      def perform(self,gps):
+      PARAMETERS = ["destdata.grammar_entry","timetodest.grammar_entry"]
+      def perform(self,gps,time):
         return True
 
     class destdata(DeviceWHQuery):  
       def perform(self):
-        gps = ACTIVE_USER.DESTINATION 
+        gps = ACTIVE_STATE.DESTINATION 
         gps_entity = {
           "grammar_entry": gps,
           }
@@ -126,8 +127,8 @@ class TestDevice:
 #
     class timetodest(DeviceWHQuery):
       def perform(self):
-        pos = ACTIVE_USER.LOCATION
-        dest = ACTIVE_USER.GPSDEST
+        pos = ACTIVE_STATE.LOCATION
+        dest = ACTIVE_STATE.GPSDEST
         eta = "-1"
         if pos != (0,0):
           if dest != (0,0):
@@ -173,8 +174,8 @@ class TestDevice:
     class user_name(DeviceWHQuery):
         def perform(self):
             result = []
-            #uName = ACTIVE_USER.getName()
-            for users, conf in ACTIVE_USER.getAllUsers():
+            #uName = ACTIVE_STATE.getName()
+            for users, conf in ACTIVE_STATE.getAllUsers():
                 user_entity = {
                     "grammar_entry": users,
                     "confidence": conf
@@ -231,10 +232,10 @@ class TestDevice:
         return self.device.seatver("BACKSEAT1")
 
     def seatver(self,seat): 
-      u,conf = ACTIVE_USER.getSeatUser(seat)
+      u,conf = ACTIVE_STATE.getSeatUser(seat)
       if u == "Unknown":
         ent = {
-          "grammar_entry":USERS[u],
+          "grammar_entry":"",
           "confidence":0,
         }
       elif u =="":
@@ -244,7 +245,7 @@ class TestDevice:
         }
       else:
         ent = {
-          "grammar_entry":USERS[u],
+          "grammar_entry":ACTIVE_STATE.getUsersDic()[u].getName(),
           "confidence":conf,
         } 
       return [ent]
@@ -293,12 +294,12 @@ class TestDevice:
         def __init__(self, dev,ont):
             self.device = dev
             self._ontology = ont
-            global ACTIVE_USER
-            ACTIVE_USER = State()
+            global ACTIVE_STATE
+            ACTIVE_STATE = State()
 
         parameters= []
         def perform(self):
-            if not ACTIVE_USER.isInited():
+            if not ACTIVE_STATE.isInited():
               def on_connect(client, userdata, rc):
                   print("Connected with result code "+str(rc))
                   client.subscribe("carai/talkamatic/user")
@@ -306,13 +307,13 @@ class TestDevice:
                   client.subscribe("carai/car/gps")
               def on_message(client, userdata, msg):
                   if msg.topic == "carai/talkamatic/user":
-                    ACTIVE_USER.importFromJSON(msg.payload) 
+                    ACTIVE_STATE.importFromJSON(msg.payload) 
                     self.device.handler.notify_started("greetUser")
                   if msg.topic == "carai/talkamatic/gps":
-                    ACTIVE_USER.importDest(msg.payload)
+                    ACTIVE_STATE.importDest(msg.payload)
                     self.device.handler.notify_started("setDest")
                   if msg.topic == "carai/car/gps":
-                    ACTIVE_USER.importGPS(msg.payload)
+                    ACTIVE_STATE.importGPS(msg.payload)
                        
               client = mqtt.Client()
               client.on_connect = on_connect

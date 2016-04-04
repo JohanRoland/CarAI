@@ -154,11 +154,7 @@
 
   <action name="setDest">setdest</action>
   <report action="setDest" status="started">-</report>
-  <report action="SetDest" status="ended">Setting destination to <slot type="individual" predicate="destdata"/>.</report>
-  
-  <action name="getPos">getpos</action>
-  <report action="getPos" status="started">-</report>
-  <report action="GetPos" status="ended">Setting destination to <slot type="individual" predicate="destdata"/>.</report>
+  <report action="SetDest" status="ended">Setting destination to <slot type="individual" predicate="destdata"/>. Planned to arrive in <slot type="individual" predicate="timetodest"/>.</report>
   
 
   <action name="navigate">
