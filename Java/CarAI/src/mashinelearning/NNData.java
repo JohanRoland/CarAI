@@ -973,7 +973,6 @@ public class NNData
 		return output;
 	}
 	
-
 	public ArrayList<DatabaseLocation> getQuerry() {
 		return querry;
 	}

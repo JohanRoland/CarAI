@@ -1,6 +1,10 @@
 import json
 import math
 from decimal import Decimal
+import sys,os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+
+from Python.DBConnection import User, getAllUsers
 
 CONTACT_NUMBERS = {
     "John": "0701234567",
@@ -24,7 +28,7 @@ USERS = {
 
 POI = {
   (57.53361,11.93116) : "home",
-  (57.69691,11.97588) : "techno creative",
+  (57.69691,11.97588) : "techno creatives",
   (57.465172, 11.994394) : "gym",
   (57.674033, 11.936127) : "marklandsgatan",
   (57.489372, 12.073605) : "kungsbacka",
@@ -34,12 +38,14 @@ POI = {
   (57.706636,11.979626) : "max",
   (57.699489,11.952700) : "burger king",
   (57.703559,11.964807) : "gym2",
-  (57.700774,11.950863) : "store"
+  (57.700774,11.950863) : "store",
+  (57.714492,11.972654) : "Tegner"
 }
 
 class State: 
   def __init__(self):
     self.INITED = False
+    self.usersDic = getAllUsers()
 
   global CARSTATE	  
   CARSTATE = { 
@@ -50,6 +56,9 @@ class State:
   }
 
   DESTINATION =""
+  GPSDEST = (0,0)
+  LOCATION = (0,0)
+
 
   def isInited(self): 
     if self.INITED:
@@ -68,10 +77,15 @@ class State:
     result = []
     for seat in CARSTATE.keys():
       if CARSTATE[seat][0] != "":
-        result.append((USERS[CARSTATE[seat][0]],CARSTATE[seat][1]))
+        result.append((self.usersDic[CARSTATE[seat][0]],CARSTATE[seat][1]))
     return result
+
+  def getUsersDic(self):
+    return self.usersDic
+
   def getCarstate(self):
     return CARSTATE
+
 #	returns a list of all new users
   def importFromJSON(self,js_string):
     parsed_json = json.loads(js_string,parse_float=Decimal)
@@ -82,19 +96,26 @@ class State:
         CARSTATE[seat] = ("",1.0)
       elif not (x == []):
         CARSTATE[seat] = (x[0],float(x[1]))
-        print("changed " + seat + " to " + USERS[CARSTATE[seat][0]] +" with confidence " + str(CARSTATE[seat][1]))
+        print("changed " + seat + " to " + self.usersDic[CARSTATE[seat][0]].getName() +" with confidence " + str(CARSTATE[seat][1]))
 
-  def importGPS(self,js_string):
+  def importDest(self,js_string):
     parsed_json = json.loads(js_string,parse_float=Decimal)
     out = ""
-    comp = 100000
+    comp =sys.maxint # 100000
     for loc in POI.keys():
       dist = self.distToPoint(loc,parsed_json)
       if dist< comp:
         comp = dist  
         out = POI[loc]
     self.DESTINATION = out
+    self.GPSDEST = (float(parsed_json['lat']),float(parsed_json['lon']))
     return out
+
+  def importGPS(self,js_string):
+    parsed_json = json.loads(js_string,parse_float=Decimal)
+    pos = (float(parsed_json['lat']),float(parsed_json['lon']))
+    self.LOCATION = pos
+    return pos
 
   def distToPoint(self,p1,p2):
     dx = float(p2["lon"])-p1[1]

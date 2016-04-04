@@ -24,6 +24,7 @@ import displayData.PointsPlotter;
 public class Main
 {
     public static void main(String[] args) {
+    	//EMpty gommecnt
     	
     	MqttTime mt = MqttTime.getInstance();
     	//Analyze.analyzeLearningData();
