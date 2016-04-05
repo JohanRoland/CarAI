@@ -1,13 +1,16 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
+from tdm.lib.device import DddDevice,EntityRecognizer,DeviceAction,DeviceWHQuery,Validity
 from tdm.tdmlib import *#EntityRecognizer,DeviceAction,DeviceWHQuery,Validity,DeviceMethod
-from test.contacts import CONTACT_NUMBERS,LOCATIONS, State,POI
+from car_ai.contacts import CONTACT_NUMBERS,LOCATIONS, State,POI
+from tdm.device_handler import send_to_frontend_device
+
 import paho.mqtt.client as mqtt
 
 from Python.GeoData import dist,locInfo
 #print(sys.path)
-class TestDevice:
+class CaraiDevice(DddDevice):
     class Call(DeviceAction):
         PARAMETERS = ["selected_contact.grammar_entry"]
         def perform(self, selected_contact):
@@ -276,6 +279,7 @@ class TestDevice:
 #   Greet user device
     class GreetUser(DeviceAction):
         PARAMETERS = ["incar.grammar_entry"]
+        #@send_to_frontend_device
         def perform(self,inc):
             client = mqtt.Client()
             client.connect("54.229.54.240", 1883, 60)
@@ -321,3 +325,4 @@ class TestDevice:
               client.connect_async("54.229.54.240", 1883, 60)
               client.loop_start()
             return True
+

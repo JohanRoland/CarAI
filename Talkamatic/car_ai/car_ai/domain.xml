@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<domain name="TestDomain" is_super_domain="true">
+	<goal type="perform" action="top" verbalize="false" >
+    <plan>
+      <forget_all/>	
+      <dev_perform action="MQTTInterface" device="CaraiDevice"/>
+      <findout type="goal"/>
+    </plan>
+  </goal>
+  <parameters predicate="goal" question_type="wh_question" verbalize="false"/>
+  
+  <goal type="perform" action="call">
+    <plan>
+      <findout type="wh_question" predicate="selected_contact"/>
+      <dev_perform action="Call" device="CaraiDevice" postconfirm="true"/>
+    </plan>
+    <postcond><device_activity_terminated action="Call"/></postcond>
+  </goal>
+  <goal type="resolve" question_type="wh_question" predicate="phone_number_of_contact">
+    <plan>
+      <findout type="wh_question" predicate="selected_contact"/>
+      <dev_query device="CaraiDevice" type="wh_question" predicate="phone_number_of_contact"/>
+    </plan>
+  </goal>
+
+  <goal type="resolve" question_type="wh_question" predicate="user_name">
+    <plan>
+			<!--<findout type="wh_question" predicate="user_name"/>  -->
+      <dev_query_all device="CaraiDevice" type="wh_question" predicate="user_name"/>
+    </plan>
+		<!--<postcond><device_activity_terminated action="user_name"/></postcond> -->
+  </goal>
+  
+  <goal type="resolve" question_type="wh_question" predicate="incar">
+    <plan>
+			<!-- <findout type="wh_question" predicate="user_name"/> -->
+			<findout type="wh_question" predicate="seat0"/>
+			<findout type="wh_question" predicate="seat1"/>
+			<findout type="wh_question" predicate="seat2"/>
+			<findout type="wh_question" predicate="seat3"/>
+      <dev_query device="CaraiDevice" type="wh_question" predicate="incar"/>
+    </plan>
+  </goal>
+ <!-- <parameters predicate="incar" question_type="wh_question" verbalize="false"/> -->
+
+  <!--<confidence_profile predicate="user_name" name="relaxed" trust="0.9" acknowledge="0.6" check="0.3" /> -->
+
+  <goal type="resolve" question_type="wh_question" predicate="destdata">
+    <plan>
+			<!-- <findout type="wh_question" predicate="gpsData"/> -->
+      <dev_query device="CaraiDevice" type="wh_question" predicate="destdata"/>
+    </plan>
+    <!--<postcond><device_activity_terminated action="gpsData"/></postcond> -->
+  </goal>
+  
+  <goal type="resolve" question_type="wh_question" predicate="gpsdata">
+    <plan>
+      <dev_query device="CaraiDevice" type="wh_question" predicate="gpsdata"/>
+    </plan>
+  </goal>
+
+  <goal type="resolve" question_type="wh_question" predicate="timetodest">
+    <plan>
+      <dev_query device="CaraiDevice" type="wh_question" predicate="timetodest"/>
+    </plan>
+  </goal>
+
+  <goal type="resolve" question_type="wh_question" predicate="seat0">
+    <plan>
+      <dev_query device="CaraiDevice" type="wh_question" predicate="seat0"/>
+    </plan>
+  </goal>
+
+  <goal type="resolve" question_type="wh_question" predicate="seat1">
+    <plan>
+      <dev_query device="CaraiDevice" type="wh_question" predicate="seat1"/>
+    </plan>
+  </goal>
+
+  <goal type="resolve" question_type="wh_question" predicate="seat2">
+    <plan>
+      <dev_query device="CaraiDevice" type="wh_question" predicate="seat2"/>
+    </plan>
+  </goal>
+
+  <goal type="resolve" question_type="wh_question" predicate="seat3">
+    <plan>
+      <dev_query device="CaraiDevice" type="wh_question" predicate="seat3"/>
+    </plan>
+  </goal>
+
+  <goal type="handle" action="greetUser">
+		<plan>
+      <!-- <findout type="wh_question" predicate="lowconfseat"/> -->
+			<findout type="wh_question" predicate="seat0"/>
+			<findout type="wh_question" predicate="seat1"/>
+			<findout type="wh_question" predicate="seat2"/>
+			<findout type="wh_question" predicate="seat3"/>
+			<findout type="wh_question" predicate="incar"/>
+			<dev_perform action="GreetUser" device="CaraiDevice" postconfirm="true"/>	
+      <jumpto type="perform" action="top"/>
+    </plan>
+	</goal>
+  
+	<goal type="handle" action="setDest">
+		<plan>
+			<findout type="wh_question" predicate="destdata"/>
+      <findout type="wh_question" predicate="timetodest"/>
+			<dev_perform action="SetDest" device="CaraiDevice" postconfirm="true"/>	
+      <jumpto type="perform" action="top"/>
+    </plan>	
+	</goal>
+
+  <goal type="perform" action="navigate">
+		<plan>
+			<findout type="wh_question" predicate="location"/>
+			<dev_perform action="Navigate" device="CaraiDevice" postconfirm="true"/>
+		</plan>	
+		<postcond><device_activity_terminated action="Navigate"/></postcond>
+	</goal>
+
+	<goal type="perform" action="setTemp">
+		<plan>
+			<findout type="wh_question" predicate="temperature"/>
+			<dev_perform action="SetTemp" device="CaraiDevice" postconfirm="true"/>
+    </plan>
+  <postcond><device_activity_terminated action="SetTemp"/></postcond>
+	</goal>
+
+  <parameters predicate="phone_number_of_contact">
+    <background predicate="selected_contact"/>
+  </parameters>
+</domain>
