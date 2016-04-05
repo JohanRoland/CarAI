@@ -247,6 +247,22 @@ public class ServerConnection {
 		return out;
 	}
 	
+	public ArrayList<String> getAllUserId() throws SQLException
+	{
+		Statement stmt = (Statement) connection.createStatement();
+		ResultSet rs =  stmt.executeQuery("CALL getAllUsers()");
+		
+		ArrayList<String> out = new ArrayList<String>();
+		
+		while(rs.next())
+		{
+			out.add(rs.getString("ID"));
+		}
+		stmt.close();
+		
+		return out;
+	}
+	
 	public static class DBQuerry implements DatabaseLocation
 	{
 		double lat;

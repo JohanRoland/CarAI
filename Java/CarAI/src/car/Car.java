@@ -57,42 +57,42 @@ public class Car {
 	
 	public synchronized void setUser(String pos, String usr)
 	{
-		users.put(getSeatPosition(pos),new User(usr));
+		users.put(getSeatPosition(pos), User.getInstance(Integer.parseInt(usr)));
 	}
 	
 	public synchronized void setCar(JSONCAR car)
 	{
 		if(car.DRIVER.length > 1)
 		{
-			users.put(Positions.DRIVER,new User(car.DRIVER[0]));
+			users.put(Positions.DRIVER, User.getInstance(Integer.parseInt(car.DRIVER[0])));
 		}
 		else
 		{
-			users.put(Positions.DRIVER,new User(""));
+			users.put(Positions.DRIVER,User.getInstance(-1));
 		}
 		if(car.PASSENGER.length > 1)
 		{
-			users.put(Positions.PASSENGER,new User(car.PASSENGER[0]));
+			users.put(Positions.PASSENGER,User.getInstance(Integer.parseInt(car.PASSENGER[0])));
 		}
 		else
 		{
-			users.put(Positions.PASSENGER,new User(""));
+			users.put(Positions.PASSENGER,User.getInstance(-1));
 		}
 		if(car.BACKSEAT0.length > 1)
 		{
-			users.put(Positions.BACKSEAT0,new User(car.BACKSEAT0[0]));
+			users.put(Positions.BACKSEAT0,User.getInstance(Integer.parseInt(car.BACKSEAT0[0])));
 		}
 		else
 		{
-			users.put(Positions.BACKSEAT0,new User(""));
+			users.put(Positions.BACKSEAT0,User.getInstance(-1));
 		}
 		if(car.BACKSEAT1.length > 1)
 		{
-			users.put(Positions.BACKSEAT1,new User(car.BACKSEAT1[0]));
+			users.put(Positions.BACKSEAT1,User.getInstance(Integer.parseInt(car.BACKSEAT1[0])));
 		}
 		else
 		{
-			users.put(Positions.BACKSEAT1,new User(""));
+			users.put(Positions.BACKSEAT1,User.getInstance(-1));
 		}
 		
 		
