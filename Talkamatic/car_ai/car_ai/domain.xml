@@ -23,6 +23,13 @@
     </plan>
   </goal>
 
+  <parameters predicate="selected_contact"
+    question_type="wh_question"
+    graphical_type="list" source="device"
+    device="CaraiDevice">
+    <device_query predicate="all_contacts" type="wh_question"/>
+  </parameters> 
+
   <goal type="resolve" question_type="wh_question" predicate="user_name">
     <plan>
 			<!--<findout type="wh_question" predicate="user_name"/>  -->

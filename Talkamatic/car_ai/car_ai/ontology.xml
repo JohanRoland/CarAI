@@ -12,6 +12,7 @@
   <sort name="car_seat" dynamic="true"/>
   <predicate name="selected_contact" sort="contact"/>
   <predicate name="phone_number_of_contact" sort="phone_number"/>
+  <predicate name="all_contacts" sort="contact"/>
   <predicate name="user_name" sort="u_name" />
   <predicate name="location" sort="locs"/>
   <predicate name="destdata" sort="locs"/>

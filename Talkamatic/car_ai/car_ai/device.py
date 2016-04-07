@@ -26,6 +26,16 @@ class CaraiDevice(DddDevice):
                 "grammar_entry": number
             }
             return [number_entity]
+    class all_contacts(DeviceWHQuery):
+        PARAMETERS = []
+        def perform(self):
+            out = []
+            for con in CONTACT_NUMBERS.keys():
+              out.append(con)
+            number_entity = {
+                "grammar_entry": out
+            }
+            return [number_entity]
     class ContactRecognizer(EntityRecognizer):
         def recognize_entity(self, string):
             result = []

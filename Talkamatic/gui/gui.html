@@ -1,5 +1,6 @@
 <html>
 <head>
+<link rel="stylesheet" type="text/css" href="style.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 </head>
 <script>
@@ -9,20 +10,85 @@
   };*/
   ws.onmessage = function (evt) {
     msg = JSON.parse(evt.data);
+    console.log(JSON.stringify(msg,null,2));
     if(msg.length != 0)
     {
       for(var i in msg)
       {
+        if("DeviceResult" in msg[i])
+        {
+          console.log("Action: "+ msg[i].DeviceResult.action)
+        }
         if("Popup" in msg[i])
         {
-          $("p:last").append("<p>"+msg[i].Popup.title+"</p>");
+          extra = "";
+          m = msg[i].Popup.title.replace('-','');
+          
+          if(msg[i].Popup.elements.length >0)
+          {
+            for(var j in msg[i].Popup.elements[0].Element.items)
+            {
+              if(msg[i].Popup.elements[0].Element.items[j].Item.title != null)
+              {
+                extra = "<p>"+msg[i].Popup.elements[0].Element.items[j].Item.title+"</p>"
+              }
+            }
+          }
+          $(".dialogue").prepend("<div class=\"convo\"><p>"+m+"</p>"+extra+"</div>");
         }
       }
     }
   };
+  
+  function printMsg(s) {
+    $(".dialogue").prepend("<div class=\"convo2\"><p>"+s+"</p></div>") 
+  }
 
+  function sendToTDM(m) {
+    ws.send("[{\"InputFromGui\":{\"type\":\"text\",\"name\":\"text\",\"value\":\""+m+"\",\"title\":\"text\"}}]")
+  };
+  function connect()
+  {
+    ws = new WebSocket("ws://localhost:8888/tdm_gui");
+  };
+  function disconnect() {
+    ws.send("[{\"Disconnect\":{}}]")
+  };
+  function cancel() {
+    ws.send("[{\"InputFromGui\":{\"type\":\"key\",\"name\":\"cancel\",\"value\":\"cancel\",\"title\":\"text\"}}]") 
+  }
+  
+  function getLoc()
+  {
+    //ws.send("[{\"WHQuery" ]")
+  };
+  $(function() {
+   $("#iform").submit(function(e) {
+      e.preventDefault();   
+      var s = document.forms["inform"]["in"].value;
+      printMsg(s);
+      document.forms["inform"]["in"].value = "";
+    }); 
+  });
 </script>
-<h1>CARAI</h1>
-<p></p>
+  <div class="container">
+  <h1 class="sheader">CARAI</h1>
+  <div class="buttons">
+    <button onclick="connect()">Connect</button>
+    <button onclick="disconnect()">DC</button>
+    <button onclick="cancel()">Cancel</button>
+    <button onclick="getLoc()">Where Are We?</button>
+  </div>
+  <div class="inputbox">
+    <form id="iform" name="inform">
+      <input type="text" name="in">
+      <input type="submit" value="Submit">
+    </form>
+  </div>
+  <div class="dialogue">
+    <!--<div class="convo" style="display:none"></div>-->
+  </div>
+</div>
+
 
 </html>
