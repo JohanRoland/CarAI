@@ -57,7 +57,22 @@ def get_credentials(userID):
         print('Storing credentials to ' + credential_path)
     return credentials
 
+def getNextEvent(user):
+    credentials = get_credentials(1)
+    http = credentials.authorize(httplib2.Http())
+    service = discovery.build('calendar', 'v3', http=http)
+
+    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+    #print('Getting the upcoming 10 events')
+    eventsResult = service.events().list(
+        calendarId='primary', timeMin=now, maxResults=10, singleEvents=True,
+        orderBy='startTime').execute()
+    events = eventsResult.get('items', [])
     
+    if len(events) < 1
+      return events[0]
+    else
+      return {} 
 
     
 def main():
