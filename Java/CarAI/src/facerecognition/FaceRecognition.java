@@ -27,6 +27,7 @@ import org.opencv.face.*;
 
 import com.google.gson.*;
 
+import user.User;
 import utils.JSONCAR;
 
 @SuppressWarnings("unused")
@@ -44,6 +45,7 @@ public class FaceRecognition
     HashMap<Integer,Person> pers; 
     CarView cv;
     String pathToProj; 
+    int counter = 0; 
     
     public FaceRecognition() {
     	System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -61,7 +63,7 @@ public class FaceRecognition
 	    
 	    pers = new HashMap<Integer,Person>();
 	    
-	    Csv cs = loadCsv(pathToProj+"\\test.csv");
+	    Csv cs =  loadCsv2();//loadCsv(pathToProj+"\\test.csv");
 	    
 	    imWidht =  cs.getImgs().get(0).width();
 	    imHeight =  cs.getImgs().get(0).height();
@@ -110,6 +112,7 @@ public class FaceRecognition
     {
     	CarView c = new CarView();
     	VideoCapture vc = new VideoCapture(0);
+    	deleteTemp(); 
 	    if (vc.isOpened())
 	    {
 	    	ArrayList<String> d = new ArrayList<String>();
@@ -122,6 +125,7 @@ public class FaceRecognition
 	    	ArrayList<String> b1c = new ArrayList<String>();
 	    	for(int i = 0; i < 10; i++)
 	    	{
+	    		counter = i;
 	    		vc.read(frame);
 	    		if(!frame.empty())
 	    		{
@@ -293,6 +297,7 @@ public class FaceRecognition
     		FaceImage = face_resized;
     		int[] pred = new int[1];
     		double[] conf = new double[1]; 
+    		
     		fr.predict(face_resized, pred, conf);
     		
     		String nameString;
@@ -307,7 +312,10 @@ public class FaceRecognition
 			Imgproc.putText(frame, textBox, new Point(pos_x,pos_y), 0, 1.0, new Scalar(0,255,0));
 			
 			cv.parsePerson(nameString, new DecimalFormat("#.##").format(conf[0]), center, new Point(frame.cols()/2,frame.rows()/2));
-		
+			
+			String tempPath = pathToProj + "\\temp\\"+cv.getPos(center, new Point(frame.cols()/2,frame.rows()/2))+"\\t"+counter+".jpg";
+			Imgcodecs.imwrite(tempPath,face_resized); 
+			
     		
     	}
     	if(window)
@@ -426,6 +434,46 @@ public class FaceRecognition
     	return new Csv(imgs,labels);
     }
     
+    public Csv loadCsv2()
+    {
+    	ArrayList<Mat> imgs = new ArrayList<Mat>();
+    	ArrayList<Integer> labels = new ArrayList<Integer>();
+    	
+    	try{
+    		
+    		ArrayList<String> ls = new ArrayList<String>();
+			User.getAllUserImgs(pathToProj+"//data//", ls);
+			
+    		for(String l : ls)
+    		{
+    			File f = new File(l);
+				int label = Integer.parseInt(f.getParentFile().getName());
+				
+				if(pers.size()-1 < label)
+				{
+					
+					String[] spaht = f.getAbsolutePath().split(Pattern.quote(File.separator));
+					String name = spaht[spaht.length-2];
+					pers.put(label, new Person(label,name));
+				}
+
+				pers.get(label).addImage(f.getAbsolutePath());
+						
+				imgs.add(Imgcodecs.imread(f.getAbsolutePath(),0)); 
+				labels.add(label);
+    			
+    		}
+    	}
+    	catch(Exception e)
+    	{
+    		System.out.println("Error reading Csv File");
+    		System.out.println(e.toString());
+    		System.exit(-1);
+    	}
+    	
+    	return new Csv(imgs,labels);
+    }
+    
     /**
      * Writes a hashmap of persons to the CSV file
      * @param ps Hashmap of persons
@@ -462,6 +510,19 @@ public class FaceRecognition
     private double distance(Point p1, Point p2)
     {
     	return Math.sqrt(Math.pow(p2.x-p1.x,2)+Math.pow(p2.y-p1.y,2));
+    }
+    
+    private void deleteTemp()
+    {
+    	File f = new File(pathToProj+"\\temp\\Driver");
+    	File f1 = new File(pathToProj+"\\temp\\Passenger");
+    	File f2 = new File(pathToProj+"\\temp\\Backseat0");
+    	File f3 = new File(pathToProj+"\\temp\\Backseat1");
+    	
+    	for(File file: f.listFiles()) file.delete();
+    	for(File file: f1.listFiles()) file.delete();
+    	for(File file: f2.listFiles()) file.delete();
+    	for(File file: f3.listFiles()) file.delete();
     }
     
     /**
@@ -624,6 +685,33 @@ public class FaceRecognition
     				emptyName(name);
     				String[] temp ={name,conf} ;
     				internal[BACKSEAT1] = temp;
+    			}
+    		}
+    	}
+    	
+    	
+    	public String getPos(Point p,Point imgCenter)
+    	{
+    		if(p.x > imgCenter.x)
+    		{
+    			if(p.y > imgCenter.y)
+    			{
+    				return "Driver";
+    			}
+    			else
+    			{
+    				return "Backseat0";
+    			}
+    		}
+    		else
+    		{
+    			if(p.y > imgCenter.y)
+    			{
+    				return "Passenger";
+    			}
+    			else
+    			{
+    				return "Backseat1";
     			}
     		}
     	}

@@ -14,15 +14,15 @@ CONTACT_NUMBERS = {
     }
 
 LOCATIONS = {
-  "HOME": ("57.533704","11.931163"),
-  "WORK": ("57.696998","11.975205"),
+	"HOME": ("57.533704","11.931163"),
+	"WORK": ("57.696998","11.975205"),
 }
 
 USERS = {
   "" : "",
   "0" : "Unknown",
-  "1" : "William",
-  "2" : "Johan",
+	"1" : "William",
+	"2" : "Johan",
 }
 
 
@@ -47,7 +47,7 @@ class State:
     self.INITED = False
     self.usersDic = getAllUsers()
 
-  global CARSTATE   
+  global CARSTATE	  
   CARSTATE = { 
     "DRIVER": ("",1),
     "PASSENGER": ("",1),
@@ -86,7 +86,7 @@ class State:
   def getCarstate(self):
     return CARSTATE
 
-# returns a list of all new users
+#	returns a list of all new users
   def importFromJSON(self,js_string):
     parsed_json = json.loads(js_string,parse_float=Decimal)
     for seat in CARSTATE.keys():

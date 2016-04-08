@@ -1,6 +1,11 @@
 package user;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import serverConnection.ServerConnection;
 /**
@@ -13,23 +18,40 @@ import serverConnection.ServerConnection;
  */
 public class User {
 
+	static HashMap<Integer,User> instances;
+	
 	//User variables
 	private int userID;
 	String userName;
-	
+	ArrayList<String> imgPaths;
+	String imgPath;
 	//Database related
-	ServerConnection sc;
+	static ServerConnection sc;
 	
-	public User(String id)
+	private User(int id)
 	{
 		sc = ServerConnection.getInstance();
-		if(!id.equals("") && !id.equals("0"))
+		
+		if(id != -1 && id != 0)
 		{
-			//userID = 1;
-			//userName = "William";
-			importFromDB(id);
+			importFromDB(""+id);
+
+			
+			//   ADD THE IMAGE MATCHING IMAGES
+			imgPaths = new ArrayList<String>(); 
+			File f = new File(".");
+			String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
+			imgPath = pathToProj + "\\data\\" + id;
+			File folder = new File(imgPath);
+			File[] imgs = folder.listFiles(new FilenameFilter() {@Override public boolean accept(File dir,String name){return name.endsWith(".jpg");}});
+			for(File file : imgs)
+			{
+				imgPaths.add(file.getAbsolutePath());
+			}
+			// END ADDING IMAGE MATCHING
+			
 		}
-		else if (id.equals("0"))
+		else if (id == 0)
 		{
 			userID = 0;
 			userName = "Unknown";
@@ -38,6 +60,40 @@ public class User {
 		{
 			userID = -1;
 			userName = "Empty";
+		}
+	}
+	
+	
+	public static User getInstance(int id)
+	{
+		if(instances == null)
+		{
+			instances = new HashMap<Integer,User>();
+		}
+		if(!instances.containsKey(id))
+		{
+			instances.put(id, new User(id));
+		}
+		return instances.get(id);
+	}
+	
+	public static void getAllUserImgs(String dirName,ArrayList<String> files )
+	{
+		File directory = new File(dirName);
+		File[] fList = directory.listFiles();
+		for(File file : fList)
+		{
+			if(file.isFile())
+			{
+				if(file.getAbsolutePath().endsWith(".jpg"));
+				{
+					files.add(file.getAbsolutePath());
+				}
+			}
+			else if(file.isDirectory())
+			{
+				getAllUserImgs(file.getAbsolutePath(),files);
+			}
 		}
 	}
 	
@@ -54,6 +110,25 @@ public class User {
 	public boolean userExists()
 	{
 		return (userID >0);
+	}
+	
+	public ArrayList<String> getImgPath()
+	{
+		return imgPaths;
+	}
+	
+	/**
+	 * Export as String parsed for being added to a csv file
+	 * @return 
+	 */
+	public String exportToCsv()
+	{
+		String exp = "";
+		for(String i : imgPaths)
+		{
+			exp = exp + i +";" + userID + "\n";
+		}
+		return exp;
 	}
 	
 	private boolean querryUser()

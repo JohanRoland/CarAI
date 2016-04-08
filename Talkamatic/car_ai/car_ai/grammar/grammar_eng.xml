@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<grammar>
+  <greeting>Booting System</greeting>
+  <action name="top">main menu</action>
+  <action name="up">go back</action>
+	
+	<question speaker="user" predicate="phone_number_of_contact" type="wh_question">
+	<one-of>
+		<item>tell me a phone number</item>
+		<item>the phone number</item>
+		<item>what is <slot sort="contact"/> 's number</item>
+		<item>tell me <slot sort="contact"/> 's number</item>
+	</one-of>
+	</question>
+  <question speaker="all" predicate="phone_number_of_contact" type="wh_question">
+    the phone number of a contact
+  </question>
+	<question speaker="system" predicate="selected_contact" type="wh_question">whose number</question>
+	<answer speaker="system" predicate="phone_number_of_contact">
+    <slot type="individual" predicate="selected_contact"/>'s number is <slot type="individual" predicate="phone_number_of_contact"/>
+  </answer>  
+	
+	<action name="call">
+    <one-of>
+      <item>call</item>
+      <item>call <slot sort="contact"/></item>
+    </one-of>
+  </action>
+  <question speaker="system" predicate="selected_contact" type="wh_question">who do you want to call</question>
+  <report action="Call" status="ended">calling <slot predicate="selected_contact"/>.</report>  
+	<validity name="PhoneNumberAvailable">
+    <slot type="individual" predicate="selected_contact"/> has no phone number.
+  </validity>
+
+	<question speaker="user" predicate="user_name" type="wh_question">
+		<one-of>
+			<item>whoami</item>
+		</one-of>
+	</question>
+	<question speaker="all" predicate="user_name" type="wh_question">
+    who are you
+  </question>
+	<answer speaker="system" predicate="user_name">
+    You are <slot predicate="user_name"/>
+  </answer>  
+
+	<question speaker="user" predicate="incar" type="wh_question">
+		who is here
+	</question>
+    <question speaker="all" predicate="incar" type="wh_question">
+    who are in the car
+  </question> 
+	<answer speaker="system" predicate="incar">
+    The people in the car are <slot type="individual" predicate="incar"/>
+  </answer>
+	<validity name="incarValidator">
+    No one is detected in the car
+  </validity>
+<!--<report action="greet" status="ended">Hello <slot predicate="user_name"/>.</report>-->
+	<!--<action name="whoami">whoami</action>
+	<question speaker="all" predicate="user_name" type="wh_question">
+    But who are you then
+  </question>	-->
+
+<!--            SEAT VERIFICATION                  -->
+
+<!--   DRIVER  -->
+  <question speaker="user" predicate="seat0" type="wh_question">
+    seat0
+  </question>
+  <question speaker="all" predicate="seat0" type="wh_question">
+    who is the driver
+  </question>
+  <answer speaker="system" predicate="seat0">
+    ok setting the driver to <slot type="individual" predicate="seat0"/>
+  </answer>
+<!--   PASSENGER  -->
+  <question speaker="user" predicate="seat1" type="wh_question">
+    sits in the passenger seat
+  </question>
+  <question speaker="all" predicate="seat1" type="wh_question">
+    who is in the passenger seat
+  </question>
+  <answer speaker="system" predicate="seat1">
+    ok setting the passenger to <slot type="individual" predicate="seat1"/>
+  </answer>
+
+<!--  LEFT Backseat  -->
+  <question speaker="user" predicate="seat2" type="wh_question">
+    sits in the left backseat
+  </question>
+  <question speaker="all" predicate="seat2" type="wh_question">
+    who is in the left backseat
+  </question>
+  <answer speaker="system" predicate="seat2">
+    ok setting the left backseat to <slot type="individual" predicate="seat2"/>
+  </answer>
+
+<!--  RIGHT Backseat  -->
+  <question speaker="user" predicate="seat3" type="wh_question">
+    sits in the right backseat
+  </question>
+  <question speaker="all" predicate="seat3" type="wh_question">
+    who is in the right backseat
+  </question>
+  <answer speaker="system" predicate="seat3">
+    ok setting the right backseat to <slot type="individual" predicate="seat3"/>
+  </answer>
+<!--           END SEAT VERIFICATION                  -->
+
+
+<!--                    GPS                           -->
+<!-- Loc -->
+  <question speaker="user" predicate="gpsdata" type="wh_question">
+    Where are we
+  </question>
+  <question speaker="all" predicate="gpsdata" type="wh_question">
+    the gps location
+  </question>
+  <answer speaker="system" predicate="gpsdata">
+    We are at <slot type="individual" predicate="gpsdata"/>
+  </answer>
+<!-- Dest -->
+	<question speaker="user" predicate="destdata" type="wh_question">
+		Where are we going
+	</question>
+    <question speaker="all" predicate="destdata" type="wh_question">
+    the destination
+  </question> 
+	<answer speaker="system" predicate="destdata">
+    We are going to <slot type="individual" predicate="destdata"/>
+  </answer>
+  
+<!-- Time to det -->
+
+	<question speaker="user" predicate="timetodest" type="wh_question">
+		<one-of>
+      <item>When will we arrive</item>
+      <item>eta</item>
+    </one-of>
+	</question>
+    <question speaker="all" predicate="timetodest" type="wh_question">
+    time to arrival
+  </question> 
+	<answer speaker="system" predicate="timetodest">
+    We will be there in  <slot type="individual" predicate="timetodest"/>
+  </answer>
+
+<!--            END GPS                           -->
+
+  <action name="greetUser">greet</action>
+  <report action="greetUser" status="started">-</report>
+  <report action="GreetUser" status="ended">Hello <slot type="individual" predicate="incar"/>, give me a second to get your data.</report>
+
+  <action name="setDest">setdest</action>
+  <report action="setDest" status="started">-</report>
+  <report action="SetDest" status="ended">Setting destination to <slot type="individual" predicate="destdata"/>. Planned to arrive in <slot type="individual" predicate="timetodest"/>.</report>
+  
+
+  <action name="navigate">
+		<one-of>
+			<item>navigation</item>
+			<item>navigate to <slot sort="locs"/></item>
+		</one-of>
+	</action>
+  <report action="Navigate" status="ended">Destination set to <slot predicate="location"/>.</report>
+	<question speaker="system" predicate="location" type="wh_question">To what location</question>
+
+	<action name="setTemp">
+		<one-of>
+			<item>set temp to <slot sort="real"/></item>			
+			<item>set ac</item>
+		</one-of>
+	</action>
+	<report action="SetTemp" status="ended">Setting temperature to <slot predicate="temperature"/> degrees.</report>
+	<question speaker="system" predicate="temperature" type="wh_question">How many degrees</question>	
+</grammar>
