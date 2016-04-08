@@ -181,11 +181,11 @@ public class PointsPlotter extends JFrame {
 						
 						break;
 					case 6:
-						//data.importFromDB(1, 600000);//
+						data.importFromDB(1, 600000);//
 						//data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\OlofLoc.kml",0);
-						data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
+						//data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
 						//data.importFromFile();
-						data.coordCullByBox(57.34, 11, 1 , 4);
+						//data.coordCullByBox(57.34, 11, 1 , 4);
 						//data.cullByRDP();
 						data.coordCullByDist();
 						//data.coordCullByDist();

@@ -197,6 +197,16 @@ public class Main
     		{
     			Network n = new Network();
     		}
+    		else if(args[0].equals("9"))
+    		{
+    			ServerConnection s = ServerConnection.getInstance();
+    			try {
+					s.addGeoUsers("C:\\Users\\Knarkapan\\git\\CarAI\\Java\\CarAI\\data");
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+    		}
     		else
     		{
     			System.out.println("No argument provided");

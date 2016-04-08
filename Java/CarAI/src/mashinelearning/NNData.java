@@ -57,7 +57,7 @@ public class NNData
 	public NNData()
 	{
 		
-		
+		querry = new ArrayList<DatabaseLocation>();
 		output = new ArrayList<double[]>();
 		minutes = new ArrayList<Integer>();
 		hours = new ArrayList<Integer>();
@@ -155,7 +155,12 @@ public class NNData
 		
 		return temp; //tree.associateCluster(pos,0.01);
 	}
-	
+	/**
+	 * Retrieves n entries from the currently connected server corresponding to the id.
+	 * Into the NNData object
+	 * @param id
+	 * @param n
+	 */
 	public void importFromDB(int id,int n)
 	{
 		ServerConnection b = ServerConnection.getInstance();
@@ -183,30 +188,38 @@ public class NNData
 				forEach(filePath -> {
 					ArrayList<String> lines;
 					try {
-						lines = (ArrayList<String>) Files.readAllLines(filePath);
-
-						for(int i=0; i<lines.size()-1;i++)
+						if(!filePath.endsWith("labels") && filePath.toFile().isFile())
 						{
-							String[] params = lines.get(i).split(",");
-							String[] paramsN = lines.get(i+1).split(",");
+							lines = (ArrayList<String>) Files.readAllLines(filePath);
 							
-							String[] date = params[6].split("-");
-							String[] time = params[7].split(":");
 							
-							querry.add(
-										new DBQuerry
-										   (
-												   	Double.parseDouble(params[0]),
-													Double.parseDouble(params[1]),
-													Integer.parseInt(date[0]),
-													Integer.parseInt(date[1]),
-													Integer.parseInt(date[2]),
-													Integer.parseInt(time[0]),
-													Integer.parseInt(time[1]),
-													Double.parseDouble(paramsN[0]),
-													Double.parseDouble(paramsN[1])
-										   )
-									);
+							for(int i=6; i<(lines.size()-1);i++)
+							{
+								String[] params = lines.get(i).split(",");
+								String[] paramsN = lines.get(i+1).split(",");
+								
+								String[] date = params[5].split("-");
+								String[] time = params[6].split(":");
+								
+								querry.add(
+											new DBQuerry
+											   (
+													   	Double.parseDouble(params[0]),
+														Double.parseDouble(params[1]),
+														Integer.parseInt(date[0]),
+														Integer.parseInt(date[1]),
+														Integer.parseInt(date[2]),
+														Integer.parseInt(time[0]),
+														Integer.parseInt(time[1]),
+														Double.parseDouble(paramsN[0]),
+														Double.parseDouble(paramsN[1])
+											   )
+										);
+							}
+						}
+						else
+						{
+							System.out.println("found a lableFile");
 						}
 					} 
 					catch (Exception e) {

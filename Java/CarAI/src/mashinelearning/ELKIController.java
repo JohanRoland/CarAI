@@ -19,6 +19,8 @@ public class ELKIController {
 			Process p2 = rt.exec(com2);
 			p2.waitFor();
 			
+			
+			
 			System.out.println("Starting Clustering");
 			Process p = rt.exec(commands);
 			p.waitFor();

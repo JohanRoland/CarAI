@@ -1,5 +1,6 @@
 package serverConnection;
 
+import java.io.File;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,6 +15,7 @@ import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.Statement;
 
 import interfaces.DatabaseLocation;
+import mashinelearning.NNData;
 import utils.Tuple;
 /**
  * @author John Ekdahl
@@ -228,6 +230,26 @@ public class ServerConnection {
 		cs.registerOutParameter(2, Types.VARCHAR);
 		cs.executeQuery();
 		return cs.getInt(2);
+	}
+	
+	public void addGeoUsers(String path) throws SQLException
+	{
+		File dir = new File(path);
+		File[] filesAndFolders = dir.listFiles();
+		
+		for(File element: filesAndFolders)
+		{
+			if(element.isDirectory())
+			{
+				String userName = element.getName();
+				NNData user = new NNData();
+				user.parsGeoEntry(element.toString());
+				long x = addUserData(userName);
+				DBQuerry[] temp = user.getQuerry().toArray(new DBQuerry[user.getQuerry().size()]);
+				replacePosData((int)x,temp);
+			}
+		}
+		
 	}
 	
 	public ArrayList<String> getUserData(String id) throws SQLException
