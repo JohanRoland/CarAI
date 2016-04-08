@@ -175,6 +175,30 @@ public class LocPrediction {
 		
 	}
 	
+	
+	private void lern(String method)
+	{
+		if(method.equals("standard"))
+		{
+			standardLearning();
+		}else if(method.equals("custom"))
+		{
+			customLearning();
+		}else if(method.equals("hyperParam"))
+		{
+			
+		}else if(method.equals(""))
+		{
+			
+		}
+
+	}
+	
+	private void hyperParamLerning()
+	{
+		
+	}
+	
 	private void standardLearning()
 	{
 		
