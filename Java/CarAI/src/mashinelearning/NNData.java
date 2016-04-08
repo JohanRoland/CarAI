@@ -172,7 +172,7 @@ public class NNData
 			System.out.println("Error Downloading Data");
 			e.printStackTrace();
 		}
-		System.out.println("Finished downloading data");
+		System.out.println("Finished downloading data, " + querry.size() +" entires was added");
 
 	}
 
@@ -612,7 +612,7 @@ public class NNData
 			{
 				writer.write(querry.get(i).getLat()+ " " + querry.get(i).getLon() + " " + querry.get(i).getDayOfWeek() +" " + (querry.get(i).getHTime()*60+querry.get(i).getMTime()) + " " 
 						+ querry.get(i).getNLat() + " " + querry.get(i).getNLon() + "\n");
-				
+
 			}
 			writer.close();
 		}catch(Exception e)

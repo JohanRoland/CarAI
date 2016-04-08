@@ -181,7 +181,7 @@ public class PointsPlotter extends JFrame {
 						
 						break;
 					case 6:
-						data.importFromDB(1, 600000);//
+						data.importFromDB(10, 60000);//
 						//data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\OlofLoc.kml",0);
 						//data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
 						//data.importFromFile();
@@ -197,7 +197,7 @@ public class PointsPlotter extends JFrame {
 						points =  data.getQuerry();
 						if(true)
 						{
-							data.exportAsCoordsToCSV();
+							//data.exportAsCoordsToCSV();
 							
 							File f2 = new File(".");
 							String pathToProj2 = f2.getAbsolutePath().substring(0, f2.getAbsolutePath().length()-2);
