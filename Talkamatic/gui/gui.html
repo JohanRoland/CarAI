@@ -81,6 +81,12 @@
   function cancel() {
     ws.send("[{\"InputFromGui\":{\"type\":\"key\",\"name\":\"cancel\",\"value\":\"cancel\",\"title\":\"text\"}}]") 
   }
+
+  function getLoc()
+  {
+    printMsg("Where are we?")
+    sendListToTDM('ask(?X.gpsdata(X))')
+  }
   
   $(function() {
    $("#iform").submit(function(e) {
@@ -97,9 +103,10 @@
     <button onclick="connect()">Connect</button>
     <button onclick="disconnect()">DC</button>
     <button onclick="cancel()">Cancel</button>
-    <button onclick="sendListToTDM('ask(?X.gpsdata(X))')">Where Are We?</button>
+    <br/>
+    <button onclick="getLoc()">Where Are We?</button>
   </div>
-  <div class="inputbox">
+  <div class="inputbox" style="display:none;">
     <form id="iform" name="inform">
       <input type="text" name="in">
       <input type="submit" value="Submit">
