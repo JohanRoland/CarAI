@@ -31,11 +31,11 @@ class CaraiDevice(DddDevice):
         def perform(self):
             out = []
             for con in CONTACT_NUMBERS.keys():
-              out.append(con)
-            number_entity = {
-                "grammar_entry": out
-            }
-            return [number_entity]
+                number_entity = {
+                    "grammar_entry": con
+                }
+                out.append(number_entity)
+            return out
     class ContactRecognizer(EntityRecognizer):
         def recognize_entity(self, string):
             result = []

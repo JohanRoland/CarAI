@@ -28,24 +28,48 @@
           {
             for(var j in msg[i].Popup.elements[0].Element.items)
             {
-              if(msg[i].Popup.elements[0].Element.items[j].Item.title != null)
-              {
-                extra = "<p>"+msg[i].Popup.elements[0].Element.items[j].Item.title+"</p>"
-              }
+              extra += parseElement( msg[i].Popup.elements[0].Element.items[j]);
             }
           }
           $(".dialogue").prepend("<div class=\"convo\"><p>"+m+"</p>"+extra+"</div>");
+        }
+        if("Screen" in msg[i])
+        {
+          extra = "";
+          m = msg[i].Screen.title;
+          if(msg[i].Screen.elements.length >0)
+          {
+            for(var j in msg[i].Screen.elements[0].Element.items)
+            {
+              extra += parseElement( msg[i].Screen.elements[0].Element.items[j]);
+            }
+          }
+          $(".dialogue").prepend("<div class=\"convo\"><p>"+m+"</p>"+extra+"</div>");
+          
         }
       }
     }
   };
   
+  function parseElement(e)
+  {
+      if(e.Item.title != null)
+      {
+        return  "<button onclick=\"sendListToTDM('"+e.Item.value+"')\">"+e.Item.title+"</button>";
+      }
+    
+  }
+
   function printMsg(s) {
     $(".dialogue").prepend("<div class=\"convo2\"><p>"+s+"</p></div>") 
   }
 
   function sendToTDM(m) {
     ws.send("[{\"InputFromGui\":{\"type\":\"text\",\"name\":\"text\",\"value\":\""+m+"\",\"title\":\"text\"}}]")
+  };
+
+  function sendListToTDM(m) {
+    ws.send("[{\"InputFromGui\":{\"type\":\"list\",\"name\":\"move\",\"value\":\""+m+"\",\"title\":\"text\"}}]")
   };
   function connect()
   {
@@ -58,10 +82,6 @@
     ws.send("[{\"InputFromGui\":{\"type\":\"key\",\"name\":\"cancel\",\"value\":\"cancel\",\"title\":\"text\"}}]") 
   }
   
-  function getLoc()
-  {
-    //ws.send("[{\"WHQuery" ]")
-  };
   $(function() {
    $("#iform").submit(function(e) {
       e.preventDefault();   
@@ -77,7 +97,7 @@
     <button onclick="connect()">Connect</button>
     <button onclick="disconnect()">DC</button>
     <button onclick="cancel()">Cancel</button>
-    <button onclick="getLoc()">Where Are We?</button>
+    <button onclick="sendListToTDM('ask(?X.gpsdata(X))')">Where Are We?</button>
   </div>
   <div class="inputbox">
     <form id="iform" name="inform">

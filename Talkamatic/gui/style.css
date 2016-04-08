@@ -15,7 +15,7 @@ body {
   border-radius: 25px;
   border: 2px solid #73AD21;
   padding: 25px; 
-  width: 260px;
+  width: 50%;
   height: 75px;
   float:left;  
 }
@@ -25,7 +25,7 @@ body {
   border-radius: 25px;
   border: 2px solid #73AD21;
   padding: 25px; 
-  width: 260px;
+  width: 50%;
   height: 75px;
   float:right;
   text-align:right;  
