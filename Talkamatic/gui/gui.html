@@ -1,10 +1,13 @@
-<html>
-<head>
+
+<!-- saved from url=(0050)file:///home/jstrike/CarAI/Talkamatic/gui/gui.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
 <link rel="stylesheet" type="text/css" href="style.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-</head>
+<script src="./gui_files/jquery.min.js"></script>
+<script src="./gui_files/mqtt.js"></script>
 <script>
-  var ws = new WebSocket("ws://192.168.1.46:8888/tdm_gui");
+  var ws = new WebSocket("ws://localhost:8888/tdm_gui");  
+  var nrws = new WebSocket("ws://192.168.1.130:1880/gui");
+
   /*ws.onopen = function() {
     ws.send("Hello, world");
   };*/
@@ -71,6 +74,34 @@
   function sendListToTDM(m) {
     ws.send("[{\"InputFromGui\":{\"type\":\"list\",\"name\":\"move\",\"value\":\""+m+"\",\"title\":\"text\"}}]")
   };
+
+
+  function sendUtteranceToTDM(m) {
+    waitForSocketConnection(nrws,function() {
+    console.log("sent message");
+    nrws.send(m);
+    });
+    
+    //ws.send("[{\"content\":[{\"score\":1,\"utterance\":\"Flingor\"}],\"event_type\":\"RECOGNITION\",\"_sender\":\"Frontend\",\"_reason\":null}]");
+  };
+  function waitForSocketConnection(socket, callback){
+    setTimeout(
+        function () {
+            if (socket.readyState === 1) {
+                console.log("Connection is made")
+                if(callback != null){
+                    callback();
+                }
+                return;
+
+            } else {
+                console.log("wait for connection...")
+                waitForSocketConnection(socket, callback);
+            }
+
+        }, 5); // wait 5 milisecond for the connection...
+  }
+
   function connect()
   {
     ws = new WebSocket("ws://localhost:8888/tdm_gui");
@@ -93,20 +124,25 @@
       e.preventDefault();   
       var s = document.forms["inform"]["in"].value;
       printMsg(s);
+      sendUtteranceToTDM(s);
       document.forms["inform"]["in"].value = "";
     }); 
   });
-</script>
-  <div class="container">
+</script></head>
+
+  <body><div class="container">
   <h1 class="sheader">CARAI</h1>
   <div class="buttons">
     <button onclick="connect()">Connect</button>
     <button onclick="disconnect()">DC</button>
     <button onclick="cancel()">Cancel</button>
-    <br/>
+    <br>
     <button onclick="getLoc()">Where Are We?</button>
   </div>
-  <div class="inputbox" style="display:none;">
+  <div class="ptt">
+    <button id="pttbutton">PUSH TO TALK</button> 
+  </div>
+  <div class="inputbox">
     <form id="iform" name="inform">
       <input type="text" name="in">
       <input type="submit" value="Submit">
@@ -118,4 +154,5 @@
 </div>
 
 
-</html>
+
+</body></html>

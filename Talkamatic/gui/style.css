@@ -30,3 +30,17 @@ body {
   float:right;
   text-align:right;  
 }
+
+.ppt {
+  width:100%;
+  text-align:center;
+}
+
+#pttbutton {
+  width: 100px;
+  height:40px;
+  margin: 0px -50px;
+  position:relative;
+  top:50%;
+  left:50%;
+}
