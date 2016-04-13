@@ -68,11 +68,14 @@ public class NNData
 		nrCluster = 0;
 	}
 	
-	public int getNrCluster()
-	{
-		return nrCluster;
-	}
-
+	public int getNrCluster(){return nrCluster;}
+	public ArrayList<Integer> getMinutes(){return minutes;}
+	public ArrayList<Integer> getHours(){return hours;}
+	public ArrayList<Integer> getDays(){return days;}
+	public ArrayList<Integer> getInputClust(){return inputClust;}
+	public ArrayList<double[]> getOutput(){return output;}
+	public ArrayList<Integer> getOutputClust(){return outputClust;}
+	public ArrayList<Tuple<Double,Double>> getMeans(){return means;}
 	double[] normFromQToIn()
 	{
 		ArrayList<double[]> tempInput = new ArrayList<double[]>();
@@ -388,24 +391,6 @@ public class NNData
 		
 	}
 	
-	/*
-	public void exportToNN(double[][] in,double[][] out)
-	{
-		double[][] parsedInData = new double[input.size()][];
-		for(int i = 0; i < input.size(); i++)
-		{
-			parsedInData[i] = input.get(i);
-		}
-		double[][] parsedOutData = new double[output.size()][];
-		for(int i = 0; i < output.size(); i++)
-		{
-			parsedOutData[i] = output.get(i);
-		}
-		out = parsedOutData;
-		in = parsedInData; 
-		
-	}*/
-	
 	public ArrayList<ArrayList<DatabaseLocation>> importFromElkiClustering(String path)
 	{
 		ArrayList<ArrayList<DatabaseLocation>> output = new ArrayList<ArrayList<DatabaseLocation>>(); 
@@ -449,106 +434,108 @@ public class NNData
 		{
 			output.add(new ArrayList<DatabaseLocation>());
 		}
-		
+		int fuckuedUpCounter=0; // temporary bug hunter
 		for(DatabaseLocation dl : querry)
 		{
-			int clustId = clusterMap.get(new Tuple<Double,Double>(dl.getLat(),dl.getLon()));
-			output.get(clustId).add(dl);
+			if(clusterMap.containsKey(new Tuple<Double,Double>(dl.getLat(),dl.getLon())))
+			{
+				int clustId = clusterMap.get(new Tuple<Double,Double>(dl.getLat(),dl.getLon()));//39.984441 116.321692
+				output.get(clustId).add(dl);
+			}
+			else
+			{	
+				fuckuedUpCounter++;
+			}
 		}
 		
-		return output;
-
+		if(fuckuedUpCounter == querry.size())
+		{
+			new Error("Badness");
+		}
 		
+		ArrayList<DatabaseLocation> empty = new ArrayList<DatabaseLocation>();
+		empty.clear();
+		ArrayList<ArrayList<DatabaseLocation>> emptyList = new ArrayList<ArrayList<DatabaseLocation>>();
+		emptyList.add(empty);
+		output.removeAll(emptyList);
+		return output;	
 	}
 
 	/**
-	 * 	Runs DBSCAN on the imported data 
-	 * 
-	 * @param n Amounts of datapoints to be sampled
+	 * Imports clusters formated as Elki does and updates
+	 * hours, minutes, days, outputClust, inputClust accordingly 
+	 * Lastly the list of list of DBLocations is returned
+	 * @return 
 	 */
-	public void exportAsClustToCSV()
+	public ArrayList<ArrayList<DatabaseLocation>> impElkAndReroutFromNoise(String path)
 	{
-		//tree = new DBSCAN(querry, true);	
+		ArrayList<ArrayList<DatabaseLocation>> possitionsByClusters = importFromElkiClustering(path);
+		ArrayList<ArrayList<DatabaseLocation>> output = new ArrayList<ArrayList<DatabaseLocation>>();
 		
-		//int temp = tree.cluster(0.01, 2);
-		//querry =  importFromFile();
-		//exportAsCoordsToCSV();
-		//PYDBSCAN py = new PYDBSCAN();
-		
-		File f = new File(".");
-		String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
-    	
-		
-		ArrayList<ArrayList<DatabaseLocation>> temp2 = importFromElkiClustering(pathToProj+"\\ELKIClusters\\"); //py.runDBSCAN(querry, 0.001, 20, n); //tree.getClusterd(true);
-		System.out.println("Done Getting Cluster");
-		HashMap<Tuple<Double,Double>,Tuple<Double,Double>> hs = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
+		HashMap<Tuple<Double,Double>,Tuple<Double,Double>> coordsToMean = new HashMap<Tuple<Double,Double>,Tuple<Double,Double>>();
 		HashMap<Tuple<Double,Double>,Integer> clust = new HashMap<Tuple<Double,Double>,Integer>();
-		HashMap<Tuple<Double,Double>,DatabaseLocation> posToLoc = new HashMap<Tuple<Double,Double>,DatabaseLocation>();
-		nrCluster = temp2.size();
-		
-		
-		for(DatabaseLocation dbl : temp2.get(0))
+		HashMap<Tuple<Double,Double>,DatabaseLocation> posToOutliers = new HashMap<Tuple<Double,Double>,DatabaseLocation>();
+		nrCluster = possitionsByClusters.size();
+
+		hours = new ArrayList<Integer>();
+		minutes = new ArrayList<Integer>();
+		days = new ArrayList<Integer>();
+		outputClust = new ArrayList<Integer>();
+		inputClust = new ArrayList<Integer>();
+
+		System.out.println("Done Getting Cluster");
+
+		for(DatabaseLocation dbl : possitionsByClusters.get(0))
 		{
 			Tuple<Double,Double> d = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
-			hs.put(d, d);
+			coordsToMean.put(d, d);
 			clust.put(d, 0);
-			posToLoc.put(d, dbl);
+			posToOutliers.put(d, dbl);
 		}
-		for(int i = 1; i < temp2.size();i++)
-		{
+		for(int i = 1; i < possitionsByClusters.size();i++)
+		{	
+			Tuple<Double,Double> mean = Utils.mean(possitionsByClusters.get(i));
+			if(mean.fst().isNaN())
+			{	
+				int j=0;
+				j++;
 			
-			Tuple<Double,Double> mean = Utils.mean(temp2.get(i));
+			}
 			means.add(mean);
 			viewClustPos.put(i, mean);
-			for(DatabaseLocation dbl : temp2.get(i))
+			for(DatabaseLocation dbl : possitionsByClusters.get(i))
 			{
 				Tuple<Double,Double> coord = new Tuple<Double,Double>(dbl.getLat(),dbl.getLon());
-				hs.put(coord,mean);
+				coordsToMean.put(coord,mean);
+				
 			}
 			clust.put(mean, i);
-			
 		}
 		
 		System.out.println("Done first Data Iteration");
 		
-		hours = new ArrayList<Integer>();
-		minutes = new ArrayList<Integer>();
-		days = new ArrayList<Integer>();
 		
-		for(int i = 1; i < temp2.size(); i++)
+		for(int i = 1; i < possitionsByClusters.size(); i++)
 		{
-			for(int j = 0; j < temp2.get(i).size(); j++)
+			for(int j = 0; j < possitionsByClusters.get(i).size(); j++)
 			{
-				double[] pos = {temp2.get(i).get(j).getLat(),temp2.get(i).get(j).getLon()};
-				double[] dest = {temp2.get(i).get(j).getNLat(),temp2.get(i).get(j).getNLon()};
-				Tuple<Double,Double> dst = findNextCluster( new Tuple<Double,Double>(temp2.get(i).get(j).getNLat(),temp2.get(i).get(j).getNLon()),posToLoc);
-				int test = getClosestCluster(dst);
+				double[] pos = {possitionsByClusters.get(i).get(j).getLat(),possitionsByClusters.get(i).get(j).getLon()};
+				double[] dest = {possitionsByClusters.get(i).get(j).getNLat(),possitionsByClusters.get(i).get(j).getNLon()};
+				Tuple<Double,Double> destination = findNextCluster( new Tuple<Double,Double>(possitionsByClusters.get(i).get(j).getNLat(),possitionsByClusters.get(i).get(j).getNLon()),posToOutliers);
+				int nextCluster = getClosestCluster(destination);
 				
-				Tuple<Double,Double> meanDst = viewClustPos.get(test);// hs.get(dst);
+				Tuple<Double,Double> meanDst = viewClustPos.get(nextCluster);// coordsToMean.get(dst);
 				
 				if(meanDst == null)
 				{
-					System.out.println("mean was null for" + dst);
+					System.out.println("mean was null for" + destination);
 				}
-				/*
-					
-				if(i == 0)
-				{
-					input.add(pos);
-					 
-					dest[0] = meanDst.fst();
-					dest[1] = meanDst.snd();
-					output.add(dest);
-					hours.add(temp2[i].get(j).getHTime());
-					minutes.add(temp2[i].get(j).getMTime());
-				}
-					*/
 				
 				if(clust.get(meanDst) != i)
 				{
-					Tuple<Double,Double> coord = new Tuple<Double,Double>(temp2.get(i).get(j).getLat(),temp2.get(i).get(j).getLon());
-					pos[0] = hs.get(coord).fst();
-					pos[1] = hs.get(coord).snd();
+					Tuple<Double,Double> coord = new Tuple<Double,Double>(possitionsByClusters.get(i).get(j).getLat(),possitionsByClusters.get(i).get(j).getLon());
+					pos[0] = coordsToMean.get(coord).fst();
+					pos[1] = coordsToMean.get(coord).snd();
 					
 					
 					inputClust.add(i);
@@ -557,26 +544,78 @@ public class NNData
 					dest[1] = meanDst.snd();
 					
 					
-					hours.add(temp2.get(i).get(j).getHTime());
-					minutes.add(temp2.get(i).get(j).getMTime());
-					days.add(temp2.get(i).get(j).getDayOfWeek());
+					hours.add(possitionsByClusters.get(i).get(j).getHTime());
+					minutes.add(possitionsByClusters.get(i).get(j).getMTime());
+					days.add(possitionsByClusters.get(i).get(j).getDayOfWeek());
 					outputClust.add(clust.get(meanDst));
-					//querry.add(new DBQuerry(pos[0], pos[1], temp2.get(i).get(j).getHTime(), temp2.get(i).get(j).getMTime(), dest[0], dest[1]));
+				}
+				else
+				{
+					//System.out.println("Path has been removed as it connected to itself: " + i);
 				}
 				
 			}
 		}
 		System.out.println("Done Formatting datastructure");
+		return possitionsByClusters;
+	}
+	
+	/**
+	 * 	Runs DBSCAN on the imported data 
+	 * 
+	 * @param n Amounts of datapoints to be sampled
+	 */
+	public void exportAsClustToCSV()
+	{
+		File f = new File(".");
+		String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
+		impElkAndReroutFromNoise(pathToProj+"\\ELKIClusters\\");
 		
 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
 		{
 			for(int i = 0; i < inputClust.size();i++)
 			{
-				/*writer.write(input.get(i)[1] + " " + input.get(i)[0] + " " + hours.get(i) + " " + minutes.get(i) + " " 
-						+ output.get(i)[1] + " " + output.get(i)[0] + "\n");*/
-				//for(int noise = -5 ; noise < 5; noise++)
-					writer.write(inputClust.get(i) + " "+ days.get(i) + " " + (hours.get(i) * 60 + minutes.get(i)) + " " 
-						+ outputClust.get(i) + "\n");
+				writer.write(inputClust.get(i) + " "+ days.get(i) + " " + (hours.get(i) * 60 + minutes.get(i)) + " " 
+					+ outputClust.get(i) + "\n");
+			}
+		}catch(Exception e)
+		{
+			System.out.println("Error on creating csv file");
+			e.printStackTrace();
+		}
+		
+	}
+	public void exportAsClustToCSVWithHyperTwo()
+	{
+		
+		File f = new File(".");
+		String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
+		impElkAndReroutFromNoise(pathToProj+"\\ELKIClusters\\");
+		
+		int tempFirstInputClust=0, tempSecondInputClust=0, tempFirstOutputClust=0, tempSecondOutputClust=0;
+		
+		
+		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
+		{
+			for(int i = 0; i < inputClust.size();i++)
+			{
+				if(inputClust.get(i)!=0 && outputClust.get(i)!=0)
+				{
+					tempSecondInputClust  = inputClust.get(i);
+					tempSecondOutputClust = outputClust.get(i);
+					if(tempSecondInputClust==tempFirstInputClust && tempFirstInputClust!=0)
+					{
+						writer.write(tempFirstOutputClust + " " + tempSecondInputClust /*+" "+ days.get(i) */+" " + (hours.get(i) * 60 + minutes.get(i)) + " " 
+								+ tempSecondOutputClust + "\n");
+					}
+					else
+					{
+						writer.write(tempSecondInputClust + " " + tempSecondInputClust /*+" "+ days.get(i) */+ " " + (hours.get(i) * 60 + minutes.get(i)) + " " 
+								+ tempSecondOutputClust + "\n");
+					}
+					tempFirstInputClust=tempSecondInputClust;
+					tempFirstOutputClust=tempSecondOutputClust;
+				}
 			}
 		}catch(Exception e)
 		{
@@ -921,8 +960,13 @@ public class NNData
 		
 	}
 	
-	
-	
+	/**
+	 * Finds the next none out-lier, put in a another way finds the next cluster.
+	 * Takes a position and returns the next cluster given a map between positions and corresponding path (DatabaseLocation)
+	 * @param pos The start position  
+	 * @param lookup The table containing start positions to idler paths
+	 * @return 
+	 */
 	public Tuple<Double,Double> findNextCluster(Tuple<Double,Double> pos, HashMap<Tuple<Double,Double>,DatabaseLocation> lookup )
 	{
 		Tuple<Double,Double> temp = pos;
