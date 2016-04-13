@@ -15,7 +15,7 @@ body {
   border-radius: 25px;
   border: 2px solid #73AD21;
   padding: 25px; 
-  width: 260px;
+  width: 50%;
   height: 75px;
   float:left;  
 }
@@ -25,8 +25,22 @@ body {
   border-radius: 25px;
   border: 2px solid #73AD21;
   padding: 25px; 
-  width: 260px;
+  width: 50%;
   height: 75px;
   float:right;
   text-align:right;  
+}
+
+.ppt {
+  width:100%;
+  text-align:center;
+}
+
+#pttbutton {
+  width: 100px;
+  height:40px;
+  margin: 0px -50px;
+  position:relative;
+  top:50%;
+  left:50%;
 }

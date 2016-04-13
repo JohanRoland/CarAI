@@ -158,3 +158,9 @@ $RECYCLE.BIN/
 
 # classpath
 .classpath
+
+
+#temp files
+*.swp
+*.swo
+*~
