@@ -72,6 +72,14 @@ public class PointsPlotter extends JFrame {
 		private final int DELAY = 150;
 	    private Timer timer;
 		private int clusterType;
+		private ArrayList<Integer> minutes;
+		private ArrayList<Integer> hours;
+		private ArrayList<Integer> days;
+		private ArrayList<Integer> inputClust;
+		ArrayList<double[]> output;
+		ArrayList<Integer> outputClust;
+		ArrayList<Tuple<Double,Double>> means;
+
 		
 		ArrayList<DatabaseLocation> points;
 		ArrayList<ArrayList<DatabaseLocation>> temp2;
@@ -152,63 +160,35 @@ public class PointsPlotter extends JFrame {
 						{
 							System.out.println(Utils.mean(temp2.get(t)));
 						}
-						System.out.println("Nummber of clusters; "+ temp2.size());
-						
-						/*
-						AbstractAction anAction = new AbstractAction() {
-						    public void actionPerformed(ActionEvent e) {
-						        if(e.getActionCommand()=="Up")
-						        {
-						        	ofsetY++;
-						        }
-						        else if(e.getActionCommand()=="Down")
-						        {
-						        	ofsetY--;
-						        }
-						        else if(e.getActionCommand()=="Right")
-						        {
-						        	ofsetX++;
-						        }
-						        else if(e.getActionCommand()=="Left")
-						        {
-						        	ofsetX--;
-						        }
-						    }
-						};
-						component.getInputMap().put(KeyStroke.getKeyStroke("F2"),  "doSomething");
-						component.getActionMap().put("doSomething",anAction);
-						*/
-						
+						System.out.println("Nummber of clusters; "+ temp2.size());						
 						break;
 					case 6:
-						data.importFromDB(10, 60000);//
-						//data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\OlofLoc.kml",0);
-						//data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
-						//data.importFromFile();
-						//data.coordCullByBox(57.34, 11, 1 , 4);
-						//data.cullByRDP();
+						data.importFromDB(11, 60000);//
+						
 						data.coordCullByDist();
-						//data.coordCullByDist();
-						//data.repoint();
-						//data.coordCullBySpeed(15.0);
 						
 						data.exportAsCoordsWithDateToCSV();
 						
 						points =  data.getQuerry();
 						if(true)
 						{
-							//data.exportAsCoordsToCSV();
-							
 							File f2 = new File(".");
 							String pathToProj2 = f2.getAbsolutePath().substring(0, f2.getAbsolutePath().length()-2);
 					    	ELKIController.runElki();
+					    	temp2 = data.importFromElkiClustering(pathToProj2+"\\ELKIClusters\\");
+							data.impElkAndReroutFromNoise(pathToProj2+"\\ELKIClusters\\");
+							minutes=data.getMinutes();
+							hours=data.getHours();
+							days=data.getDays();
+							inputClust=data.getInputClust();
+							outputClust=data.getOutputClust();
+							means=data.getMeans();
 							
-							temp2 = data.importFromElkiClustering(pathToProj2+"\\ELKIClusters\\");
-							for(int t=1; t<temp2.size(); t++)
+							for(int t=1; t<means.size(); t++)
 							{
-								System.out.println(Utils.mean(temp2.get(t)));
+								System.out.println(means.get(t));
 							}
-							System.out.println("Nummber of clusters; "+ temp2.size());
+							System.out.println("Nummber of clusters; "+ (means.size()-1));
 							data.exportAsClustToCSV();
 						}
 						else{
@@ -271,7 +251,6 @@ public class PointsPlotter extends JFrame {
 		{
 			
 			Graphics2D g2d = (Graphics2D) g;
-
 			
 			Tuple<Tuple<Double,Double>,Tuple<Double,Double>> minMax =  Utils.getGPSPlotFrame(temp2);
 			double maxDistX = (minMax.snd().fst() - minMax.fst().fst());
@@ -281,40 +260,77 @@ public class PointsPlotter extends JFrame {
 			double scalingFacY = (g2d.getClipBounds().height-50) /maxDistY;
 			double scalingFac = Math.min(scalingFacX, scalingFacY);
 			
-			//System.out.println("maxDistX: " + maxDistX + " maxDistY: " + maxDistY + "scalingFactor: "+scalingFac);
-			
-			for(int i = 1; i < temp2.size(); i++)
+			if(true)
 			{
-				boolean hasDraw=false;
-				for( DatabaseLocation l: temp2.get(i))
+				for(int i=0 ; i<inputClust.size();i++)
 				{
+					Double lat = means.get(inputClust.get(i)).fst();
+					Double lon = means.get(inputClust.get(i)).snd();
+					Double nLat = means.get(outputClust.get(i)).fst();
+					Double nLon = means.get(outputClust.get(i)).snd();
 					
-					int x = (int) (((int)((l.getLon()-minMax.fst().fst())*scalingFac)+25)*zoom+ofsetX);
-					int y = (int) ((( g2d.getClipBounds().height-50)-(int)((l.getLat()-minMax.fst().snd())*scalingFac)+25)*zoom+ofsetY);
-					int nx = (int) (((int)((l.getNLon()-minMax.fst().fst())*scalingFac)+25)*zoom+ofsetX);
-					int ny = (int) ((( g2d.getClipBounds().height-50)-(int)((l.getNLat()-minMax.fst().snd())*scalingFac)+25)*zoom+ofsetY);
-					if(!hasDraw)
+					int x = (int) (((int)((lon-minMax.fst().fst())*scalingFac)+25)*zoom+ofsetX);
+					int y = (int) ((( g2d.getClipBounds().height-50)-(int)((lat-minMax.fst().snd())*scalingFac)+25)*zoom+ofsetY);
+					int nx = (int) (((int)((nLon-minMax.fst().fst())*scalingFac)+25)*zoom+ofsetX);
+					int ny = (int) ((( g2d.getClipBounds().height-50)-(int)((nLat-minMax.fst().snd())*scalingFac)+25)*zoom+ofsetY);
+					
+					
+					g2d.setPaint(Color.black);
+					g2d.drawLine(x, y,nx, ny);
+				}
+				
+	
+				for(int i=0 ; i<inputClust.size();i++)
+				{
+					Double lat = means.get(inputClust.get(i)).fst();
+					Double lon = means.get(inputClust.get(i)).snd();
+					Double nLat = means.get(outputClust.get(i)).fst();
+					Double nLon = means.get(outputClust.get(i)).snd();
+					
+					int x = (int) (((int)((lon-minMax.fst().fst())*scalingFac)+25)*zoom+ofsetX);
+					int y = (int) ((( g2d.getClipBounds().height-50)-(int)((lat-minMax.fst().snd())*scalingFac)+25)*zoom+ofsetY);
+					int nx = (int) (((int)((nLon-minMax.fst().fst())*scalingFac)+25)*zoom+ofsetX);
+					int ny = (int) ((( g2d.getClipBounds().height-50)-(int)((nLat-minMax.fst().snd())*scalingFac)+25)*zoom+ofsetY);
+					
+					
+					g2d.setPaint(makeColorGradient(2.4,2.4,2.4,0,2,4,128,127,50,inputClust.get(i)));
+					g2d.fillOval(x-4, y-4, 8, 8);
+				}
+			}else
+			{
+				for(int i = 0; i < temp2.size(); i++)
+				{
+					boolean hasDraw=false;
+					
+					for( DatabaseLocation l: temp2.get(i))
 					{
+						
+						int x = (int) (((int)((l.getLon()-minMax.fst().fst())*scalingFac)+25)*zoom+ofsetX);
+						int y = (int) ((( g2d.getClipBounds().height-50)-(int)((l.getLat()-minMax.fst().snd())*scalingFac)+25)*zoom+ofsetY);
+						int nx = (int) (((int)((l.getNLon()-minMax.fst().fst())*scalingFac)+25)*zoom+ofsetX);
+						int ny = (int) ((( g2d.getClipBounds().height-50)-(int)((l.getNLat()-minMax.fst().snd())*scalingFac)+25)*zoom+ofsetY);
+						if(!hasDraw)
+						{
+							g2d.setPaint(Color.black);
+							g2d.drawString(""+i, x, y+30);
+							hasDraw=true;
+						}
+						g2d.setPaint(makeColorGradient(2.4,2.4,2.4,0,2,4,128,127,50,i));
+						
+						g2d.drawOval(x-4, y-4, 8, 8);
+						
 						g2d.setPaint(Color.black);
-						g2d.drawString(""+i, x, y+30);
-						hasDraw=true;
+						g2d.drawLine(x, y,nx, ny);
+					
+						//int px = (int) (((int)((11.951428392713707-minMax.fst().fst())*scalingFac)+25)*zoom+ofsetX);
+						//int py = (int) ((( g2d.getClipBounds().height-50)-(int)((57.61810787414581-minMax.fst().snd())*scalingFac)+25)*zoom+ofsetY);
+						//g2d.setPaint(Color.green);
+						//g2d.drawOval(px-4, py-4, 8, 8);
+						
 					}
-					g2d.setPaint(makeColorGradient(2.4,2.4,2.4,0,2,4,128,127,50,i));
-					
-					g2d.drawOval(x-4, y-4, 8, 8);
-					
-					//g2d.setPaint(Color.black);
-					//g2d.drawLine(x, y,nx, ny);
-				
-					//int px = (int) (((int)((11.951428392713707-minMax.fst().fst())*scalingFac)+25)*zoom+ofsetX);
-					//int py = (int) ((( g2d.getClipBounds().height-50)-(int)((57.61810787414581-minMax.fst().snd())*scalingFac)+25)*zoom+ofsetY);
-					//g2d.setPaint(Color.green);
-					//g2d.drawOval(px-4, py-4, 8, 8);
-					
 				}
-				
-				}
-			
+			}
+
 		}
 		
 		
