@@ -285,6 +285,15 @@ class CaraiDevice(DddDevice):
 
 # END SEAT VERIFICATION
 
+#
+#   Create User
+#
+    class CreateUser(DeviceAction):
+      PARAMETERS = ["user_name.grammar_entry"]
+      def perform(self,usr):
+        print(usr)
+        return True
+
 
 #   Greet user device
     class GreetUser(DeviceAction):

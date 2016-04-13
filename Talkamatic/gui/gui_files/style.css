@@ -1,0 +1,36 @@
+body {
+  background-color: darkgray;
+}
+
+.container {
+  margin:auto;
+  width:60%
+}
+.sheader {
+  text-align: center;
+}
+
+.convo {
+  background-color:lightgreen;
+  border-radius: 25px;
+  border: 2px solid #73AD21;
+  padding: 25px; 
+  width: 50%;
+  height: 75px;
+  float:left;  
+}
+
+.convo2 {
+  background-color:lightblue;
+  border-radius: 25px;
+  border: 2px solid #73AD21;
+  padding: 25px; 
+  width: 50%;
+  height: 75px;
+  float:right;
+  text-align:right;  
+}
+
+.ppt {
+  text-align:center;
+}

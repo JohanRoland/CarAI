@@ -32,6 +32,19 @@ def getAllUsers():
   for row in data:
     users[str(row[0])] = User(row[0],row[1]) 
   return users 
+
+def createUser(name):
+  db = MySQLdb.connect("54.229.54.240","johan","knarkapan","mydb")
+  cursor = db.cursor()
+  args = (name,0)
+  cursor.callproc('createUser',args)
+  #cursor.execute("CALL createUser('%s',@uid);" %name)
+  cursor.execute('SELECT @_createUser_0, @_createUser_1') 
+  data = cursor.fetchall()
+  db.commit()
+  cursor.close()
+  db.close()
+  return data[0][1]
   
 def execdb(cmd,getAll):
   db = MySQLdb.connect("54.229.54.240","johan","knarkapan","mydb")
@@ -47,9 +60,9 @@ def execdb(cmd,getAll):
   
 
 def main():
-  u = getAllUsers()
-  for usr in u.keys():
-    print(u[usr])
+  u = createUser("Jason Statham")
+  #for usr in u.keys():
+  print(u)
 
 if __name__ == "__main__":
   main()
