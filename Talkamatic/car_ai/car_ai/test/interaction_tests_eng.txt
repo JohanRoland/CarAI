@@ -1,2 +1,10 @@
 --- main menu
-S> What would you like to do?
+S> Booting System
+U> Call John
+S> Calling John.
+
+
+--- Test create user
+S> Booting System
+U> create user Dave
+S> created user Dave.
