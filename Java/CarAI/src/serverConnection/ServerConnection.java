@@ -139,6 +139,9 @@ public class ServerConnection {
 	 */
 	public ArrayList<DatabaseLocation> getPosClass(int id,int limit) throws SQLException
 	{
+		if(limit==-1)
+			limit=Integer.MAX_VALUE;
+		
 		Statement stmt = (Statement) connection.createStatement();
 		ResultSet rs = stmt.executeQuery("CALL getPos("+id+","+limit +")");
 		

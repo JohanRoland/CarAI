@@ -49,8 +49,13 @@ public class Main
     		{
     			System.out.println("Schedule debug");
     		    //	Scheduler s = new Scheduler();
-    			LocPrediction lp = LocPrediction.getInstance(1); 
-    			lp.predictHyperTwoClust(2, 4);
+
+    			try {
+        			LocPrediction lp = LocPrediction.getInstance(2);
+					lp.predictHyperTwoClust(2, 4);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
     		}
     		else if(args[0].equals("4"))
     		{

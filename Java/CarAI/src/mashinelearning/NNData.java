@@ -150,8 +150,8 @@ public class NNData
 		return temp; //tree.associateCluster(pos,0.01);
 	}
 	
-	public void importFromDB(int id,int n)
-	{
+	public int importFromDB(int id,int n)
+	{	
 		ServerConnection b = ServerConnection.getInstance();
 		//b= new ServerConnection();
 		try {
@@ -167,6 +167,7 @@ public class NNData
 			e.printStackTrace();
 		}
 		System.out.println("Finished downloading data, " + querry.size() +" entires was added");
+		return querry.size();
 
 	}
 
@@ -601,12 +602,12 @@ public class NNData
 					tempSecondOutputClust = outputClust.get(i);
 					if(tempSecondInputClust==tempFirstInputClust && tempFirstInputClust!=0)
 					{
-						writer.write(tempFirstOutputClust + " " + tempSecondInputClust /*+" "+ days.get(i) */+" " + (hours.get(i) * 60 + minutes.get(i)) + " " 
+						writer.write(tempFirstOutputClust + " " + tempSecondInputClust +" "+ days.get(i) +" " + (hours.get(i) * 60 + minutes.get(i)) + " " 
 								+ tempSecondOutputClust + "\n");
 					}
 					else
 					{
-						writer.write(tempSecondInputClust + " " + tempSecondInputClust /*+" "+ days.get(i) */+ " " + (hours.get(i) * 60 + minutes.get(i)) + " " 
+						writer.write(tempSecondInputClust + " " + tempSecondInputClust +" "+ days.get(i) + " " + (hours.get(i) * 60 + minutes.get(i)) + " " 
 								+ tempSecondOutputClust + "\n");
 					}
 					tempFirstInputClust=tempSecondInputClust;
@@ -626,7 +627,8 @@ public class NNData
 		{
 			for(int i = 0; i < querry.size();i++)
 			{
-				writer.write(querry.get(i).getLat()+ " " + querry.get(i).getLon() + " " + (querry.get(i).getHTime()*60+querry.get(i).getMTime()) + " " 
+				writer.write(querry.get(i).getLat()+ " " + querry.get(i).getLon()
+							+" " + querry.get(i).getDayOfWeek() +  " " + (querry.get(i).getHTime()*60+querry.get(i).getMTime()) + " " 
 						+ querry.get(i).getNLat() + " " + querry.get(i).getNLon() + "\n");
 				
 			}
