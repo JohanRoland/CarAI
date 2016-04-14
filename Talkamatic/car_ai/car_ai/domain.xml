@@ -30,13 +30,20 @@
     <device_query predicate="all_contacts" type="wh_question"/>
   </parameters> 
 
-  <goal type="resolve" question_type="wh_question" predicate="user_name">
+  <!--<goal type="resolve" question_type="wh_question" predicate="user_name">
     <plan>
-			<!--<findout type="wh_question" predicate="user_name"/>  -->
-      <dev_query_all device="CaraiDevice" type="wh_question" predicate="user_name"/>
+			<findout type="wh_question" predicate="user_name"/> 
+      <dev_query device="CaraiDevice" type="wh_question" predicate="user_name"/>
     </plan>
-		<!--<postcond><device_activity_terminated action="user_name"/></postcond> -->
-  </goal>
+  </goal> -->
+  
+  <goal type="perform" action="create_user">
+		<plan>
+			<findout type="wh_question" predicate="user_name"/>
+			<dev_perform action="CreateUser" device="CaraiDevice" postconfirm="true"/>
+		</plan>	
+		<postcond><device_activity_terminated action="CreateUser"/></postcond>
+	</goal>
   
   <goal type="resolve" question_type="wh_question" predicate="incar">
     <plan>

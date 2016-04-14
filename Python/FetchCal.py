@@ -36,15 +36,14 @@ def get_credentials(userID):
         Credentials, the obtained credential.
     """
     home_dir = os.path.expanduser('~')
-    project_dir = os.path.dirname(os.path.abspath(__file__))
-    user_dir = os.path.join(project_dir,'users') 
+    project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    user_dir = os.path.join(project_dir,'Data/Users') 
     user_dir2 = os.path.join(user_dir,'{}'.format(userID))
     credential_dir = os.path.join(user_dir2, '.credentials') #os.path.join(home_dir, '.credentials')
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
     credential_path = os.path.join(credential_dir,
-                                   'calendar-python-quickstart.json')
-
+                                  'user{}-cred.json'.format(userID))
     store = oauth2client.file.Storage(credential_path)
     credentials = store.get()
     if not credentials or credentials.invalid:
@@ -69,9 +68,9 @@ def getNextEvent(user):
         orderBy='startTime').execute()
     events = eventsResult.get('items', [])
     
-    if len(events) < 1
+    if len(events) < 1:
       return events[0]
-    else
+    else:
       return {} 
 
     
@@ -84,7 +83,7 @@ def main():
     if len(sys.argv) < 1:
       raise(NameError('No user added to path'))      
     
-    credentials = get_credentials(1)
+    credentials = get_credentials(2)
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
 

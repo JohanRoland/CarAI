@@ -8,6 +8,10 @@ from tdm.device_handler import send_to_frontend_device
 
 import paho.mqtt.client as mqtt
 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))) 
+from Python.DBConnection import createUser
+
+
 from Python.GeoData import dist,locInfo
 #print(sys.path)
 class CaraiDevice(DddDevice):
@@ -195,6 +199,15 @@ class CaraiDevice(DddDevice):
                 }
                 result.append(user_entity)
             return result
+
+    class NameRecognizer(EntityRecognizer):
+        def recognize_entity(self,string):
+          words = string.split()[-1]
+          rec_ent = {
+            "sort":"u_name",
+            "grammar_entry":words
+          }
+          return [rec_ent]
         
   
     class incar(DeviceWHQuery):
@@ -291,7 +304,7 @@ class CaraiDevice(DddDevice):
     class CreateUser(DeviceAction):
       PARAMETERS = ["user_name.grammar_entry"]
       def perform(self,usr):
-        print(usr)
+        createUser(usr)
         return True
 
 
