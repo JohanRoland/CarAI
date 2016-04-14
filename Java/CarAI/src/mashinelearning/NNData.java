@@ -47,7 +47,7 @@ public class NNData
 	//View Datas
 	HashMap<Integer, Tuple<Double,Double>> viewClustPos; 
 	int nrCluster;
-	
+	int amountofClusts;
 	DBSCAN tree;
 	
 	ArrayList<DatabaseLocation> querry;
@@ -66,6 +66,7 @@ public class NNData
 		viewClustPos = new HashMap<Integer, Tuple<Double,Double>>();
 		means = new ArrayList<Tuple<Double,Double>>(); 
 		nrCluster = 0;
+		amountofClusts = -1;
 	}
 	
 	public int getNrCluster(){return nrCluster;}
@@ -114,23 +115,13 @@ public class NNData
 		double[] out = {tempInputS[0],tempInputS[1],tempInputS[3],tempOutS[0],tempOutS[1]};
 		return out;
 	}
+
+	
 	
 	public HashMap<Integer, Tuple<Double,Double>> getViewClustPos()
 	{
 		return viewClustPos;
 	}
-	/*
-	public double[][] getInputData()
-	{
-		double[][] ret = new double[input.size()][]; 
-		for(int i = 0; i < input.size(); i++)
-		{
-			ret[i] = input.get(i);
-		}
-		return ret;
-	}
-	*/
-	
 	public double[][] getOutputData()
 	{
 		double[][] ret = new double[output.size()][]; 
@@ -159,8 +150,8 @@ public class NNData
 		return temp; //tree.associateCluster(pos,0.01);
 	}
 	
-	public void importFromDB(int id,int n)
-	{
+	public int importFromDB(int id,int n)
+	{	
 		ServerConnection b = ServerConnection.getInstance();
 		//b= new ServerConnection();
 		try {
@@ -176,47 +167,60 @@ public class NNData
 			e.printStackTrace();
 		}
 		System.out.println("Finished downloading data, " + querry.size() +" entires was added");
+		return querry.size();
 
 	}
 
 	public void parsGeoEntry(String path)
 	{
+		querry = new ArrayList<DatabaseLocation>();
 		try {
 			Files.walk(Paths.get(path)).
 				forEach(filePath -> {
-					ArrayList<String> lines;
-					try {
-						lines = (ArrayList<String>) Files.readAllLines(filePath);
-
-						for(int i=0; i<lines.size()-1;i++)
-						{
-							String[] params = lines.get(i).split(",");
-							String[] paramsN = lines.get(i+1).split(",");
-							
-							String[] date = params[6].split("-");
-							String[] time = params[7].split(":");
-							
-							querry.add(
-										new DBQuerry
-										   (
-												   	Double.parseDouble(params[0]),
-													Double.parseDouble(params[1]),
-													Integer.parseInt(date[0]),
-													Integer.parseInt(date[1]),
-													Integer.parseInt(date[2]),
-													Integer.parseInt(time[0]),
-													Integer.parseInt(time[1]),
-													Double.parseDouble(paramsN[0]),
-													Double.parseDouble(paramsN[1])
-										   )
-									);
-						}
-					} 
-					catch (Exception e) {
-						e.printStackTrace();
-					}
 					
+					if(Files.isRegularFile(filePath) && !filePath.endsWith("labels"))
+					{
+						ArrayList<String> lines;
+						try {
+							lines = (ArrayList<String>) Files.readAllLines(filePath);
+							
+							for(int i=6; i<lines.size()-1;i++)
+							{
+								String[] params = lines.get(i).split(",");
+								
+								if(params.length>6)
+								{
+									String[] paramsN = lines.get(i+1).split(",");
 									
+									String[] date = params[5].split("-");
+									String[] time = params[6].split(":");
+									
+									querry.add(
+												new DBQuerry
+												   (
+														   	Double.parseDouble(params[0]),
+															Double.parseDouble(params[1]),
+															Integer.parseInt(date[0]),
+															Integer.parseInt(date[1]),
+															Integer.parseInt(date[2]),
+															Integer.parseInt(time[0]),
+															Integer.parseInt(time[1]),
+															Double.parseDouble(paramsN[0]),
+															Double.parseDouble(paramsN[1])
+												   )
+											);
+								}
+								else
+								{
+									System.out.println("Error when trying to read the line: \n"+ lines.get(i));
+								}
+							}
+						} 
+						catch (Exception e) {
+							e.printStackTrace();
+						}
+						
+					}
 				}
 				
 			);
@@ -375,7 +379,9 @@ public class NNData
 				String[] s = ss.split(" "); 
 				double lat =  Double.parseDouble(s[0]);//((double)Math.round(Double.parseDouble(s[0])*10000000))/10000000;
 			 	double lon =  Double.parseDouble(s[1]);//((double)Math.round(Double.parseDouble(s[1])*10000000))/10000000;
-				double nlat = Double.parseDouble(s[3]);//((double)Math.round(Double.parseDouble(s[3])*10000000))/10000000;
+				
+			 	
+			 	double nlat = Double.parseDouble(s[3]);//((double)Math.round(Double.parseDouble(s[3])*10000000))/10000000;
 			 	double nlon = Double.parseDouble(s[4]);//((double)Math.round(Double.parseDouble(s[4])*10000000))/10000000;
 				querry.add(new DBQuerry(lat,lon,((int)Double.parseDouble(s[2]))/60,((int)(Double.parseDouble(s[2])))%60,nlat,nlon));				
 				}
@@ -434,7 +440,7 @@ public class NNData
 		{
 			output.add(new ArrayList<DatabaseLocation>());
 		}
-		int fuckuedUpCounter=0; // temporary bug hunter
+
 		for(DatabaseLocation dl : querry)
 		{
 			if(clusterMap.containsKey(new Tuple<Double,Double>(dl.getLat(),dl.getLon())))
@@ -442,16 +448,7 @@ public class NNData
 				int clustId = clusterMap.get(new Tuple<Double,Double>(dl.getLat(),dl.getLon()));//39.984441 116.321692
 				output.get(clustId).add(dl);
 			}
-			else
-			{	
-				fuckuedUpCounter++;
-			}
-		}
-		
-		if(fuckuedUpCounter == querry.size())
-		{
-			new Error("Badness");
-		}
+		}		
 		
 		ArrayList<DatabaseLocation> empty = new ArrayList<DatabaseLocation>();
 		empty.clear();
@@ -605,12 +602,12 @@ public class NNData
 					tempSecondOutputClust = outputClust.get(i);
 					if(tempSecondInputClust==tempFirstInputClust && tempFirstInputClust!=0)
 					{
-						writer.write(tempFirstOutputClust + " " + tempSecondInputClust /*+" "+ days.get(i) */+" " + (hours.get(i) * 60 + minutes.get(i)) + " " 
+						writer.write(tempFirstOutputClust + " " + tempSecondInputClust +" "+ days.get(i) +" " + (hours.get(i) * 60 + minutes.get(i)) + " " 
 								+ tempSecondOutputClust + "\n");
 					}
 					else
 					{
-						writer.write(tempSecondInputClust + " " + tempSecondInputClust /*+" "+ days.get(i) */+ " " + (hours.get(i) * 60 + minutes.get(i)) + " " 
+						writer.write(tempSecondInputClust + " " + tempSecondInputClust +" "+ days.get(i) + " " + (hours.get(i) * 60 + minutes.get(i)) + " " 
 								+ tempSecondOutputClust + "\n");
 					}
 					tempFirstInputClust=tempSecondInputClust;
@@ -624,14 +621,14 @@ public class NNData
 		}
 		
 	}
-	
 	public void exportAsCoordsToCSV()
 	{
 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
 		{
 			for(int i = 0; i < querry.size();i++)
 			{
-				writer.write(querry.get(i).getLat()+ " " + querry.get(i).getLon() + " " + (querry.get(i).getHTime()*60+querry.get(i).getMTime()) + " " 
+				writer.write(querry.get(i).getLat()+ " " + querry.get(i).getLon()
+							+" " + querry.get(i).getDayOfWeek() +  " " + (querry.get(i).getHTime()*60+querry.get(i).getMTime()) + " " 
 						+ querry.get(i).getNLat() + " " + querry.get(i).getNLon() + "\n");
 				
 			}
@@ -642,7 +639,6 @@ public class NNData
 			e.printStackTrace();
 		}
 	}
-	
 	public void exportAsCoordsWithDateToCSV()
 	{
 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
@@ -789,6 +785,7 @@ public class NNData
 
 	public void coordCullByDist()
 	{
+		System.out.println("Has " + querry.size() + " befor cull");
 		ArrayList<DatabaseLocation> temp = new ArrayList<DatabaseLocation>();
 
  		ArrayList<Tuple<Double,Double>> median =  new ArrayList<Tuple<Double,Double>>();
@@ -945,9 +942,7 @@ public class NNData
 	
 	public void exportToDB(int id)
 	{
-		ServerConnection sc =  ServerConnection.getInstance(); //new ServerConnection();
-		ArrayList<DBQuerry> querry = new ArrayList<DBQuerry>();
-		
+		ServerConnection sc =  ServerConnection.getInstance();		
 		try {
 			
 			System.out.println("Done formatting QuerryArrayList " + querry.size());
@@ -979,7 +974,7 @@ public class NNData
 		return temp;
 	}
 	
-	int amountofClusts = -1;
+
 	public ArrayList<ArrayList<DatabaseLocation>> importClustFromFile(String path)
 	{
 		ArrayList<ArrayList<DatabaseLocation>> output = new ArrayList<ArrayList<DatabaseLocation>>(); 

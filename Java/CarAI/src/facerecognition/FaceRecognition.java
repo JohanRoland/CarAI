@@ -44,15 +44,25 @@ public class FaceRecognition
     int imWidht,imHeight;
     HashMap<Integer,Person> pers; 
     CarView cv;
-    String pathToProj; 
+    //String pathToProj; 
+    String pathToUsers;
+    String pathToTemp;
     int counter = 0; 
     
     public FaceRecognition() {
     	System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
     	
     	File f = new File(".");
-		pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
-    	
+		//pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
+		pathToUsers = f.getAbsoluteFile().getParentFile().getParentFile().getParent() + "\\Data\\Users\\";
+		pathToTemp = f.getAbsoluteFile().getParentFile().getParentFile().getParent() + "\\Data\\TempImgs\\";
+
+		File tf = new File(pathToTemp);
+		if(!tf.exists())
+		{
+			tf.mkdirs();
+		}
+		
 	    frame = new Mat();
 	    FaceImage = new Mat();  
 	    
@@ -313,7 +323,7 @@ public class FaceRecognition
 			
 			cv.parsePerson(nameString, new DecimalFormat("#.##").format(conf[0]), center, new Point(frame.cols()/2,frame.rows()/2));
 			
-			String tempPath = pathToProj + "\\temp\\"+cv.getPos(center, new Point(frame.cols()/2,frame.rows()/2))+"\\t"+counter+".jpg";
+			String tempPath = pathToTemp+cv.getPos(center, new Point(frame.cols()/2,frame.rows()/2))+"\\t"+counter+".jpg";
 			Imgcodecs.imwrite(tempPath,face_resized); 
 			
     		
@@ -442,7 +452,7 @@ public class FaceRecognition
     	try{
     		
     		ArrayList<String> ls = new ArrayList<String>();
-			User.getAllUserImgs(pathToProj+"//data//", ls);
+			User.getAllUserImgs(pathToUsers, ls);
 			
     		for(String l : ls)
     		{
@@ -514,15 +524,51 @@ public class FaceRecognition
     
     private void deleteTemp()
     {
-    	File f = new File(pathToProj+"\\temp\\Driver");
-    	File f1 = new File(pathToProj+"\\temp\\Passenger");
-    	File f2 = new File(pathToProj+"\\temp\\Backseat0");
-    	File f3 = new File(pathToProj+"\\temp\\Backseat1");
+    	File f = new File(pathToTemp+"Driver");
+    	if(!f.exists())
+    	{
+    		f.mkdirs();
+    	}
+    	File f1 = new File(pathToTemp+"Passenger");
+    	if(!f1.exists())
+    	{
+    		f1.mkdirs();
+    	}
+    	File f2 = new File(pathToTemp+"Backseat0");
+    	if(!f2.exists())
+    	{
+    		f2.mkdirs();
+    	}
+    	File f3 = new File(pathToTemp+"Backseat1");
+    	if(!f3.exists())
+    	{
+    		f3.mkdirs();
+    	}
     	
     	for(File file: f.listFiles()) file.delete();
     	for(File file: f1.listFiles()) file.delete();
     	for(File file: f2.listFiles()) file.delete();
     	for(File file: f3.listFiles()) file.delete();
+    }
+    
+    public void moveFromTemp(String fromseat,String touser)
+    {
+    	File uf = new File(pathToUsers+touser);
+    	if(!uf.exists())
+    	{
+    		uf.mkdirs();
+    	}
+    	
+    	int counter = uf.listFiles().length;
+    	
+    	File tf = new File(pathToTemp+fromseat);
+    	for(File f :tf.listFiles())
+    	{
+    		f.renameTo(new File(uf.getAbsolutePath()+"\\"+touser+"-"+counter+".jpg"));
+    		counter++;
+    	}
+    	
+    	
     }
     
     /**
@@ -560,10 +606,10 @@ public class FaceRecognition
     	{
     		if(imgs.size() == 0)
     		{
-    			new File(pathToProj+"\\data\\"+name).mkdir();
+    			new File(pathToUsers+name).mkdir();
     		}
-    		Imgcodecs.imwrite(pathToProj+"\\data\\"+name+"\\"+name+imgs.size() + ".jpg", i);
-    		imgs.add(pathToProj+"\\data\\"+name+"\\"+name+imgs.size() + ".jpg");
+    		Imgcodecs.imwrite(pathToUsers+name+"\\"+name+imgs.size() + ".jpg", i);
+    		imgs.add(pathToUsers+name+"\\"+name+imgs.size() + ".jpg");
     	}
     	
     	/**

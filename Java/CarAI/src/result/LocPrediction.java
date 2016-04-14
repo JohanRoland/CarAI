@@ -205,7 +205,7 @@ public class LocPrediction {
 		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
 		format = new CSVFormat('.',' ');
 		
-		nd.coordCullByDist();
+		//nd.coordCullByDist();
 		nd.exportAsCoordsToCSV();
 		
 		ELKIController.runElki();
@@ -219,15 +219,15 @@ public class LocPrediction {
 		data.getNormHelper().setFormat(format); 
 		ColumnDefinition previus = data.defineSourceColumn("prev",0,ColumnType.nominal);		
 		ColumnDefinition here = data.defineSourceColumn("here",1,ColumnType.nominal);		
-		//ColumnDefinition columnDay = data.defineSourceColumn("day",2,ColumnType.nominal);
-		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.continuous);
-		ColumnDefinition dest = data.defineSourceColumn("dest",3,ColumnType.nominal);	
+		ColumnDefinition columnDay = data.defineSourceColumn("day",2,ColumnType.nominal);
+		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",3,ColumnType.continuous);
+		ColumnDefinition dest = data.defineSourceColumn("dest",4,ColumnType.nominal);	
 
 		data.analyze();
 		
 		data.defineInput(previus);
 		data.defineInput(here);
-		//data.defineInput(columnDay);
+		data.defineInput(columnDay);
 		data.defineInput(columnMTime);
 		data.defineOutput(dest);
 
@@ -480,7 +480,7 @@ public class LocPrediction {
 		
 		
 	}
-	private LocPrediction(int id)
+	private LocPrediction(int id) throws Exception
 	{
 		mqttTime = MqttTime.getInstance();
 		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
@@ -490,21 +490,28 @@ public class LocPrediction {
 		
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 		
-		nd.importFromDB(id, 600000);
 		
-		switch(1)
+		if(nd.importFromDB(id, -1)>0)
 		{
-		case 1:
-			hyperParamLerning();
-			break;
-		case 2:
-			standardLearning();
-			break;
-		case 3:
-			break;
-		}	
+			switch(1)
+			{
+			case 1:
+				hyperParamLerning();
+				break;
+			case 2:
+				standardLearning();
+				break;
+			case 3:
+				break;
+			}
+		}
+		else
+		{
+			throw new Exception("No traning data available");
+		}
+
 	}
-	static public LocPrediction getInstance(int userID)
+	static public LocPrediction getInstance(int userID) throws Exception
 	{
 		if(instanceMap == null)
 		{
@@ -512,7 +519,8 @@ public class LocPrediction {
 		}
 		if(!instanceMap.containsKey(userID))
 		{
-			instanceMap.put(userID, new LocPrediction(userID));//
+			LocPrediction temp = new LocPrediction(userID);
+			instanceMap.put(userID, temp);//
 		}
 		else
 		{
@@ -565,9 +573,13 @@ public class LocPrediction {
 		System.out.println(result.toString());
 		return nd.getViewClustPos().get(Integer.parseInt(irisChoosen0));
 	}
-	public Tuple<Double,Double> predictHyperTwoClust(int clust1, int clust2)
+	public Tuple<Double,Double> predictHyperTwoClust(int clust1, int clust2) throws Exception
 	{
-		String[] line = new String[3];
+		if(helper==null)
+		{
+			throw new Exception("No network trained");
+		}
+		String[] line = new String[4];
 		MLData input = helper.allocateInputVector();
 		
 		int hour = mqttTime.getHour();// c.get(Calendar.HOUR_OF_DAY);
@@ -575,16 +587,18 @@ public class LocPrediction {
 		
 		line[0] = ""+clust1;
 		line[1] = ""+clust2;
-		//line[2] = ""+mqttTime.getDayOfWeek();
-		line[2] = ""+(hour*60+minute);
+		line[2] = ""+mqttTime.getDayOfWeek();
+		line[3] = ""+(hour*60+minute);
 		
 		helper.normalizeInputVector(line,input.getData(),false);
 		MLData output = bestMethod.compute(input);
 		String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
 		StringBuilder result = new StringBuilder();
-		result.append("[" + line[0]+ /*" ( " + nd.getViewClustPos().get(Integer.parseInt(line[0])) + ")" +*/ ", " + line[1]+", " + line[2]+ "] ");
+		result.append("Path: "+ line[0]+ " " + nd.getViewClustPos().get(Integer.parseInt(line[0]))
+					 + " " + line[1] +" "+ nd.getViewClustPos().get(Integer.parseInt(line[1]))
+					 +", Day: " + line[2] + " Min: " + line[3] + " ");
 		result.append(" -> predicted: ");
-		result.append(irisChoosen0 /*+ " ( " + nd.getViewClustPos().get(Integer.parseInt(irisChoosen0)) + ")"*/);
+		result.append(irisChoosen0 + " ( " + nd.getViewClustPos().get(Integer.parseInt(irisChoosen0)) + ")");
 		System.out.println(result.toString());
 		return nd.getViewClustPos().get(Integer.parseInt(irisChoosen0));
 	}	
