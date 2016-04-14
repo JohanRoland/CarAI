@@ -108,76 +108,22 @@ public class LocPrediction {
 	{
 		mqttTime = MqttTime.getInstance();
 		
-		hyperParamLerning();
+		hyperParamLerning("coords.csv");
 		//standardLearning();
 		//customLearning();
 		//importNetwork();
 	}
-	private void importNetwork()
+	
+	/**
+	 * Saves the network in the selected file
+	 * @param filePath
+	 */
+	
+	private void saveNetwork(String filePath)
 	{
-		importNetwork(
-				"networkExport.eg",
-				"D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml");
+		EncogDirectoryPersistence.saveObject(new File(filePath), bestMethod);
 	}
-	private void importNetwork(String networkFile, String dataFile)
-	{
-		
-		//network =  (FreeformNetwork)EncogDirectoryPersistence.loadObject(new File("networkExport.eg"));
-		bestMethod = (MLRegression)EncogDirectoryPersistence.loadObject(new File(networkFile));	
-		
-		format = new CSVFormat('.',' ');
-		
-		NNData nd = new NNData();
-
-  /*
-		nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
-		nd.parseKML(dataFile,0);
-		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
-		
-		//nd.exportToDB(1);
-		//nd.importFromDB(1,600000);
-		nd.coordCullByBox(57.34, 11, 1 , 4);
-		//data.cullByRDP();
-		nd.coordCullByDist();
-		nd.repoint();
-		//nd.coordCullBySpeed(15.0);
-		nd.exportAsCoordsToCSV();
-	*/
-		String[] descreteMTime = numArray(60);
-		String[] descreteHTime = numArray(24);
-		
-		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
-		data =  new VersatileMLDataSet(source);
-		
-		data.getNormHelper().setFormat(format); 
-		ColumnDefinition columnInLon = data.defineSourceColumn("ilon",0,ColumnType.continuous);		
-		ColumnDefinition columnInLat = data.defineSourceColumn("ilat",1,ColumnType.continuous);		
-		ColumnDefinition columnDay = data.defineSourceColumn("hours",2,ColumnType.nominal);
-		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.continuous);
-		ColumnDefinition columnOutLon = data.defineSourceColumn("olon",3,ColumnType.continuous);		
-		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",4,ColumnType.continuous);	
-		
-		//columnMTime.defineClass(descreteMTime);
-		//columnHTime.defineClass(descreteHTime);
-		data.analyze();
-		
-		data.defineInput(columnInLon);
-		data.defineInput(columnInLat);
-		data.defineInput(columnDay);
-		data.defineInput(columnMTime);
-		data.defineOutput(columnOutLon);
-		data.defineOutput(columnOutLat);
-		data.getNormHelper().defineUnknownValue("?");
-		
-		EncogModel model = new EncogModel(data);
-		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
-		
-		model.setReport(new ConsoleStatusReportable());
-		
-		data.normalize();
-		helper = data.getNormHelper();
-		
-	}
+	
 	private void lern(String method)
 	{
 		if(method.equals("standard"))
@@ -185,7 +131,7 @@ public class LocPrediction {
 			standardLearning();
 		}else if(method.equals("custom"))
 		{
-			customLearning();
+			customLearning("coords.csv");
 		}else if(method.equals("hyperParam"))
 		{
 			
@@ -195,24 +141,61 @@ public class LocPrediction {
 		}
 
 	}
-	/**
-	 * Trains a netwotk with the contents of coords.txt as clusterd paths,
-	 * considering one path back. And loads it as the bestMethod as well
-	 * as saving it.
-	 */
-	private void hyperParamLerning()
+
+	private void loadHyperParamNetwork()
 	{
-		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
 		format = new CSVFormat('.',' ');
 		
-		//nd.coordCullByDist();
-		nd.exportAsCoordsToCSV();
+		nd.exportAsCoordsToCSV("coords.csv");
 		
 		ELKIController.runElki();
 		
 		nd.exportAsClustToCSVWithHyperTwo();
 		
+		bestMethod =(MLRegression)EncogDirectoryPersistence.loadObject(new File("networkExport.eg"));
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
+		
+		data =  new VersatileMLDataSet(source);
+		
+		data.getNormHelper().setFormat(format); 
+		ColumnDefinition previus = data.defineSourceColumn("prev",0,ColumnType.nominal);		
+		ColumnDefinition here = data.defineSourceColumn("here",1,ColumnType.nominal);		
+		ColumnDefinition columnDay = data.defineSourceColumn("day",2,ColumnType.nominal);
+		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",3,ColumnType.continuous);
+		ColumnDefinition dest = data.defineSourceColumn("dest",4,ColumnType.nominal);	
+		
+		data.analyze();
+		
+		data.defineInput(previus);
+		data.defineInput(here);
+		data.defineInput(columnDay);
+		data.defineInput(columnMTime);
+		data.defineOutput(dest);
+		
+		data.getNormHelper().defineUnknownValue("?");
+		EncogModel model = new EncogModel(data);
+		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);	
+		helper = data.getNormHelper();
+	}
+	
+	/**
+	 * Trains a netwotk with the contents of coords.txt as clusterd paths,
+	 * considering one path back. And loads it as the bestMethod as well
+	 * as saving it.
+	 */
+	private void hyperParamLerning(String tempFileName)
+	{
+		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
+		format = new CSVFormat('.',' ');
+		
+		//nd.coordCullByDist();
+		nd.exportAsCoordsToCSV(tempFileName);
+		
+		ELKIController.runElki();
+		
+		nd.exportAsClustToCSVWithHyperTwo();
+		
+		VersatileDataSource source = new CSVDataSource(new File(tempFileName),false,format);
 		
 		data =  new VersatileMLDataSet(source);
 		
@@ -250,8 +233,48 @@ public class LocPrediction {
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
 		
-		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
 	}
+	
+	private void loadStandardNetwork()
+	{
+		
+		format = new CSVFormat('.',' ');
+		
+		bestMethod =(MLRegression)EncogDirectoryPersistence.loadObject(new File("networkExport.eg"));
+		
+		nd.coordCullByBox(57.34, 11, 1 , 4);
+		
+		nd.exportAsCoordsWithDateToCSV();
+		
+		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
+		
+		data =  new VersatileMLDataSet(source);
+		
+		data.getNormHelper().setFormat(format); 
+		ColumnDefinition columnInLon = data.defineSourceColumn("ilon",0,ColumnType.continuous);		
+		ColumnDefinition columnInLat = data.defineSourceColumn("ilat",1,ColumnType.continuous);		
+		ColumnDefinition columnDay = data.defineSourceColumn("Day",2,ColumnType.nominal);
+		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",3,ColumnType.continuous);
+		ColumnDefinition columnOutLon = data.defineSourceColumn("olon",4,ColumnType.continuous);		
+		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",5,ColumnType.continuous);	
+		
+		data.analyze();
+		
+		data.defineInput(columnInLon);
+		data.defineInput(columnInLat);
+		data.defineInput(columnDay);
+		data.defineInput(columnMTime);
+		data.defineOutput(columnOutLon);
+		data.defineOutput(columnOutLat);
+
+		data.getNormHelper().defineUnknownValue("?");
+		
+		EncogModel model = new EncogModel(data);
+		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
+		helper = data.getNormHelper();
+		
+	}
+	
 	/**
 	 * Trains a netwotk with the contents of coords.txt as coordinates to coordinates,
 	 * considering one path back. And loads it as the bestMethod as well as saving it.
@@ -262,44 +285,25 @@ public class LocPrediction {
 		format = new CSVFormat('.',' ');
 		
 		NNData nd = new NNData();
-
-		//nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",300000);
-		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
-		//nd.importFromFile();
-		//nd.exportToDB(1);
-		
-		
 		
 		nd.coordCullByBox(57.34, 11, 1 , 4);
 		
-		//data.cullByRDP();
+		//nd.coordCullByDist();
 		
-		nd.coordCullByDist();
-		
-		//nd.repoint();
-		
-		//nd.coordCullBySpeed(15.0);
-		
-		//nd.exportAsCoordsToCSV();
 		nd.exportAsCoordsWithDateToCSV();
-		String[] descreteMTime = numArray(60);
-		String[] descreteHTime = numArray(24);
 		
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
-		//VersatileDataSource source = new CSVDataSource(new File("fabCoordData.csv"),false,format);
 		
 		data =  new VersatileMLDataSet(source);
 		
 		data.getNormHelper().setFormat(format); 
 		ColumnDefinition columnInLon = data.defineSourceColumn("ilon",0,ColumnType.continuous);		
 		ColumnDefinition columnInLat = data.defineSourceColumn("ilat",1,ColumnType.continuous);		
-		ColumnDefinition columnDay = data.defineSourceColumn("hours",2,ColumnType.nominal);
+		ColumnDefinition columnDay = data.defineSourceColumn("Day",2,ColumnType.nominal);
 		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",3,ColumnType.continuous);
 		ColumnDefinition columnOutLon = data.defineSourceColumn("olon",4,ColumnType.continuous);		
 		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",5,ColumnType.continuous);	
 		
-		//columnMTime.defineClass(descreteMTime);
-		//columnHTime.defineClass(descreteHTime);
 		data.analyze();
 		
 		data.defineInput(columnInLon);
@@ -317,9 +321,6 @@ public class LocPrediction {
 		
 		data.normalize();
 		
-		//data.setLeadWindowSize(1);
-		//data.setLagWindowSize(3);
-		
 		model.holdBackValidation(0.3, true, 1001);
 		model.selectTrainingType(data);
 		bestMethod = (MLRegression)model.crossvalidate(20, true);
@@ -330,37 +331,8 @@ public class LocPrediction {
 		helper = data.getNormHelper();
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
-
-		
-		
-		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
-		//ReadCSV csv = new ReadCSV(new File("coords.csv"),false,format);
-		//String[] line = new String[4];
-		//MLData input = helper.allocateInputVector();
-		
-		/*while(csv.next())
-		{
-			StringBuilder result = new StringBuilder();
-			for(int i = 0; i < 4; i++)
-				line[i] = csv.get(i);
-			
-			helper.normalizeInputVector(line,input.getData(),false);
-			MLData output = bestMethod.compute(input);
-			String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
-			String irisChoosen1 = helper.denormalizeOutputVectorToString(output)[1];
-			result.append("[" + line[0]+ ", "+ line[1]+ " " + line[2]+ ", " + line[3]+ "] ");
-			result.append(" -> predicted: ");
-			result.append(irisChoosen0 + " , " +irisChoosen1);
-			result.append(" (correct: ");
-			result.append(csv.get(4)+ " " +csv.get(5)); 
-			result.append(") Lat Err: " +  dispError(irisChoosen0,csv.get(4)) + " Lon Err: " + dispError(irisChoosen1,csv.get(5)));
-			System.out.println(result.toString());
-		}
-		*/
-		
-		//Encog.getInstance().shutdown();
 	}
-	private void customLearning()
+	private void customLearning(String tempFile)
 	{
 		mqttTime = MqttTime.getInstance();
 		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
@@ -375,30 +347,26 @@ public class LocPrediction {
 		//data.cullByRDP();
 		nd.coordCullByDist();
 		//nd.coordCullBySpeed(15.0);
-		nd.exportAsCoordsToCSV();
+		nd.exportAsCoordsToCSV(tempFile);
 		
+
 		
-		String[] descreteMTime = numArray(60);
-		String[] descreteHTime = numArray(24);
-		
-		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
+		VersatileDataSource source = new CSVDataSource(new File(tempFile),false,format);
 		data =  new VersatileMLDataSet(source);
 		
 		data.getNormHelper().setFormat(format); 
 		ColumnDefinition columnInLon = data.defineSourceColumn("ilon",0,ColumnType.continuous);		
 		ColumnDefinition columnInLat = data.defineSourceColumn("ilat",1,ColumnType.continuous);		
-		//ColumnDefinition columnHTime = data.defineSourceColumn("hours",2,ColumnType.ordinal);
+		ColumnDefinition columnDay = data.defineSourceColumn("day",2,ColumnType.ordinal);
 		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.continuous);
 		ColumnDefinition columnOutLon = data.defineSourceColumn("olon",3,ColumnType.continuous);		
 		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",4,ColumnType.continuous);	
 		
-		//columnMTime.defineClass(descreteMTime);
-		//columnHTime.defineClass(descreteHTime);
 		data.analyze();
 		
 		data.defineInput(columnInLon);
 		data.defineInput(columnInLat);
-		//data.defineInput(columnHTime);
+		data.defineInput(columnDay);
 		data.defineInput(columnMTime);
 		data.defineOutput(columnOutLon);
 		data.defineOutput(columnOutLat);
@@ -476,11 +444,9 @@ public class LocPrediction {
 			e1.printStackTrace();
 		}
 		
-		//EncogDirectoryPersistence.saveObject(, network);
-		
-		
+	
 	}
-	private LocPrediction(int id) throws Exception
+	private LocPrediction(int id, String tempFile, String saveFile) throws Exception
 	{
 		mqttTime = MqttTime.getInstance();
 		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
@@ -496,7 +462,9 @@ public class LocPrediction {
 			switch(1)
 			{
 			case 1:
-				hyperParamLerning();
+				//loadHyperParamNetwork();
+				hyperParamLerning(tempFile);
+				saveNetwork(saveFile);
 				break;
 			case 2:
 				standardLearning();
@@ -511,7 +479,21 @@ public class LocPrediction {
 		}
 
 	}
-	static public LocPrediction getInstance(int userID) throws Exception
+	
+	/**
+	 * Returns the specifyed user if it exsists,
+	 * if it doesn't exsitst it will retrieved the user
+	 * and return it.
+	 * tempFile and saveFile will only be used if a new
+	 * user is retrieved.
+	 * 
+	 * @param userID
+	 * @param tempFile
+	 * @param saveFile
+	 * @return
+	 * @throws Exception
+	 */
+	static public LocPrediction getInstance(int userID, String tempFile, String saveFile) throws Exception
 	{
 		if(instanceMap == null)
 		{
@@ -519,7 +501,7 @@ public class LocPrediction {
 		}
 		if(!instanceMap.containsKey(userID))
 		{
-			LocPrediction temp = new LocPrediction(userID);
+			LocPrediction temp = new LocPrediction(userID, tempFile, saveFile);
 			instanceMap.put(userID, temp);//
 		}
 		else
@@ -617,7 +599,7 @@ public class LocPrediction {
 		//VectorWindow window = new VectorWindow(4);
 		MLData input = helper.allocateInputVector();
 		
-		//EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
+
 		Car carData = Car.getInstance();
 		
 		line[0] = ""+carData.getPos().fst();
