@@ -19,7 +19,7 @@
   <predicate name="destdata" sort="locs"/>
   <predicate name="gpsdata" sort="locs"/> 
   <predicate name="timetodest" sort="locs"/>
-  <predicate name="incar" sort="string"/>
+  <predicate name="incar" sort="u_name"/>
   <predicate name="seat0" sort="car_seat"/>
   <predicate name="seat1" sort="car_seat"/>
   <predicate name="seat2" sort="car_seat"/>
