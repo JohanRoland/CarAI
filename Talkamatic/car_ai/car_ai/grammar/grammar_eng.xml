@@ -173,7 +173,7 @@
 
 	<action name="setTemp">
 		<one-of>
-			<item>set temp to <slot sort="real"/></item>			
+			<item>set temp to <slot sort="deg"/></item>			
 			<item>set ac</item>
 		</one-of>
 	</action>
