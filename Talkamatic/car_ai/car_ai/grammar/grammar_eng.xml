@@ -50,9 +50,6 @@
 	<answer speaker="system" predicate="incar">
     The people in the car are <slot type="individual" predicate="incar"/>
   </answer>
-	<validity name="incarValidator">
-    No one is detected in the car
-  </validity>
 <!--<report action="greet" status="ended">Hello <slot predicate="user_name"/>.</report>-->
 	<!--<action name="whoami">whoami</action>
 	<question speaker="all" predicate="user_name" type="wh_question">
@@ -63,7 +60,7 @@
 
 <!--   DRIVER  -->
   <question speaker="user" predicate="seat0" type="wh_question">
-    seat0
+    sits in the driver seat
   </question>
   <question speaker="all" predicate="seat0" type="wh_question">
     who is the driver

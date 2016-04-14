@@ -47,7 +47,6 @@
   
   <goal type="resolve" question_type="wh_question" predicate="incar">
     <plan>
-			<!-- <findout type="wh_question" predicate="user_name"/> -->
 			<findout type="wh_question" predicate="seat0"/>
 			<findout type="wh_question" predicate="seat1"/>
 			<findout type="wh_question" predicate="seat2"/>
@@ -61,10 +60,8 @@
 
   <goal type="resolve" question_type="wh_question" predicate="destdata">
     <plan>
-			<!-- <findout type="wh_question" predicate="gpsData"/> -->
       <dev_query device="CaraiDevice" type="wh_question" predicate="destdata"/>
     </plan>
-    <!--<postcond><device_activity_terminated action="gpsData"/></postcond> -->
   </goal>
   
   <goal type="resolve" question_type="wh_question" predicate="gpsdata">
@@ -79,6 +76,11 @@
     </plan>
   </goal>
 
+  <!--<goal type="resolve" question_type="wh_question" predicate="isunknownseat">
+    <plan>
+      <dev_query device="CaraiDevice" type="wh_question" predicate="isunknownseat"/>
+    </plan>
+  </goal> -->
   <goal type="resolve" question_type="wh_question" predicate="seat0">
     <plan>
       <dev_query device="CaraiDevice" type="wh_question" predicate="seat0"/>

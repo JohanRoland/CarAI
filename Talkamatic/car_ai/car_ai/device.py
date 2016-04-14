@@ -216,6 +216,7 @@ class CaraiDevice(DddDevice):
             res = [s0,s1,s2,s3]
             res =filter(None,res)
             output = ""
+            print(res)
             if(len(res) > 1):
               res.insert(-1,"and")
             c = 0
@@ -231,13 +232,10 @@ class CaraiDevice(DddDevice):
             }
             return [car_entity]
 
-#    class incarValidator(Validity):
-#      PARAMETERS = ["incar.grammar_entry"]
-#      def is_valid(self, incar):
-#        print("val " +incar)
-#        if incar.strip() == "":
-#          return False
-#        return True
+#    class isunknownseat(DeviceWHQuery):     
+#      def perform()
+        
+
 
 #  SEAT VERIFICATION
 
@@ -259,7 +257,7 @@ class CaraiDevice(DddDevice):
 
     def seatver(self,seat): 
       u,conf = ACTIVE_STATE.getSeatUser(seat)
-      if u == "Unknown":
+      if u == "0":
         ent = {
           "grammar_entry":"",
           "confidence":0,
