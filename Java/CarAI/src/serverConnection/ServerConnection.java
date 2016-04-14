@@ -52,7 +52,7 @@ public class ServerConnection {
 		}
 	}
 	/**
-	 * Connects to a default predifined user
+	 * Connects to a default predefined user
 	 */
 	private ServerConnection()
 	{
@@ -73,8 +73,6 @@ public class ServerConnection {
 		return instance;
 		
 	}
-	
-	
 	/**
 	 * 
 	 * @param request the mySQL code to be executed
@@ -188,7 +186,7 @@ public class ServerConnection {
 						
 		
 		Statement stmt = (Statement) connection.createStatement();
-		String values= "INSERT INTO PositionHistoryTable (ID,Lon,Lat,Hours,Minutes,nextLon,nextLat) VALUES " ;		
+		String values= "INSERT INTO PositionHistoryTable (ID,Lon,Lat,dayOfTheWeek,Hours,Minutes,nextLon,nextLat) VALUES " ;		
 		stmt.execute("DELETE FROM PositionHistoryTable WHERE ID="+ ID);
 		
 		int i =0;
@@ -198,13 +196,13 @@ public class ServerConnection {
 		{
 
 			StringBuilder sb = new StringBuilder();
-			sb.append("INSERT INTO PositionHistoryTable (ID,Lon,Lat,Hours,Minutes,nextLon,nextLat) VALUES ");
+			sb.append("INSERT INTO PositionHistoryTable (ID,Lon,Lat,dayOfTheWeek,Hours,Minutes,nextLon,nextLat) VALUES ");
 			ltoh= Math.min((input.length -i), 100);
 			for(int j=i;j<(i+ltoh-1);j++)
 			{
-				sb.append( "(" + ID + ","+ input[j].getLon() + "," + input[j].getLat() + "," + input[j].getHTime() + "," + input[j].getMTime() + "," + input[j].getNLon() + "," + input[j].getNLat() +"),");  
+				sb.append( "(" + ID + ","+ input[j].getLon() + "," + input[j].getLat() + "," + input[j].getDayOfWeek() + "," + input[j].getHTime() + "," + input[j].getMTime() + "," + input[j].getNLon() + "," + input[j].getNLat() +"),");  
 			}
-			sb.append("(" + ID + ","+ input[(i+ltoh-1)].getLon() + "," + input[(i+ltoh-1)].getLat() + "," + input[(i+ltoh-1)].getHTime() + "," + input[(i+ltoh-1)].getMTime() + "," + input[(i+ltoh-1)].getNLon() + "," + input[(i+ltoh-1)].getNLat() +");");
+			sb.append("(" + ID + ","+ input[(i+ltoh-1)].getLon() + "," + input[(i+ltoh-1)].getLat() + "," + input[(i+ltoh-1)].getDayOfWeek() + "," + input[(i+ltoh-1)].getHTime() + "," + input[(i+ltoh-1)].getMTime() + "," + input[(i+ltoh-1)].getNLon() + "," + input[(i+ltoh-1)].getNLat() +");");
 			
 			//System.out.println(sb.toString());
 			
@@ -220,7 +218,6 @@ public class ServerConnection {
 		stmt.close();		
 		
 	}
-	
 	public long addUserData(String name) throws SQLException
 	{
 		
@@ -231,7 +228,6 @@ public class ServerConnection {
 		cs.executeQuery();
 		return cs.getInt(2);
 	}
-	
 	public void addGeoUsers(String path) throws SQLException
 	{
 		File dir = new File(path);
@@ -244,14 +240,16 @@ public class ServerConnection {
 				String userName = element.getName();
 				NNData user = new NNData();
 				user.parsGeoEntry(element.toString());
+				user.coordCullByDist();
+				
 				long x = addUserData(userName);
 				DBQuerry[] temp = user.getQuerry().toArray(new DBQuerry[user.getQuerry().size()]);
-				replacePosData((int)x,temp);
+				if(temp.length>0)
+					replacePosData((int)x,temp);
 			}
 		}
 		
 	}
-	
 	public ArrayList<String> getUserData(String id) throws SQLException
 	{
 		Statement stmt = (Statement) connection.createStatement();
@@ -268,7 +266,6 @@ public class ServerConnection {
 		
 		return out;
 	}
-	
 	public ArrayList<String> getAllUserId() throws SQLException
 	{
 		Statement stmt = (Statement) connection.createStatement();
@@ -284,7 +281,6 @@ public class ServerConnection {
 		
 		return out;
 	}
-	
 	public static class DBQuerry implements DatabaseLocation
 	{
 		double lat;
