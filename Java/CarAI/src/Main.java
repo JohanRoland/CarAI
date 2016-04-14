@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 import car.CarInterface;
 import facerecognition.FaceMQTT;
+import facerecognition.FaceRecognition;
 import interfaces.DatabaseLocation;
 import mashinelearning.DBSCAN;
 import mashinelearning.KmeansSortOf;
@@ -41,8 +42,7 @@ public class Main
     			//System.out.println("FaceRecognition debug");
     			
     			FaceMQTT f = new FaceMQTT();
-    			CarInterface cf = new CarInterface();
-    			
+    			//CarInterface cf = new CarInterface();
     			
     		}
     		else if(args[0].equals("3"))

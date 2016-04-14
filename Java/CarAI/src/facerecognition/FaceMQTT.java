@@ -13,6 +13,7 @@ public class FaceMQTT implements MQTTInterface {
 	FaceRecognition fr;
 	
 	String utopic = "carai/face/update";
+	String mtopic = "carai/face/move";
 	String ctopic = "carai/face/car";
 	String content = "JSON package of detected faces";
 	String clientId = "Facedetect";
@@ -32,6 +33,7 @@ public class FaceMQTT implements MQTTInterface {
             client.setCallback(new Callback());
             while(!client.isConnected()){}
             client.subscribe(utopic,0);
+            client.subscribe(mtopic,0);
             fr = new FaceRecognition();
 		}
 		catch(MqttException me)
@@ -72,6 +74,11 @@ public class FaceMQTT implements MQTTInterface {
 					msg.setQos(qos);
 					client.publish(ctopic, msg);
 				}
+			}
+			if(arg0.equals(mtopic))
+			{
+				String[] m = new String(arg1.getPayload()).split(",");
+				fr.moveFromTemp(m[0], m[1]);
 			}
 			
 		}
