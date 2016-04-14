@@ -49,7 +49,7 @@ public class Main
     		    //	Scheduler s = new Scheduler();
 
     			try {
-        			LocPrediction lp = LocPrediction.getInstance(1);
+        			LocPrediction lp = LocPrediction.getInstance(1, "coords.csv", "networkExport.eg");
 					lp.predictHyperTwoClust(2, 4);
 				} catch (Exception e) {
 					e.printStackTrace();

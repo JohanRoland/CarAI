@@ -621,9 +621,9 @@ public class NNData
 		}
 		
 	}
-	public void exportAsCoordsToCSV()
+	public void exportAsCoordsToCSV(String fileName)
 	{
-		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
+		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName),"utf-8")))
 		{
 			for(int i = 0; i < querry.size();i++)
 			{
