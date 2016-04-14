@@ -8,16 +8,13 @@ import java.util.stream.Stream;
 
 import car.CarInterface;
 import facerecognition.FaceMQTT;
-import facerecognition.FaceRecognition;
 import interfaces.DatabaseLocation;
 import mashinelearning.DBSCAN;
-import mashinelearning.KmeansSortOf;
 import mashinelearning.NNData;
 import mashinelearning.PYDBSCAN;
 import predictorG.PredictorG;
 import result.LocPrediction;
 import result.Network;
-import result.Scheduler;
 import serverConnection.ServerConnection;
 import utils.MqttTime;
 import displayData.PointsPlotter;
@@ -42,14 +39,15 @@ public class Main
     			//System.out.println("FaceRecognition debug");
     			
     			FaceMQTT f = new FaceMQTT();
-    			//CarInterface cf = new CarInterface();
+    			CarInterface cf = new CarInterface();
+    			
     			
     		}
     		else if(args[0].equals("3"))
     		{
     			System.out.println("Schedule debug");
     		    //	Scheduler s = new Scheduler();
-    			LocPrediction lp = LocPrediction.getInstance(10); 
+    			LocPrediction lp = LocPrediction.getInstance(1); 
     			lp.predictHyperTwoClust(2, 4);
     		}
     		else if(args[0].equals("4"))
@@ -200,13 +198,23 @@ public class Main
     		}
     		else if(args[0].equals("9"))
     		{
-    			ServerConnection s = ServerConnection.getInstance();
-    			try {
+    			/*
+				NNData nn=new NNData();
+				nn.parseKML("C:\\Users\\Knarkapan\\git\\CarAI\\Java\\CarAI\\Platshistorik.kml", 0);
+				nn.coordCullByDist();
+				nn.exportToDB(1);
+				*/
+    			/*
+				try {
 					s.addGeoUsers("C:\\Users\\Knarkapan\\git\\CarAI\\Java\\CarAI\\data");
+
+    				
+    				
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				*/
     		}
     		else
     		{

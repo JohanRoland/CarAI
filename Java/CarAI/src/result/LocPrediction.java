@@ -205,7 +205,7 @@ public class LocPrediction {
 		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
 		format = new CSVFormat('.',' ');
 		
-		nd.coordCullByDist();
+		//nd.coordCullByDist();
 		nd.exportAsCoordsToCSV();
 		
 		ELKIController.runElki();
@@ -582,9 +582,9 @@ public class LocPrediction {
 		MLData output = bestMethod.compute(input);
 		String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
 		StringBuilder result = new StringBuilder();
-		result.append("[" + line[0]+ /*" ( " + nd.getViewClustPos().get(Integer.parseInt(line[0])) + ")" +*/ ", " + line[1]+", " + line[2]+ "] ");
+		result.append("[" + line[0]+ " ( " + nd.getViewClustPos().get(Integer.parseInt(line[0])) + ")" + ", " + line[1]+", " + line[2]+ "] ");
 		result.append(" -> predicted: ");
-		result.append(irisChoosen0 /*+ " ( " + nd.getViewClustPos().get(Integer.parseInt(irisChoosen0)) + ")"*/);
+		result.append(irisChoosen0 + " ( " + nd.getViewClustPos().get(Integer.parseInt(irisChoosen0)) + ")");
 		System.out.println(result.toString());
 		return nd.getViewClustPos().get(Integer.parseInt(irisChoosen0));
 	}	
