@@ -8,6 +8,10 @@ from tdm.device_handler import send_to_frontend_device
 
 import paho.mqtt.client as mqtt
 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))) 
+from Python.DBConnection import createUser
+
+
 from Python.GeoData import dist,locInfo
 #print(sys.path)
 class CaraiDevice(DddDevice):
@@ -195,6 +199,15 @@ class CaraiDevice(DddDevice):
                 }
                 result.append(user_entity)
             return result
+
+    class NameRecognizer(EntityRecognizer):
+        def recognize_entity(self,string):
+          words = string.split()[-1]
+          rec_ent = {
+            "sort":"u_name",
+            "grammar_entry":words
+          }
+          return [rec_ent]
         
   
     class incar(DeviceWHQuery):
@@ -218,13 +231,13 @@ class CaraiDevice(DddDevice):
             }
             return [car_entity]
 
-    class incarValidator(Validity):
-      PARAMETERS = ["incar.grammar_entry"]
-      def is_valid(self, incar):
-        print("val " +incar)
-        if incar.strip() == "":
-          return False
-        return True
+#    class incarValidator(Validity):
+#      PARAMETERS = ["incar.grammar_entry"]
+#      def is_valid(self, incar):
+#        print("val " +incar)
+#        if incar.strip() == "":
+#          return False
+#        return True
 
 #  SEAT VERIFICATION
 
@@ -263,27 +276,36 @@ class CaraiDevice(DddDevice):
         } 
       return [ent]
 
-    class car_seatRecognizer(EntityRecognizer):
-        def recognize_entity(self, string):
-            result = []
-            words = string.lower().split()
-            for word in words:
-                if not( word == "none"):
-                    recognized_entity = {
-                        "sort": "car_seat",
-                        "grammar_entry": word.title()
-                    }
-                    result.append(recognized_entity)
-                else:
-                    recognized_entity = {
-                        "sort": "car_seat",
-                        "grammar_entry": ""
-                    }
-                    result.append(recognized_entity)
-            return result
+#    class car_seatRecognizer(EntityRecognizer):
+#        def recognize_entity(self, string):
+#            result = []
+#            words = string.lower().split()
+#            for word in words:
+#                if not( word == "none"):
+#                    recognized_entity = {
+#                        "sort": "car_seat",
+#                        "grammar_entry": word.title()
+#                    }
+#                    result.append(recognized_entity)
+#                else:
+#                    recognized_entity = {
+#                        "sort": "car_seat",
+#                        "grammar_entry": ""
+#                    }
+#                    result.append(recognized_entity)
+#            return result
 
 
 # END SEAT VERIFICATION
+
+#
+#   Create User
+#
+    class CreateUser(DeviceAction):
+      PARAMETERS = ["user_name.grammar_entry"]
+      def perform(self,usr):
+        createUser(usr)
+        return True
 
 
 #   Greet user device

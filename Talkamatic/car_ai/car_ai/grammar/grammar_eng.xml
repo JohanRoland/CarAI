@@ -32,17 +32,14 @@
     <slot type="individual" predicate="selected_contact"/> has no phone number.
   </validity>
 
-	<question speaker="user" predicate="user_name" type="wh_question">
+	<!--<question speaker="user" predicate="user_name" type="wh_question">
 		<one-of>
 			<item>whoami</item>
 		</one-of>
-	</question>
-	<question speaker="all" predicate="user_name" type="wh_question">
-    who are you
-  </question>
-	<answer speaker="system" predicate="user_name">
+	</question> -->
+ 	<!-- <answer speaker="system" predicate="user_name">
     You are <slot predicate="user_name"/>
-  </answer>  
+  </answer>  --> 
 
 	<question speaker="user" predicate="incar" type="wh_question">
 		who is here
@@ -147,6 +144,17 @@
   </answer>
 
 <!--            END GPS                           -->
+
+  <action name="create_user">
+    <one-of>
+      <item>create user</item>
+      <item>create user <slot sort="u_name"/></item>
+    </one-of>
+  </action>
+	<question speaker="all" predicate="user_name" type="wh_question">
+    what is your name
+  </question>
+  <report action="CreateUser" status="ended">Created user <slot type="individual" predicate="user_name"/>.</report>
 
   <action name="greetUser">greet</action>
   <report action="greetUser" status="started">-</report>

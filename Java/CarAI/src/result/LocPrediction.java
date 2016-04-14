@@ -5,6 +5,7 @@ import serverConnection.ServerConnection;
 import serverConnection.ServerConnection.DBQuerry;
 import utils.*;
 import mashinelearning.DBSCAN;
+import mashinelearning.ELKIController;
 import mashinelearning.NNData;
 
 import java.sql.SQLException;
@@ -106,7 +107,9 @@ public class LocPrediction {
 	private LocPrediction()
 	{
 		mqttTime = MqttTime.getInstance();
-		standardLearning();
+		
+		hyperParamLerning();
+		//standardLearning();
 		//customLearning();
 		//importNetwork();
 	}
@@ -126,7 +129,8 @@ public class LocPrediction {
 		
 		NNData nd = new NNData();
 
-		/*nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
+  /*
+		nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
 		nd.parseKML(dataFile,0);
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 		
@@ -174,8 +178,6 @@ public class LocPrediction {
 		helper = data.getNormHelper();
 		
 	}
-	
-	
 	private void lern(String method)
 	{
 		if(method.equals("standard"))
@@ -193,27 +195,81 @@ public class LocPrediction {
 		}
 
 	}
-	
+	/**
+	 * Trains a netwotk with the contents of coords.txt as clusterd paths,
+	 * considering one path back. And loads it as the bestMethod as well
+	 * as saving it.
+	 */
 	private void hyperParamLerning()
 	{
+		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
+		format = new CSVFormat('.',' ');
 		
+		nd.coordCullByDist();
+		nd.exportAsCoordsToCSV();
+		
+		ELKIController.runElki();
+		
+		nd.exportAsClustToCSVWithHyperTwo();
+		
+		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
+		
+		data =  new VersatileMLDataSet(source);
+		
+		data.getNormHelper().setFormat(format); 
+		ColumnDefinition previus = data.defineSourceColumn("prev",0,ColumnType.nominal);		
+		ColumnDefinition here = data.defineSourceColumn("here",1,ColumnType.nominal);		
+		//ColumnDefinition columnDay = data.defineSourceColumn("day",2,ColumnType.nominal);
+		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.continuous);
+		ColumnDefinition dest = data.defineSourceColumn("dest",3,ColumnType.nominal);	
+
+		data.analyze();
+		
+		data.defineInput(previus);
+		data.defineInput(here);
+		//data.defineInput(columnDay);
+		data.defineInput(columnMTime);
+		data.defineOutput(dest);
+
+		data.getNormHelper().defineUnknownValue("?");
+		
+		EncogModel model = new EncogModel(data);
+		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
+		
+		model.setReport(new ConsoleStatusReportable());
+		
+		data.normalize();
+		
+		model.holdBackValidation(0.3, true, 1001);
+		model.selectTrainingType(data);
+		bestMethod = (MLRegression)model.crossvalidate(20, true);
+		
+		System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
+		System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
+		helper = data.getNormHelper();
+		System.out.println(helper.toString());
+		System.out.println("Final model: " + bestMethod);
+		
+		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
 	}
-	
+	/**
+	 * Trains a netwotk with the contents of coords.txt as coordinates to coordinates,
+	 * considering one path back. And loads it as the bestMethod as well as saving it.
+	 */
 	private void standardLearning()
-	{
-		
+	{		
 		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
 		format = new CSVFormat('.',' ');
 		
 		NNData nd = new NNData();
 
-		nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",300000);
+		//nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",300000);
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 		//nd.importFromFile();
 		//nd.exportToDB(1);
 		
 		
-		//nd.importFromDB(1,600000);
+		
 		nd.coordCullByBox(57.34, 11, 1 , 4);
 		
 		//data.cullByRDP();
@@ -304,14 +360,13 @@ public class LocPrediction {
 		
 		//Encog.getInstance().shutdown();
 	}
-	
 	private void customLearning()
 	{
 		mqttTime = MqttTime.getInstance();
 		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
 		format = new CSVFormat('.',' ');
 		
-		NNData nd = new NNData();
+		nd = new NNData();
 
 		//nd.importFromDB(0, 600000);
 
@@ -425,7 +480,6 @@ public class LocPrediction {
 		
 		
 	}
-	
 	private LocPrediction(int id)
 	{
 		mqttTime = MqttTime.getInstance();
@@ -435,75 +489,21 @@ public class LocPrediction {
 		nd = new NNData();
 		
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
-		nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
-		//nd.exportToDB(id);
 		
-		//int n = 600000;
+		nd.importFromDB(id, 600000);
 		
-		//nd.importFromDB(id,n);
-		
-		//nd.coordCullBySpeed(15.0);
-
-		//if(!nd.emptyData())
-		//{
-		nd.coordCullByBox(57.34, 11, 1 , 4);
-		nd.coordCullByDist();
-		nd.exportAsClustToCSV();
-			
-		String[] descreteMTime = numArray(60);
-		String[] descreteHTime = numArray(24);
-		String[] descreteDays = {"1","2","3","4","5","6","7"};
- 		String[] descreteClust = numArray(nd.getNrCluster());
-		
-		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
-		data =  new VersatileMLDataSet(source);
-
-		data.getNormHelper().setFormat(format); 
-
-		ColumnDefinition columnInClust = data.defineSourceColumn("pos",0,ColumnType.nominal);
-		ColumnDefinition columnDays = data.defineSourceColumn("hours",1,ColumnType.ordinal);
-		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.continuous);
-		
-		//ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.ordinal);
-		ColumnDefinition columnOutClust = data.defineSourceColumn("opos",3,ColumnType.nominal);
-		
-		columnInClust.defineClass(descreteClust);
-		columnDays.defineClass(descreteDays);
-		//columnHTime.defineClass(descreteHTime);
-		columnOutClust.defineClass(descreteClust);
-		data.getNormHelper().defineUnknownValue("?");
-		data.analyze();
-
-		data.defineInput(columnInClust);
-		data.defineInput(columnDays);
-		data.defineInput(columnMTime);
-		data.defineOutput(columnOutClust);
-		
-		EncogModel model = new EncogModel(data);
-		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
-		
-		model.setReport(new ConsoleStatusReportable());
-		
-		data.normalize();
-		
-		model.holdBackValidation(0.3, true, 1001);
-		model.selectTrainingType(data);
-		bestMethod =(MLRegression)EncogDirectoryPersistence.loadObject(new File("networkExport.eg")); //  (MLRegression)model.crossvalidate(20, true);//
-		
-		//System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
-		//System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
-		helper = data.getNormHelper();
-		
-		System.out.println(helper.toString());
-		System.out.println("Final model: " + bestMethod);
-		EncogDirectoryPersistence.saveObject(new File("networkExport.eg"), bestMethod);
-		
-
-		//}
-		
-		//Encog.getInstance().shutdown();
+		switch(1)
+		{
+		case 1:
+			hyperParamLerning();
+			break;
+		case 2:
+			standardLearning();
+			break;
+		case 3:
+			break;
+		}	
 	}
-	
 	static public LocPrediction getInstance(int userID)
 	{
 		if(instanceMap == null)
@@ -524,15 +524,11 @@ public class LocPrediction {
 		}
 		
 		return instanceMap.get(userID);
-	}
-	
-	
+	}	
 	private String dispError(String x, String y)
 	{
-		
 		return new Double(Double.parseDouble(y)-Double.parseDouble(x)).toString(); 
 	}
-	
 	private String[] numArray(int t)
 	{
 		String[] out = new String[t];
@@ -540,8 +536,7 @@ public class LocPrediction {
 		for(int i = 0; i < t; i++ )
 			out[i] = "" +i;
 		
-		return out;
-				
+		return out;		
 	}
 	public Tuple<Double,Double> predict()
 	{
@@ -570,6 +565,29 @@ public class LocPrediction {
 		System.out.println(result.toString());
 		return nd.getViewClustPos().get(Integer.parseInt(irisChoosen0));
 	}
+	public Tuple<Double,Double> predictHyperTwoClust(int clust1, int clust2)
+	{
+		String[] line = new String[3];
+		MLData input = helper.allocateInputVector();
+		
+		int hour = mqttTime.getHour();// c.get(Calendar.HOUR_OF_DAY);
+		int minute = mqttTime.getMinute(); //c.get(Calendar.MINUTE);
+		
+		line[0] = ""+clust1;
+		line[1] = ""+clust2;
+		//line[2] = ""+mqttTime.getDayOfWeek();
+		line[2] = ""+(hour*60+minute);
+		
+		helper.normalizeInputVector(line,input.getData(),false);
+		MLData output = bestMethod.compute(input);
+		String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
+		StringBuilder result = new StringBuilder();
+		result.append("[" + line[0]+ /*" ( " + nd.getViewClustPos().get(Integer.parseInt(line[0])) + ")" +*/ ", " + line[1]+", " + line[2]+ "] ");
+		result.append(" -> predicted: ");
+		result.append(irisChoosen0 /*+ " ( " + nd.getViewClustPos().get(Integer.parseInt(irisChoosen0)) + ")"*/);
+		System.out.println(result.toString());
+		return nd.getViewClustPos().get(Integer.parseInt(irisChoosen0));
+	}	
 	public Tuple<Double,Double> predictCoord()
 	{
 		String[] line = new String[4];
