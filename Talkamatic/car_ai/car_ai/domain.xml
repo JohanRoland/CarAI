@@ -76,6 +76,12 @@
     </plan>
   </goal>
 
+  <goal type="resolve" question_type="wh_question" predicate="next_cal_event">
+    <plan>
+      <dev_query device="CaraiDevice" type="wh_question" predicate="next_cal_event"/>
+    </plan>
+  </goal>
+
   <!--<goal type="resolve" question_type="wh_question" predicate="isunknownseat">
     <plan>
       <dev_query device="CaraiDevice" type="wh_question" predicate="isunknownseat"/>

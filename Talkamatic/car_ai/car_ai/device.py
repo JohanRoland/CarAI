@@ -1,4 +1,5 @@
 import os, sys
+from datetime import datetime
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
 from tdm.lib.device import DddDevice,EntityRecognizer,DeviceAction,DeviceWHQuery,Validity
@@ -13,6 +14,7 @@ from Python.DBConnection import createUser
 
 
 from Python.GeoData import dist,locInfo
+from Python.FetchCal import getNextEvent,parseCal,formatDateDiff
 #print(sys.path)
 class CaraiDevice(DddDevice):
     class Call(DeviceAction):
@@ -183,6 +185,19 @@ class CaraiDevice(DddDevice):
                     }
                     result.append(recognized_entity)
             return result
+
+#
+#     Calendar
+#
+    class next_cal_event(DeviceWHQuery):
+        def perform(self):
+            ev = parsCal(getNextEvent(1))
+            timeLeft = formatDateDiff(m[1],datetime.now())
+            event = {
+                "grammar_entry": (ev[0] + timeLeft)
+            }
+            return [event]
+
 
 #
 #      USER RECOGNITION

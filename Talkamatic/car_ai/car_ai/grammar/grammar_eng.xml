@@ -118,7 +118,7 @@
 	<question speaker="user" predicate="destdata" type="wh_question">
 		Where are we going
 	</question>
-    <question speaker="all" predicate="destdata" type="wh_question">
+  <question speaker="all" predicate="destdata" type="wh_question">
     the destination
   </question> 
 	<answer speaker="system" predicate="destdata">
@@ -179,4 +179,16 @@
 	</action>
 	<report action="SetTemp" status="ended">Setting temperature to <slot predicate="temperature"/> degrees.</report>
 	<question speaker="system" predicate="temperature" type="wh_question">How many degrees</question>	
+	
+
+  <question speaker="user" predicate="next_cal_event" type="wh_question">
+		What is the next event
+	</question>
+  <question speaker="all" predicate="next_cal_event" type="wh_question">
+    the calendar event
+  </question> 
+	<answer speaker="system" predicate="next_cal_event">
+    Your next scheduled event is a <slot type="individual" predicate="next_cal_event"/>
+  </answer>
+
 </grammar>

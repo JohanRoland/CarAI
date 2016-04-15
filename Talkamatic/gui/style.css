@@ -1,13 +1,33 @@
 body {
   background-color: darkgray;
+  font-size:20px;
 }
 
+input {
+  font-size:20px;
+}
+
+button {
+  margin:5px;
+  font-size:20px;
+}
+  
 .container {
   margin:auto;
   width:60%
 }
 .sheader {
   text-align: center;
+}
+
+.quickcmd {
+  padding:10px;
+  border-style:solid;
+  border-width:2px;
+}
+
+.quickcmd p {
+  text-align:center;
 }
 
 .convo {
@@ -37,9 +57,9 @@ body {
 }
 
 #pttbutton {
-  width: 100px;
-  height:40px;
-  margin: 0px -50px;
+  width: 200px;
+  height:55px;
+  margin: 0px -100px;
   position:relative;
   top:50%;
   left:50%;
