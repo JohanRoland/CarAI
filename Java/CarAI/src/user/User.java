@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import serverConnection.ServerConnection;
+import utils.Tuple;
 /**
  * A class for representing a user
  * with an ID and an alias.
@@ -105,6 +106,31 @@ public class User {
 	public String getUserName()
 	{
 		return userName;
+	}
+	/**
+	 * TODO
+	 */
+	public void loadPredictionNetwork()
+	{
+		
+	}
+	/**
+	 *  TODO
+	 * @return
+	 */
+	
+	/**
+	 * TODO
+	 */
+	public Tuple<Tuple<Double,Double>,Double> getNextApointment()
+	{//					GPS, 			time
+		
+		return null;
+	}
+	
+	public Tuple<Double,Double> predicLoc()
+	{
+		return null;
 	}
 	
 	public boolean userExists()

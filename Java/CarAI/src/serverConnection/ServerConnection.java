@@ -18,11 +18,9 @@ import interfaces.DatabaseLocation;
 import mashinelearning.NNData;
 import utils.Tuple;
 /**
- * @author John Ekdahl
- *
  * Keeps a connection to a mySQL database, has functions to interact smoothly with 
  * specific stored procedures aimed at the CarAI project.
- *
+ * @author John Ekdahl & William Axhav Bratt
  */
 public class ServerConnection {
 	Connection connection;
