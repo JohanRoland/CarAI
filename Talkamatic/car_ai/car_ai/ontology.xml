@@ -30,4 +30,5 @@
   <predicate name="temperature" sort="deg"/>
   <predicate name="next_cal_event" sort="u_name"/>
   <predicate name="startup" sort="boolean"/>
+  <predicate name="ulist" sort="u_name"/>
 </ontology>

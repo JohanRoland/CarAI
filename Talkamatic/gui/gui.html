@@ -43,6 +43,7 @@
           m = msg[i].Screen.title;
           if(msg[i].Screen.elements.length >0)
           {
+            m = msg[i].Screen.elements[0].Element.title;
             for(var j in msg[i].Screen.elements[0].Element.items)
             {
               extra += parseElement( msg[i].Screen.elements[0].Element.items[j]);

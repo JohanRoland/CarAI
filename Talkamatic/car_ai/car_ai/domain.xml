@@ -123,6 +123,12 @@
       <jumpto type="perform" action="top"/>
     </plan>
 	</goal>
+  <parameters predicate="seat0"
+    question_type="wh_question"
+    graphical_type="list" source="device"
+    device="CaraiDevice">
+    <device_query predicate="ulist" type="wh_question"/>
+  </parameters>
   
 	<goal type="handle" action="setDest">
 		<plan>

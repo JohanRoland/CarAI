@@ -8,16 +8,16 @@ import oauth2client
 from oauth2client import client
 from oauth2client import tools
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import paho.mqtt.client as mqtt
 import json
 
-try:
-    import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-except ImportError:
-    flags = None
+#try:
+#    import argparse
+#    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
+#except ImportError:
+flags = None
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/calendar-python-quickstart.json
@@ -96,7 +96,7 @@ def formatDateDiff(d1,d2):
       outString += ("%i days " % day)
     if h != 0:
       outString += ("%i hours " %h)
-    if day +h != 0:
+    if (day +h != 0) or (m == 0):
       outString += "and " 
     if m != 0:
       outString += ("%i minutes" % m)
@@ -140,7 +140,6 @@ def main():
 
 
 if __name__ == '__main__':
-    m = parseCal(getNextEvent(1))
-    print(m)
-    print(formatDateDiff(m[1],datetime.now()))
-#    main()
+    a = datetime.now() +timedelta(days=1,hours=2)
+    b = datetime.now()
+    print(formatDateDiff(a,b))
