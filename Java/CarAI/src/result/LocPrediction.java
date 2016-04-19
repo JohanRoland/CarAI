@@ -528,12 +528,12 @@ public class LocPrediction {
 		
 		return out;		
 	}
-	public Tuple<Double,Double> predict()
+	public ArrayList<Tuple<Tuple<Double, Double>, Double>> predict()
 	{
 		int temp = nd.getClosestCluster(Car.getInstance().getPos());
 		return predict(temp);
 	}
-	public Tuple<Double,Double> predict(int cluster)
+	public ArrayList<Tuple<Tuple<Double, Double>, Double>> predict(int cluster)
 	{
 		String[] line = new String[3];
 		MLData input = helper.allocateInputVector();
@@ -553,9 +553,14 @@ public class LocPrediction {
 		result.append(" -> predicted: ");
 		result.append(irisChoosen0 + " ( " + nd.getViewClustPos().get(Integer.parseInt(irisChoosen0)) + ")");
 		System.out.println(result.toString());
-		return nd.getViewClustPos().get(Integer.parseInt(irisChoosen0));
+		
+		
+		ArrayList<Tuple<Tuple<Double, Double>, Double>> temp1 = probParing(output);
+		
+		return temp1;
+		//return nd.getViewClustPos().get(Integer.parseInt(irisChoosen0));
 	}
-	public Tuple<Double,Double> predictHyperTwoClust(int clust1, int clust2) throws Exception
+	public ArrayList<Tuple<Tuple<Double, Double>, Double>> predictHyperTwoClust(int clust1, int clust2) throws Exception
 	{
 		if(helper==null)
 		{
@@ -575,6 +580,7 @@ public class LocPrediction {
 		helper.normalizeInputVector(line,input.getData(),false);
 		MLData output = bestMethod.compute(input);
 		String irisChoosen0 = helper.denormalizeOutputVectorToString(output)[0];
+		
 		StringBuilder result = new StringBuilder();
 		result.append("Path: "+ line[0]+ " " + nd.getViewClustPos().get(Integer.parseInt(line[0]))
 					 + " " + line[1] +" "+ nd.getViewClustPos().get(Integer.parseInt(line[1]))
@@ -582,8 +588,56 @@ public class LocPrediction {
 		result.append(" -> predicted: ");
 		result.append(irisChoosen0 + " ( " + nd.getViewClustPos().get(Integer.parseInt(irisChoosen0)) + ")");
 		System.out.println(result.toString());
-		return nd.getViewClustPos().get(Integer.parseInt(irisChoosen0));
-	}	
+		ArrayList<Tuple<Tuple<Double,Double>,Double>> temp1= new ArrayList<Tuple<Tuple<Double,Double>,Double>>();
+		temp1 = probParing(output);
+		
+		return temp1;
+	}
+	private ArrayList<Tuple<Tuple<Double,Double>,Double>> probParing(MLData output)
+	{
+		ArrayList<Tuple<Tuple<Double,Double>,Double>> temp1= new ArrayList<Tuple<Tuple<Double,Double>,Double>>();
+		double[] zeroToOne = helper(output.getData());
+		double tot=0;
+		
+		for(double d : zeroToOne)
+			tot+=d;
+		for(int i=0; i<zeroToOne.length;i++)
+		{
+			double d = zeroToOne[i];
+			//System.out.print(100*(d/tot) + "%, ");
+			double secondTemp;
+			ColumnDefinition tempbefor = (ColumnDefinition) helper.getOutputColumns().toArray()[0];
+			Tuple<Double,Double> firrstTemp = nd.getViewClustPos().get(Integer.parseInt(tempbefor.getClasses().get(i)));
+			secondTemp = d/tot;
+			temp1.add(new Tuple<Tuple<Double,Double>,Double>(firrstTemp, secondTemp));
+		}
+		return temp1;
+	}
+	double[] helper(double[] in)
+	{
+		double[] out = new double[in.length];
+		
+		double max = 1;
+		double min = -1;
+		
+		for(double i : in)
+		{
+			if(i<min)
+			{
+				min=i;
+			}
+			if(i>max)
+			{
+				max=i;
+			}
+		}
+	
+		for(int i=0; i<in.length;i++)
+		{
+			out[i]=(in[i]-min)/(max-min);
+		}
+		return out;
+	}
 	public Tuple<Double,Double> predictCoord()
 	{
 		String[] line = new String[4];
@@ -618,6 +672,7 @@ public class LocPrediction {
 		
 		double irisChoosen0 = Double.parseDouble(helper.denormalizeOutputVectorToString(output)[0]);
 		double irisChoosen1 = Double.parseDouble(helper.denormalizeOutputVectorToString(output)[1]);
+
 		StringBuilder result = new StringBuilder();
 		
 		
@@ -626,6 +681,7 @@ public class LocPrediction {
 		result.append(" -> predicted: ");
 		result.append(irisChoosen0 + ", " + irisChoosen1);
 		System.out.println(result.toString());
+		
 		return new Tuple<Double,Double>(irisChoosen0,irisChoosen1);
 	}
 }
