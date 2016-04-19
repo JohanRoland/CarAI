@@ -14,7 +14,7 @@ public class FaceMQTT implements MQTTInterface {
 	
 	String utopic = "carai/face/update";
 	String mtopic = "carai/face/move";
-	String ctopic = "carai/face/car";
+	String ctopic = "carai/talkamatic/user";
 	String content = "JSON package of detected faces";
 	String clientId = "Facedetect";
 	
