@@ -114,30 +114,30 @@ public class CarInterface implements MQTTInterface
 			
 			if(arg0.equals(desttopic))
 			{
-				
+				Gson gs = new Gson();
 				if(car.getUser("DRIVER").userExists())
 				{
 					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID(),"coords.csv", "networkExport.eg");
-					ArrayList<Tuple<Tuple<Double, Double>, Double>> pred = lp.predict();
-					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
+					ArrayList<double[]> pred = lp.predict();
+					client.publish("carai/car/driverPred", new MqttMessage(gs.toJson(pred).getBytes()));//("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 				if(car.getUser("PASSENGER").userExists())
 				{
 					lp = LocPrediction.getInstance(car.getUser("PASSENGER").getUserID(),"coords.csv", "networkExport.eg");
-					Tuple<Double,Double> pred = lp.predict();
-					client.publish("carai/car/passPred", new MqttMessage(("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
+					ArrayList<double[]> pred = lp.predict();
+					client.publish("carai/car/passPred", new MqttMessage(gs.toJson(pred).getBytes()));//("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 				if(car.getUser("BACKSEAT0").userExists())
 				{
 					lp = LocPrediction.getInstance(car.getUser("BACKSEAT0").getUserID(),"coords.csv", "networkExport.eg");
-					Tuple<Double,Double> pred = lp.predict();
-					client.publish("carai/car/back0Pred", new MqttMessage(("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
+					ArrayList<double[]> pred= lp.predict();
+					client.publish("carai/car/back0Pred", new MqttMessage(gs.toJson(pred).getBytes()));//("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 				if(car.getUser("BACKSEAT1").userExists())
 				{
 					lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID(),"coords.csv", "networkExport.eg");
-					Tuple<Double,Double> pred = lp.predict();
-					client.publish("carai/car/back1Pred", new MqttMessage(("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
+					ArrayList<double[]> pred= lp.predict();
+					client.publish("carai/car/back1Pred", new MqttMessage(gs.toJson(pred).getBytes()));//("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 			}
 			if(arg0.equals(gpstopic))

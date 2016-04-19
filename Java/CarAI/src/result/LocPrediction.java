@@ -529,12 +529,13 @@ public class LocPrediction {
 		
 		return out;		
 	}
-	public ArrayList<Tuple<Tuple<Double, Double>, Double>> predict()
+	public ArrayList<double[]> predict()
 	{
 		int temp = nd.getClosestCluster(Car.getInstance().getPos());
-		return predict(temp);
+		//return predict(temp);
+		return predictHyperTwoClust(temp,temp);
 	}
-	public ArrayList<Tuple<Tuple<Double, Double>, Double>> predict(int cluster)
+	public ArrayList<double[]> predict(int cluster)
 	{
 		String[] line = new String[3];
 		MLData input = helper.allocateInputVector();
@@ -556,17 +557,17 @@ public class LocPrediction {
 		System.out.println(result.toString());
 		
 		
-		ArrayList<Tuple<Tuple<Double, Double>, Double>> temp1 = probParing(output);
+		ArrayList<double[]> temp1 = probParing(output);
 		
 		return temp1;
 		//return nd.getViewClustPos().get(Integer.parseInt(irisChoosen0));
 	}
-	public ArrayList<Tuple<Tuple<Double, Double>, Double>> predictHyperTwoClust(int clust1, int clust2) throws Exception
+	public ArrayList<double[]> predictHyperTwoClust(int clust1, int clust2)// throws Exception
 	{
-		if(helper==null)
+		/*if(helper==null)
 		{
 			throw new Exception("No network trained");
-		}
+		}*/
 		String[] line = new String[4];
 		MLData input = helper.allocateInputVector();
 		
@@ -589,15 +590,14 @@ public class LocPrediction {
 		result.append(" -> predicted: ");
 		result.append(irisChoosen0 + " ( " + nd.getViewClustPos().get(Integer.parseInt(irisChoosen0)) + ")");
 		System.out.println(result.toString());
-		ArrayList<Tuple<Tuple<Double,Double>,Double>> temp1= new ArrayList<Tuple<Tuple<Double,Double>,Double>>();
-		temp1 = probParing(output);
+		ArrayList<double[]>temp1 = probParing(output);
 		
 		return temp1;
 	}
-	private ArrayList<Tuple<Tuple<Double,Double>,Double>> probParing(MLData output)
+	private ArrayList<double[]> probParing(MLData output)
 	{
-		ArrayList<Tuple<Tuple<Double,Double>,Double>> temp1= new ArrayList<Tuple<Tuple<Double,Double>,Double>>();
-		double[] zeroToOne = helper(output.getData());
+		ArrayList<double[]> temp1= new ArrayList<double[]>();
+		double[] zeroToOne = helperfunc(output.getData());
 		double tot=0;
 		
 		for(double d : zeroToOne)
@@ -609,15 +609,16 @@ public class LocPrediction {
 			double secondTemp;
 			ColumnDefinition tempbefor = (ColumnDefinition) helper.getOutputColumns().toArray()[0];
 			Tuple<Double,Double> firrstTemp = nd.getViewClustPos().get(Integer.parseInt(tempbefor.getClasses().get(i)));
-			secondTemp = d/tot;
-			temp1.add(new Tuple<Tuple<Double,Double>,Double>(firrstTemp, secondTemp));
+			secondTemp = d;//tot;
+			double[] temp = {firrstTemp.fst(),firrstTemp.snd(),secondTemp};
+			temp1.add(temp); //new Tuple<Tuple<Double,Double>,Double>(firrstTemp, secondTemp));
 		}
 
 		temp1.sort(new Comp());
 		
 		return temp1;
 	}
-	double[] helper(double[] in)
+	double[] helperfunc(double[] in)
 	{
 		double[] out = new double[in.length];
 		
@@ -638,7 +639,7 @@ public class LocPrediction {
 	
 		for(int i=0; i<in.length;i++)
 		{
-			out[i]=(in[i]-min)/(max-min);
+			out[i]=(in[i]-min)/(max-min)*0.5+0.5;
 		}
 		return out;
 	}
@@ -688,18 +689,18 @@ public class LocPrediction {
 		
 		return new Tuple<Double,Double>(irisChoosen0,irisChoosen1);
 	}
-	private class Comp implements Comparator<Tuple<Tuple<Double,Double>,Double>>
+	private class Comp implements Comparator<double[]>
 	{
 			 
 	
 			@Override
-			public int compare(Tuple<Tuple<Double, Double>, Double> o1, Tuple<Tuple<Double, Double>, Double> o2)
+			public int compare(double[] o1, double[] o2)
 			{
-				if(o1.snd()>o2.snd())
+				if(o1[2]>o2[2])
 				{
 					return -1;
 				}
-				else if(o1.snd()<o2.snd())
+				else if(o1[2]<o2[2])
 				{
 					return 1;
 				}
