@@ -118,7 +118,7 @@ public class CarInterface implements MQTTInterface
 				if(car.getUser("DRIVER").userExists())
 				{
 					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID(),"coords.csv", "networkExport.eg");
-					Tuple<Double,Double> pred = lp.predict();
+					ArrayList<Tuple<Tuple<Double, Double>, Double>> pred = lp.predict();
 					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 				if(car.getUser("PASSENGER").userExists())

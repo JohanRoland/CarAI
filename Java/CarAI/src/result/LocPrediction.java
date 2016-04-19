@@ -14,6 +14,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -611,6 +612,9 @@ public class LocPrediction {
 			secondTemp = d/tot;
 			temp1.add(new Tuple<Tuple<Double,Double>,Double>(firrstTemp, secondTemp));
 		}
+
+		temp1.sort(new Comp());
+		
 		return temp1;
 	}
 	double[] helper(double[] in)
@@ -683,5 +687,26 @@ public class LocPrediction {
 		System.out.println(result.toString());
 		
 		return new Tuple<Double,Double>(irisChoosen0,irisChoosen1);
+	}
+	private class Comp implements Comparator<Tuple<Tuple<Double,Double>,Double>>
+	{
+			 
+	
+			@Override
+			public int compare(Tuple<Tuple<Double, Double>, Double> o1, Tuple<Tuple<Double, Double>, Double> o2)
+			{
+				if(o1.snd()>o2.snd())
+				{
+					return -1;
+				}
+				else if(o1.snd()<o2.snd())
+				{
+					return 1;
+				}
+				else
+				{
+					return 0;
+				}
+			}
 	}
 }
