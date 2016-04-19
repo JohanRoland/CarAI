@@ -96,7 +96,11 @@ class State:
         CARSTATE[seat] = ("",1.0)
       elif not (x == []):
         CARSTATE[seat] = (x[0],float(x[1]))
-        print("changed " + seat + " to " + self.usersDic[CARSTATE[seat][0]].getName() +" with confidence " + str(CARSTATE[seat][1]))
+        if CARSTATE[seat][0] != "0":
+          print("changed " + seat + " to " + self.usersDic[CARSTATE[seat][0]].getName() +" with confidence " + str(CARSTATE[seat][1]))
+        else:
+          print("changed " + seat + " to 'unknown' with confidence " + str(CARSTATE[seat][1]))
+
 
   def importDest(self,js_string):
     parsed_json = json.loads(js_string,parse_float=Decimal)

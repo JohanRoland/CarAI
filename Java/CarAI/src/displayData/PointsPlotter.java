@@ -113,7 +113,7 @@ public class PointsPlotter extends JFrame {
 					case 2:
 						data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",1000);
 						points = data.getQuerry();
-						data.exportAsCoordsToCSV();
+						data.exportAsCoordsToCSV("coords.csv");
 						temp2 = data.importClustFromFile("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\clusterFile.csv");
 						ArrayList<DatabaseLocation> points2 = new ArrayList<DatabaseLocation>();
 						for(int j = 1000-1; j >= 0; j--)
@@ -124,7 +124,7 @@ public class PointsPlotter extends JFrame {
 					case 3:
 						data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
 						points = data.getQuerry();
-						data.exportAsCoordsToCSV();
+						data.exportAsCoordsToCSV("coords.csv");
 						PYDBSCAN ps =  new PYDBSCAN();
 						temp2 = ps.runDBSCAN(points,0.001,20,10000);
 						break;
@@ -133,7 +133,7 @@ public class PointsPlotter extends JFrame {
 						data.coordCullBySpeed(15.0);
 						points = data.getQuerry();
 	
-						data.exportAsCoordsToCSV();
+						data.exportAsCoordsToCSV("coords.csv");
 						PYDBSCAN something =  new PYDBSCAN();
 						temp2 = something.runDBSCAN(points,0.001,20,20000);
 						
@@ -148,7 +148,7 @@ public class PointsPlotter extends JFrame {
 						//data.coordCullByBox(57, 11, 1 , 4);
 						points = data.getQuerry();
 	
-						data.exportAsCoordsToCSV();
+						data.exportAsCoordsToCSV("coords.csv");
 
 
 						File f = new File(".");

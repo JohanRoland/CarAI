@@ -8,16 +8,16 @@ import oauth2client
 from oauth2client import client
 from oauth2client import tools
 
-import datetime
+from datetime import datetime, timedelta
 
 import paho.mqtt.client as mqtt
 import json
 
-try:
-    import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-except ImportError:
-    flags = None
+#try:
+#    import argparse
+#    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
+#except ImportError:
+flags = None
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/calendar-python-quickstart.json
@@ -61,18 +61,48 @@ def getNextEvent(user):
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
 
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+    now = datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
     #print('Getting the upcoming 10 events')
     eventsResult = service.events().list(
         calendarId='primary', timeMin=now, maxResults=10, singleEvents=True,
         orderBy='startTime').execute()
     events = eventsResult.get('items', [])
     
-    if len(events) < 1:
+    if len(events) > 0:
       return events[0]
     else:
       return {} 
 
+
+def parseCal(e):
+    #e = json.loads(strin.replace("'","\""))
+    start = datetime.strptime(e['start']['dateTime'][:-6],'%Y-%m-%dT%H:%M:%S')
+    name = e['summary']
+    if 'location' in e:
+      return (name,start,e['location'])
+    else:
+      return (name,start)
+
+def formatDateDiff(d1,d2):
+    td = d1-d2
+    day = td.days
+    h = td.seconds//3600
+    m = ((td.seconds//60)%60)
+    outString = ""
+    if day+h+m == 0:
+      return 0
+    outString += " in "
+    if day != 0:
+      outString += ("%i days " % day)
+    if h != 0:
+      outString += ("%i hours " %h)
+    if (day +h != 0) or (m == 0):
+      outString += "and " 
+    if m != 0:
+      outString += ("%i minutes" % m)
+    return outString   
+
+#    return td.days +" days "+ td.seconds//3600 +" hours and " , 
     
 def main():
     """Shows basic usage of the Google Calendar API.
@@ -110,4 +140,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    a = datetime.now() +timedelta(days=1,hours=2)
+    b = datetime.now()
+    print(formatDateDiff(a,b))

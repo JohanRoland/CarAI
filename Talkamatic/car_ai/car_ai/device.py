@@ -1,4 +1,5 @@
 import os, sys
+from datetime import datetime
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
 from tdm.lib.device import DddDevice,EntityRecognizer,DeviceAction,DeviceWHQuery,Validity
@@ -13,6 +14,7 @@ from Python.DBConnection import createUser
 
 
 from Python.GeoData import dist,locInfo
+from Python.FetchCal import getNextEvent,parseCal,formatDateDiff
 #print(sys.path)
 class CaraiDevice(DddDevice):
     class Call(DeviceAction):
@@ -185,6 +187,19 @@ class CaraiDevice(DddDevice):
             return result
 
 #
+#     Calendar
+#
+    class next_cal_event(DeviceWHQuery):
+        def perform(self):
+            ev = parseCal(getNextEvent(1))
+            timeLeft = formatDateDiff(ev[1],datetime.now())
+            event = {
+                "grammar_entry": (ev[0] + timeLeft)
+            }
+            return [event]
+
+
+#
 #      USER RECOGNITION
 #
 
@@ -200,14 +215,19 @@ class CaraiDevice(DddDevice):
                 result.append(user_entity)
             return result
 
-    class NameRecognizer(EntityRecognizer):
-        def recognize_entity(self,string):
-          words = string.split()[-1]
-          rec_ent = {
-            "sort":"u_name",
-            "grammar_entry":words
-          }
-          return [rec_ent]
+    class UserRecognizer(EntityRecognizer):
+        def recognize_entity(self, string):
+            result = []
+            words = string.lower().split()
+            for u in ACTIVE_STATE.getUsersDic().keys():
+                name = ACTIVE_STATE.getUsersDic()[u].getName()
+                if name.lower() in words:
+                    recognized_entity = {
+                        "sort": "u_name",
+                        "grammar_entry": name
+                    }
+                    result.append(recognized_entity)
+            return result
         
   
     class incar(DeviceWHQuery):
@@ -216,6 +236,7 @@ class CaraiDevice(DddDevice):
             res = [s0,s1,s2,s3]
             res =filter(None,res)
             output = ""
+            print(res)
             if(len(res) > 1):
               res.insert(-1,"and")
             c = 0
@@ -231,13 +252,18 @@ class CaraiDevice(DddDevice):
             }
             return [car_entity]
 
-#    class incarValidator(Validity):
-#      PARAMETERS = ["incar.grammar_entry"]
-#      def is_valid(self, incar):
-#        print("val " +incar)
-#        if incar.strip() == "":
-#          return False
-#        return True
+        
+    class ulist(DeviceWHQuery):
+      def perform(self):
+        ret = []
+        for u in  ACTIVE_STATE.getUsersDic().keys():
+          name = ACTIVE_STATE.getUsersDic()[u].getName()
+          t = {
+            "grammar_entry":name,
+            "value":name
+          }
+          ret.append(t) 
+        return ret
 
 #  SEAT VERIFICATION
 
@@ -259,7 +285,7 @@ class CaraiDevice(DddDevice):
 
     def seatver(self,seat): 
       u,conf = ACTIVE_STATE.getSeatUser(seat)
-      if u == "Unknown":
+      if u == "0":
         ent = {
           "grammar_entry":"",
           "confidence":0,

@@ -18,11 +18,9 @@ import interfaces.DatabaseLocation;
 import mashinelearning.NNData;
 import utils.Tuple;
 /**
- * @author John Ekdahl
- *
  * Keeps a connection to a mySQL database, has functions to interact smoothly with 
  * specific stored procedures aimed at the CarAI project.
- *
+ * @author John Ekdahl & William Axhav Bratt
  */
 public class ServerConnection {
 	Connection connection;
@@ -139,6 +137,9 @@ public class ServerConnection {
 	 */
 	public ArrayList<DatabaseLocation> getPosClass(int id,int limit) throws SQLException
 	{
+		if(limit==-1)
+			limit=Integer.MAX_VALUE;
+		
 		Statement stmt = (Statement) connection.createStatement();
 		ResultSet rs = stmt.executeQuery("CALL getPos("+id+","+limit +")");
 		

@@ -95,19 +95,19 @@ public class CarInterface implements MQTTInterface
 				
 				if(car.getUser("DRIVER").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID());
+					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID(),"coords.csv", "networkExport.eg");
 				}
 				if(car.getUser("PASSENGER").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("PASSENGER").getUserID());
+					lp = LocPrediction.getInstance(car.getUser("PASSENGER").getUserID(),"coords.csv", "networkExport.eg");
 				}
 				if(car.getUser("BACKSEAT0").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("BACKSEAT0").getUserID());
+					lp = LocPrediction.getInstance(car.getUser("BACKSEAT0").getUserID(),"coords.csv", "networkExport.eg");
 				}
 				if(car.getUser("BACKSEAT1").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID());
+					lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID(),"coords.csv", "networkExport.eg");
 				}
 				
 			}
@@ -117,25 +117,25 @@ public class CarInterface implements MQTTInterface
 				
 				if(car.getUser("DRIVER").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID());
-					Tuple<Double,Double> pred = lp.predict();
+					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID(),"coords.csv", "networkExport.eg");
+					ArrayList<Tuple<Tuple<Double, Double>, Double>> pred = lp.predict();
 					client.publish("carai/car/driverPred", new MqttMessage(("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 				if(car.getUser("PASSENGER").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("PASSENGER").getUserID());
+					lp = LocPrediction.getInstance(car.getUser("PASSENGER").getUserID(),"coords.csv", "networkExport.eg");
 					Tuple<Double,Double> pred = lp.predict();
 					client.publish("carai/car/passPred", new MqttMessage(("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 				if(car.getUser("BACKSEAT0").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("BACKSEAT0").getUserID());
+					lp = LocPrediction.getInstance(car.getUser("BACKSEAT0").getUserID(),"coords.csv", "networkExport.eg");
 					Tuple<Double,Double> pred = lp.predict();
 					client.publish("carai/car/back0Pred", new MqttMessage(("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 				if(car.getUser("BACKSEAT1").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID());
+					lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID(),"coords.csv", "networkExport.eg");
 					Tuple<Double,Double> pred = lp.predict();
 					client.publish("carai/car/back1Pred", new MqttMessage(("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}

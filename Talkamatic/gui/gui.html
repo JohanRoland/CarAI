@@ -1,4 +1,3 @@
-
 <!-- saved from url=(0050)file:///home/jstrike/CarAI/Talkamatic/gui/gui.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
 <link rel="stylesheet" type="text/css" href="style.css">
@@ -26,15 +25,17 @@
         {
           extra = "";
           m = msg[i].Popup.title.replace('-','');
-          
-          if(msg[i].Popup.elements.length >0)
+          if(m != "")
           {
-            for(var j in msg[i].Popup.elements[0].Element.items)
+              if(msg[i].Popup.elements.length >0)
             {
-              extra += parseElement( msg[i].Popup.elements[0].Element.items[j]);
+              for(var j in msg[i].Popup.elements[0].Element.items)
+              {
+                extra += parseElement( msg[i].Popup.elements[0].Element.items[j]);
+              }
             }
+            $(".dialogue").prepend("<div class=\"convo\"><p>"+m+"</p>"+extra+"</div>");
           }
-          $(".dialogue").prepend("<div class=\"convo\"><p>"+m+"</p>"+extra+"</div>");
         }
         if("Screen" in msg[i])
         {
@@ -42,6 +43,7 @@
           m = msg[i].Screen.title;
           if(msg[i].Screen.elements.length >0)
           {
+            m = msg[i].Screen.elements[0].Element.title;
             for(var j in msg[i].Screen.elements[0].Element.items)
             {
               extra += parseElement( msg[i].Screen.elements[0].Element.items[j]);
@@ -119,6 +121,24 @@
     sendListToTDM('ask(?X.gpsdata(X))')
   }
   
+  function getDest()
+  {
+    printMsg("Where are we going?")
+    sendListToTDM('ask(?X.destdata(X))')
+  }
+  
+  function getEta()
+  {
+    printMsg("When will we arive?")
+    sendListToTDM('ask(?X.timetodest(X))')
+  }
+  
+  function getMeeting()
+  {
+    printMsg("What is my next scheduled event?")
+    sendListToTDM('ask(?X.next_cal_event(X))')
+  }
+  
   $(function() {
    $("#iform").submit(function(e) {
       e.preventDefault();   
@@ -136,17 +156,22 @@
     <button onclick="connect()">Connect</button>
     <button onclick="disconnect()">DC</button>
     <button onclick="cancel()">Cancel</button>
-    <br>
-    <button onclick="getLoc()">Where Are We?</button>
   </div>
   <div class="ptt">
     <button id="pttbutton">PUSH TO TALK</button> 
   </div>
   <div class="inputbox">
     <form id="iform" name="inform">
-      <input type="text" name="in">
+      <input type="text" name="in" autocomplete="off">
       <input type="submit" value="Submit">
     </form>
+  </div>
+  <div class="quickcmd">
+    <p>Quick commands:</p>
+    <button onclick="getLoc()">Where Are We?</button>
+    <button onclick="getDest()">Where Are We Going?</button>
+    <button onclick="getEta()">ETA?</button>
+    <button onclick="getMeeting()">Meeting?</button>
   </div>
   <div class="dialogue">
     <!--<div class="convo" style="display:none"></div>-->

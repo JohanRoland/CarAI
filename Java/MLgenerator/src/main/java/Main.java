@@ -196,7 +196,8 @@ public class Main {
 		
 		model.holdBackValidation(0.3, true, 1001);
 		model.selectTrainingType(data);
-
+		
+		
 		
 		return model;
 	}

@@ -1,7 +1,17 @@
 body {
   background-color: darkgray;
+  font-size:20px;
 }
 
+input {
+  font-size:20px;
+}
+
+button {
+  margin:5px;
+  font-size:20px;
+}
+  
 .container {
   margin:auto;
   width:60%
@@ -10,13 +20,23 @@ body {
   text-align: center;
 }
 
+.quickcmd {
+  padding:10px;
+  border-style:solid;
+  border-width:2px;
+}
+
+.quickcmd p {
+  text-align:center;
+}
+
 .convo {
   background-color:lightgreen;
   border-radius: 25px;
   border: 2px solid #73AD21;
   padding: 25px; 
   width: 50%;
-  height: 75px;
+  /*height: 75px;*/
   float:left;  
 }
 
@@ -37,9 +57,9 @@ body {
 }
 
 #pttbutton {
-  width: 100px;
-  height:40px;
-  margin: 0px -50px;
+  width: 200px;
+  height:55px;
+  margin: 0px -100px;
   position:relative;
   top:50%;
   left:50%;
