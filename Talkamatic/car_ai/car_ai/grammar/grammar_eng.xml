@@ -125,7 +125,7 @@
     We are going to <slot type="individual" predicate="destdata"/>
   </answer>
   
-<!-- Time to det -->
+<!-- Time to dest -->
 
 	<question speaker="user" predicate="timetodest" type="wh_question">
 		<one-of>

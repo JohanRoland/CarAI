@@ -93,13 +93,23 @@ def formatDateDiff(d1,d2):
       return 0
     outString += " in "
     if day != 0:
-      outString += ("%i days " % day)
+      outString += ("%i day" % day)
+      if day > 1:
+        outString += ("s ")
+      else:
+        outString += " "
     if h != 0:
-      outString += ("%i hours " %h)
+      outString += ("%i hour" %h)
+      if h > 1:
+        outString += ("s ")
+      else:
+        outString += " "
     if (day +h != 0) or (m == 0):
       outString += "and " 
     if m != 0:
-      outString += ("%i minutes" % m)
+      outString += ("%i minute" % m)
+      if m > 1:
+        outString += ("s ")
     return outString   
 
 #    return td.days +" days "+ td.seconds//3600 +" hours and " , 

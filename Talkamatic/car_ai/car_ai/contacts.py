@@ -4,6 +4,7 @@ from decimal import Decimal
 import sys,os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
+import paho.mqtt.client as mqtt
 from Python.DBConnection import User, getAllUsers
 
 CONTACT_NUMBERS = {
@@ -68,7 +69,11 @@ class State:
       return False    
   
   def updateSeat(self,seat,name):
-    self.CARSTATE[seat] = name
+    uid = ""
+    for k,v in self.usersDic.items():
+      if v.getName() == name:
+        uid = k
+    CARSTATE[seat] = (uid,1.0)
 
   def getSeatUser(self,seat):
     return CARSTATE[seat]
@@ -85,6 +90,18 @@ class State:
 
   def getCarstate(self):
     return CARSTATE
+
+  def sendCarState(self):
+    sendState = {}
+    for k,v in CARSTATE.items():
+      if v[0] != "":
+        sendState[k] = [v[0],str(v[1])]
+      else:
+        sendState[k] = []
+    client = mqtt.Client()
+    client.connect("54.229.54.240", 1883, 60)
+    client.publish("carai/face/car",json.dumps(sendState))
+    client.loop(1) #timeout 1 sec
 
 #	returns a list of all new users
   def importFromJSON(self,js_string):
@@ -103,16 +120,16 @@ class State:
 
 
   def importDest(self,js_string):
-    parsed_json = json.loads(js_string,parse_float=Decimal)
+    parsed_json = json.loads(js_string)
     out = ""
     comp =sys.maxint # 100000
     for loc in POI.keys():
-      dist = self.distToPoint(loc,parsed_json)
+      dist = self.distToPoint(loc,parsed_json[0])
       if dist< comp:
         comp = dist  
         out = POI[loc]
     self.DESTINATION = out
-    self.GPSDEST = (float(parsed_json['lat']),float(parsed_json['lon']))
+    self.GPSDEST = parsed_json
     return out
 
   def importGPS(self,js_string):
@@ -120,9 +137,19 @@ class State:
     pos = (float(parsed_json['lat']),float(parsed_json['lon']))
     self.LOCATION = pos
     return pos
+  
+  def convertToPOI(self,p1):
+    comp =sys.maxint # 100000
+    out = ""
+    for loc in POI.keys():
+      dist = self.distToPoint(loc,p1)
+      if dist< comp:
+        comp = dist  
+        out = POI[loc]
+    return out 
 
   def distToPoint(self,p1,p2):
-    dx = float(p2["lon"])-p1[1]
-    dy = float(p2["lat"])-p1[0]
+    dx = p2[1]-p1[1]
+    dy = p2[0]-p1[0]
     return math.sqrt(dx*dx+dy*dy)
 

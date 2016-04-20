@@ -120,11 +120,15 @@ class CaraiDevice(DddDevice):
 
     class destdata(DeviceWHQuery):  
       def perform(self):
-        gps = ACTIVE_STATE.DESTINATION 
+        out = []
+        #for d in ACTIVE_STATE.GPSDEST:
+        d = ACTIVE_STATE.GPSDEST[0] 
         gps_entity = {
-          "grammar_entry": gps,
+          "grammar_entry":  ACTIVE_STATE.convertToPOI(d),
+          "confidence": str(d[2])
           }
-        return [gps_entity] 
+        out.append(gps_entity)
+        return out 
 
 
     class GpsRecognizer(EntityRecognizer):
@@ -147,11 +151,12 @@ class CaraiDevice(DddDevice):
     class timetodest(DeviceWHQuery):
       def perform(self):
         pos = ACTIVE_STATE.LOCATION
-        dest = ACTIVE_STATE.GPSDEST
+        dest = ACTIVE_STATE.GPSDEST[0]
         eta = "-1"
         if pos != (0,0):
           if dest != (0,0):
             di,eta = dist(pos[0],pos[1],dest[0],dest[1])
+            eta = eta.replace("mins","minutes")
         entity = {
           "grammar_entry": eta
           }
@@ -235,8 +240,12 @@ class CaraiDevice(DddDevice):
         def perform(self,s0,s1,s2,s3):
             res = [s0,s1,s2,s3]
             res =filter(None,res)
+            ACTIVE_STATE.updateSeat("DRIVER",s0)
+            ACTIVE_STATE.updateSeat("PASSENGER",s1)
+            ACTIVE_STATE.updateSeat("BACKSEAT0",s2)
+            ACTIVE_STATE.updateSeat("BACKSEAT1",s3)
+            ACTIVE_STATE.sendCarState()
             output = ""
-            print(res)
             if(len(res) > 1):
               res.insert(-1,"and")
             c = 0
@@ -258,11 +267,12 @@ class CaraiDevice(DddDevice):
         ret = []
         for u in  ACTIVE_STATE.getUsersDic().keys():
           name = ACTIVE_STATE.getUsersDic()[u].getName()
-          t = {
-            "grammar_entry":name,
-            "value":name
-          }
-          ret.append(t) 
+          if not name.isdigit():  #Filtering out all samlple data to just get a list of real users
+            t = {
+              "grammar_entry":name,
+              "value":name
+            }
+            ret.append(t) 
         return ret
 
 #  SEAT VERIFICATION

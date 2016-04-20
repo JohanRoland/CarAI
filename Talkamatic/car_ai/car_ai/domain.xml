@@ -47,10 +47,10 @@
   
   <goal type="resolve" question_type="wh_question" predicate="incar">
     <plan>
-			<findout type="wh_question" predicate="seat0"/>
+      <!--<findout type="wh_question" predicate="seat0"/>
 			<findout type="wh_question" predicate="seat1"/>
 			<findout type="wh_question" predicate="seat2"/>
-			<findout type="wh_question" predicate="seat3"/>
+			<findout type="wh_question" predicate="seat3"/> -->
       <dev_query device="CaraiDevice" type="wh_question" predicate="incar"/>
     </plan>
   </goal>
@@ -82,11 +82,8 @@
     </plan>
   </goal>
 
-  <!--<goal type="resolve" question_type="wh_question" predicate="isunknownseat">
-    <plan>
-      <dev_query device="CaraiDevice" type="wh_question" predicate="isunknownseat"/>
-    </plan>
-  </goal> -->
+<!---           Seat recognition          -->
+
   <goal type="resolve" question_type="wh_question" predicate="seat0">
     <plan>
       <dev_query device="CaraiDevice" type="wh_question" predicate="seat0"/>
@@ -113,7 +110,6 @@
 
   <goal type="handle" action="greetUser">
 		<plan>
-      <!-- <findout type="wh_question" predicate="lowconfseat"/> -->
 			<findout type="wh_question" predicate="seat0"/>
 			<findout type="wh_question" predicate="seat1"/>
 			<findout type="wh_question" predicate="seat2"/>
@@ -129,7 +125,7 @@
     device="CaraiDevice">
     <device_query predicate="ulist" type="wh_question"/>
   </parameters>
-  
+ 
 	<goal type="handle" action="setDest">
 		<plan>
 			<findout type="wh_question" predicate="destdata"/>
