@@ -1,5 +1,6 @@
 package car;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import user.User;
@@ -46,13 +47,26 @@ public class Car {
 		return null;
 	}
 	
-	
 	public synchronized User getUser(String position)
 	{
 		if(users.containsKey(getSeatPosition(position)))
 			return users.get(getSeatPosition(position));
 		else
 			return null; 
+	}
+	/**
+	 * Returns all users organized as: driver, front passenger,
+	 * left back passenger, right back passenger.
+	 * @return an ArrayList of the users in the car.
+	 */
+	public ArrayList<User> getAllUsers()
+	{
+		ArrayList<User> output= new ArrayList<User>();
+		output.add(users.get(Positions.DRIVER));
+		output.add(users.get(Positions.PASSENGER));
+		output.add(users.get(Positions.BACKSEAT0));
+		output.add(users.get(Positions.BACKSEAT1));
+		return output;
 	}
 	
 	public synchronized void setUser(String pos, String usr)
