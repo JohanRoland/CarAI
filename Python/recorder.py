@@ -4,11 +4,16 @@ from struct import pack
 
 import pyaudio
 import wave
+import os
 
-THRESHOLD = 500
+import paho.mqtt.client as mqtt
+import requests
+
+THRESHOLD = 300
 CHUNK_SIZE = 1024
 FORMAT = pyaudio.paInt16
 RATE = 44100
+CHANNEL = 2
 
 def is_silent(snd_data):
     "Returns 'True' if below the 'silent' threshold"
@@ -66,7 +71,7 @@ def record():
     it without getting chopped off.
     """
     p = pyaudio.PyAudio()
-    stream = p.open(format=FORMAT, channels=1, rate=RATE,
+    stream = p.open(format=FORMAT, channels=CHANNEL, rate=RATE,
         input=True, output=True,
         frames_per_buffer=CHUNK_SIZE)
 
@@ -108,13 +113,51 @@ def record_to_file(path):
     data = pack('<' + ('h'*len(data)), *data)
 
     wf = wave.open(path, 'wb')
-    wf.setnchannels(1)
+    wf.setnchannels(CHANNEL)
     wf.setsampwidth(sample_width)
     wf.setframerate(RATE)
     wf.writeframes(data)
     wf.close()
 
+def record_and_send():
+  record_to_file('demo.wav')
+  #sample_width, data = record()
+  os.system("soundconverter -b -m audio/x-flac -q -s .flac 'demo.wav'")
+  print("recording ended")
+  with open('demo.flac','rb') as fobj:
+    s = requests.Session()
+    files = {'file': fobj}
+    url = "https://stream.watsonplatform.net/speech-to-text/api/v1/recognize"
+    headers = {"Content-Type": "audio/flac"}#,"Transfer-Encoding": "chunked"}
+    auth=('f5d5460d-ae13-4290-887b-33f1c14104f6','LISdhubRqXAw')
+    r = s.post(url,files=files,auth=auth,headers=headers)
+    #r = requests.post(url,auth=auth,files=files,headers=headers)
+    #print(r.status_code)
+    text = r.json()['results'][0]['alternatives'][0]['transcript']
+    conf =r.json()['results'][0]['alternatives'][0]['confidence']
+    print((text,conf))
+    c = mqtt.Client()
+    c.connect("54.229.54.240", 1883, 60)
+    c.publish("talkamatic/input",text)
+    c.loop(1)
+
+
+def main():
+  def on_connect(client, userdata, rc):  
+    print("connected")
+    client.subscribe("talkamatic/ptt")
+  def on_message(client, userdata, msg):  
+    record_and_send()
+  client = mqtt.Client()
+  client.on_connect = on_connect
+  client.on_message = on_message
+  client.connect("54.229.54.240", 1883, 60)
+  client.loop_forever()
+
+
 if __name__ == '__main__':
-    print("please speak a word into the microphone")
-    record_to_file('demo.wav')
-    print("done - result written to demo.wav")
+  main()
+    #record_and_send()
+    #print("please speak a word into the microphone")
+    #record_to_file('demo.wav')
+   # print("done - result written to demo.wav")
