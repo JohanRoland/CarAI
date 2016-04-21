@@ -120,7 +120,13 @@ def record_to_file(path):
     wf.close()
 
 def record_and_send():
+  c = mqtt.Client()
+  c.connect("54.229.54.240", 1883, 60)
+  c.publish("talkamatic/pttevent","{\"ptt\":\"on\"}")
+  c.loop(1)
   record_to_file('demo.wav')
+  c.publish("talkamatic/pttevent","{\"ptt\":\"off\"}")
+  c.loop(1)
   #sample_width, data = record()
   os.system("soundconverter -b -m audio/x-flac -q -s .flac 'demo.wav'")
   print("recording ended")
@@ -136,8 +142,6 @@ def record_and_send():
     text = r.json()['results'][0]['alternatives'][0]['transcript']
     conf =r.json()['results'][0]['alternatives'][0]['confidence']
     print((text,conf))
-    c = mqtt.Client()
-    c.connect("54.229.54.240", 1883, 60)
     c.publish("talkamatic/input",text)
     c.loop(1)
 
