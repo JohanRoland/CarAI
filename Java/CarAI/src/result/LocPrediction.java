@@ -463,7 +463,7 @@ public class LocPrediction {
 			switch(1)
 			{
 			case 1:
-				//loadHyperParamNetwork();
+				loadHyperParamNetwork();
 				hyperParamLerning(tempFile);
 				saveNetwork(saveFile);
 				break;

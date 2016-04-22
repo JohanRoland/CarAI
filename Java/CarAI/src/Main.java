@@ -203,12 +203,13 @@ public class Main
     		}
     		else if(args[0].equals("9"))
     		{
-    			/*
+    			
 				NNData nn=new NNData();
-				nn.parseKML("C:\\Users\\Knarkapan\\git\\CarAI\\Java\\CarAI\\Platshistorik.kml", 0);
+				nn.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml", 0);
 				nn.coordCullByDist();
+				
 				nn.exportToDB(1);
-				*/
+				
     			/*
 				try {
 					s.addGeoUsers("C:\\Users\\Knarkapan\\git\\CarAI\\Java\\CarAI\\data");
