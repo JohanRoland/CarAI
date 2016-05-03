@@ -270,7 +270,7 @@ class CaraiDevice(DddDevice):
           if not name.isdigit():  #Filtering out all samlple data to just get a list of real users
             t = {
               "grammar_entry":name,
-              "value":name
+#              "value":name
             }
             ret.append(t) 
         return ret

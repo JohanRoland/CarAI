@@ -55,7 +55,21 @@
       }
     }
   };
-  
+ 
+  nrws.onmessage = function(evt) {
+    m = JSON.parse(evt.data)
+    if(m.ptt == 'on')
+    {
+      pttOn();
+    }    
+    else if( m.ptt == 'off')
+    {
+      pttOff();
+    }
+
+  };
+
+ 
   function parseElement(e)
   {
       if(e.Item.title != null)
@@ -83,9 +97,15 @@
     console.log("sent message");
     nrws.send(m);
     });
-    
-    //ws.send("[{\"content\":[{\"score\":1,\"utterance\":\"Flingor\"}],\"event_type\":\"RECOGNITION\",\"_sender\":\"Frontend\",\"_reason\":null}]");
+  }; 
+ 
+  function sendPTTToTDM() {
+    waitForSocketConnection(nrws,function() {
+    console.log("mic activated");
+    nrws.send("pttpushed");
+    });
   };
+  
   function waitForSocketConnection(socket, callback){
     setTimeout(
         function () {
@@ -113,6 +133,17 @@
   };
   function cancel() {
     ws.send("[{\"InputFromGui\":{\"type\":\"key\",\"name\":\"cancel\",\"value\":\"cancel\",\"title\":\"text\"}}]") 
+  }
+  function pttOn()
+  { 
+    $('#pttbutton').prop('disabled',true);
+    $('#pttbutton').css("background-color","green");
+  }
+  
+  function pttOff()
+  {
+    $('#pttbutton').css("background-color","");
+    $('#pttbutton').prop('disabled',false);
   }
 
   function getLoc()
@@ -158,7 +189,7 @@
     <button onclick="cancel()">Cancel</button>
   </div>
   <div class="ptt">
-    <button id="pttbutton">PUSH TO TALK</button> 
+    <button id="pttbutton" onclick="sendPTTToTDM()">PUSH TO TALK</button> 
   </div>
   <div class="inputbox">
     <form id="iform" name="inform">
