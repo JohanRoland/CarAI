@@ -596,6 +596,12 @@ public class NNData
 		{
 			for(int i = 0; i < inputClust.size();i++)
 			{
+				if(days.get(i)==4)
+				{
+					int j = 0;
+					j++;
+				}
+				
 				if(inputClust.get(i)!=0 && outputClust.get(i)!=0)
 				{
 					tempSecondInputClust  = inputClust.get(i);

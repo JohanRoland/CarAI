@@ -96,6 +96,12 @@ public class MqttTime implements MQTTInterface {
 		}
 		return instance;
 	}
+
+	public void kill() throws MqttException
+	{
+		client.disconnectForcibly();
+		client.close();
+	}	
 	
 	/**
 	 * @author William

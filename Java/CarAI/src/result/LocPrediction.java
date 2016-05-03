@@ -177,6 +177,8 @@ public class LocPrediction {
 		EncogModel model = new EncogModel(data);
 		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);	
 		helper = data.getNormHelper();
+		
+		
 	}
 	
 	/**
@@ -233,6 +235,7 @@ public class LocPrediction {
 		helper = data.getNormHelper();
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
+		
 		
 	}
 	
@@ -457,8 +460,10 @@ public class LocPrediction {
 		
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 		
+		nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml", 0);
+		nd.coordCullByDist();
 		
-		if(nd.importFromDB(id, -1)>0)
+		if(true)//nd.importFromDB(id, -1)>0)
 		{
 			switch(1)
 			{
@@ -487,6 +492,8 @@ public class LocPrediction {
 	 * and return it.
 	 * tempFile and saveFile will only be used if a new
 	 * user is retrieved.
+	 * 
+	 * After this method is used an Encog instance will most probably be active.
 	 * 
 	 * @param userID
 	 * @param tempFile

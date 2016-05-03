@@ -46,7 +46,11 @@ public class FaceMQTT implements MQTTInterface {
             me.printStackTrace();
 		}
 	}
-	
+	public void kill() throws MqttException
+	{
+		client.disconnect();
+		client.close();
+	}
 	private class Callback implements MqttCallback
 	{
 
