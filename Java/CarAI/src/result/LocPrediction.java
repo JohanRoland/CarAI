@@ -457,13 +457,15 @@ public class LocPrediction {
 		
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 		
+		nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml", 0);
+		nd.coordCullByDist();
 		
-		if(nd.importFromDB(id, -1)>0)
+		if(true)//nd.importFromDB(id, -1)>0)
 		{
 			switch(1)
 			{
 			case 1:
-				loadHyperParamNetwork();
+				//loadHyperParamNetwork();
 				hyperParamLerning(tempFile);
 				saveNetwork(saveFile);
 				break;

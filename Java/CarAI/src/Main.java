@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 import car.CarInterface;
 import facerecognition.FaceMQTT;
+import facerecognition.FaceRecognition;
 import interfaces.DatabaseLocation;
 import mashinelearning.DBSCAN;
 import mashinelearning.NNData;
@@ -31,8 +32,9 @@ public class Main
     	{
     		if(args[0].equals("1"))
     		{
-    			System.out.println("SpeechRecognition Debug");
-    			System.out.println("TO BE IMPLEMENTED");
+    			System.out.println("FaceRecog Debug");
+    			FaceRecognition f = new FaceRecognition();
+    			f.start(true);
     		}
     		else if(args[0].equals("2"))
     		{
