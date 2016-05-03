@@ -177,6 +177,8 @@ public class LocPrediction {
 		EncogModel model = new EncogModel(data);
 		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);	
 		helper = data.getNormHelper();
+		
+		
 	}
 	
 	/**
@@ -233,6 +235,7 @@ public class LocPrediction {
 		helper = data.getNormHelper();
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
+		
 		
 	}
 	
@@ -487,6 +490,8 @@ public class LocPrediction {
 	 * and return it.
 	 * tempFile and saveFile will only be used if a new
 	 * user is retrieved.
+	 * 
+	 * After this method is used an Encog instance will most probably be active.
 	 * 
 	 * @param userID
 	 * @param tempFile

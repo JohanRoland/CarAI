@@ -6,6 +6,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.encog.Encog;
+
 import car.CarInterface;
 import facerecognition.FaceMQTT;
 import interfaces.DatabaseLocation;
@@ -49,7 +52,7 @@ public class Main
     		    //	Scheduler s = new Scheduler();
 
     			try {
-        			LocPrediction lp = LocPrediction.getInstance(1, "coords.csv", "networkExport.eg");
+        			LocPrediction lp = LocPrediction.getInstance(3, "coords.csv", "networkExport.eg");
 					lp.predictHyperTwoClust(2, 4);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -209,8 +212,9 @@ public class Main
 				nn.coordCullByDist();
 				nn.exportToDB(1);
 				*/
-    			/*
+
 				try {
+					ServerConnection s= ServerConnection.getInstance();
 					s.addGeoUsers("C:\\Users\\Knarkapan\\git\\CarAI\\Java\\CarAI\\data");
 
     				
@@ -219,7 +223,6 @@ public class Main
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				*/
     		}
     		else
     		{
@@ -227,7 +230,20 @@ public class Main
     		}
     	}
     	
+    	//***************Cleanup*****************
+    	try {
+    		
+    		mt.kill();
+		}
+    	catch (MqttException e)
+    	{
+			e.printStackTrace();
+		}
+    	Encog.getInstance().shutdown();
+    	//*************End Cleanup****************
     	
-    	
+    	return ;		
     }
+    
+    
 }
