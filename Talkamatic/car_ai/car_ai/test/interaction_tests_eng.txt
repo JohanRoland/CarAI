@@ -4,7 +4,7 @@ U> Call John
 S> Calling John.
 
 
---- Test create user
+--- Get event
 S> Booting System
-U> create user Dave
-S> Created user Dave.
+U> Do i have an event on thursday
+S> Yes, you got a test

@@ -1,5 +1,5 @@
 import os, sys
-from datetime import datetime
+from datetime import datetime,timedelta
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
 from tdm.lib.device import DddDevice,EntityRecognizer,DeviceAction,DeviceWHQuery,Validity
@@ -14,7 +14,7 @@ from Python.DBConnection import createUser
 
 
 from Python.GeoData import dist,locInfo
-from Python.FetchCal import getNextEvent,parseCal,formatDateDiff
+from Python.FetchCal import getNextEvent,getEvent,parseCal,formatDateDiff
 #print(sys.path)
 class CaraiDevice(DddDevice):
     class Call(DeviceAction):
@@ -203,6 +203,47 @@ class CaraiDevice(DddDevice):
             }
             return [event]
 
+    class cal_event(DeviceWHQuery):
+        PARAMETERS =["day.grammar_entry"]
+        def perform(self,day):
+            days = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
+            weekday = days.index(day)
+            tnow = datetime.now()
+            daysahead = weekday - tnow.weekday()
+            if daysahead <= 0: 
+              daysahead += 7
+            date = tnow + timedelta(daysahead)
+            date = date.replace(hour=0,minute=0,second=0)
+            evs = getEvent(1,date)
+            outstring = ""
+            c = 0
+            for es in evs:
+              ev = parseCal(es)
+              #ev = parseCal(getNextEvent(1))
+              #timeLeft = formatDateDiff(ev[1],datetime.now())
+              timeofday = ev[1].strftime('%H:%M')
+              if c == len(evs) -1:
+                outstring += ev[0] + " at " + timeofday 
+              else: 
+                outstring += ev[0] + " at " + timeofday + "and " 
+              c = c+1
+            event = {
+                "grammar_entry":outstring
+            }
+            return [event]
+    class DayNameRecognizer(EntityRecognizer):
+        def recognize_entity(self, string):
+            result = []
+            words = string.lower().split()
+            days = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
+            for u in days:
+                if u in words:
+                    recognized_entity = {
+                        "sort": "day_name",
+                        "grammar_entry": u
+                    }
+                    result.append(recognized_entity)
+            return result
 
 #
 #      USER RECOGNITION

@@ -2,74 +2,97 @@
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
 <link rel="stylesheet" type="text/css" href="style.css">
 <script src="./gui_files/jquery.min.js"></script>
-<script src="./gui_files/mqtt.js"></script>
+<script src="./gui_files/browserMqtt.js"></script>
 <script>
-  var ws = new WebSocket("ws://localhost:8888/tdm_gui");  
-  var nrws = new WebSocket("ws://192.168.1.130:1880/gui");
+  var ws;
+  var nrws;
+  /*var client = mqtt.connect("ws://54.229.54.240:9001/ws");
 
+  client.subscribe("talkamatic/pttevent")
+  client.on("message", function(topic, payload) {
+    //alert([topic, payload].join(": "));
+  });
   /*ws.onopen = function() {
     ws.send("Hello, world");
   };*/
-  ws.onmessage = function (evt) {
-    msg = JSON.parse(evt.data);
-    console.log(JSON.stringify(msg,null,2));
-    if(msg.length != 0)
-    {
-      for(var i in msg)
+
+  function connectToTDM()
+  {
+    ws = new WebSocket("ws://localhost:8888/tdm_gui"); 
+    ws.onopen = function () {
+      connectedOn();
+    };
+    ws.onclose = function () {
+      connectedOff();
+    };
+    ws.onerror = function (evt) {
+      connectedOff();
+    };
+    ws.onmessage = function (evt) {
+      msg = JSON.parse(evt.data);
+      console.log(JSON.stringify(msg,null,2));
+      if(msg.length != 0)
       {
-        if("DeviceResult" in msg[i])
+        for(var i in msg)
         {
-          console.log("Action: "+ msg[i].DeviceResult.action)
-        }
-        if("Popup" in msg[i])
-        {
-          extra = "";
-          m = msg[i].Popup.title.replace('-','');
-          if(m != "")
+          if("DeviceResult" in msg[i])
           {
-              if(msg[i].Popup.elements.length >0)
+            console.log("Action: "+ msg[i].DeviceResult.action)
+          }
+          if("Popup" in msg[i])
+          {
+            extra = "";
+            m = msg[i].Popup.title.replace('-','');
+            if(m != "")
             {
-              for(var j in msg[i].Popup.elements[0].Element.items)
+                if(msg[i].Popup.elements.length >0)
               {
-                extra += parseElement( msg[i].Popup.elements[0].Element.items[j]);
+                for(var j in msg[i].Popup.elements[0].Element.items)
+                {
+                  extra += parseElement( msg[i].Popup.elements[0].Element.items[j]);
+                }
+              }
+              $(".dialogue").prepend("<div class=\"convo\"><p>"+m+"</p>"+extra+"</div>");
+            }
+          }
+          if("Screen" in msg[i])
+          {
+            extra = "";
+            m = msg[i].Screen.title;
+            if(msg[i].Screen.elements.length >0)
+            {
+              m = msg[i].Screen.elements[0].Element.title;
+              for(var j in msg[i].Screen.elements[0].Element.items)
+              {
+                extra += parseElement( msg[i].Screen.elements[0].Element.items[j]);
               }
             }
             $(".dialogue").prepend("<div class=\"convo\"><p>"+m+"</p>"+extra+"</div>");
+            
           }
-        }
-        if("Screen" in msg[i])
-        {
-          extra = "";
-          m = msg[i].Screen.title;
-          if(msg[i].Screen.elements.length >0)
-          {
-            m = msg[i].Screen.elements[0].Element.title;
-            for(var j in msg[i].Screen.elements[0].Element.items)
-            {
-              extra += parseElement( msg[i].Screen.elements[0].Element.items[j]);
-            }
-          }
-          $(".dialogue").prepend("<div class=\"convo\"><p>"+m+"</p>"+extra+"</div>");
-          
         }
       }
-    }
-  };
+    };
+  }
  
-  nrws.onmessage = function(evt) {
-    m = JSON.parse(evt.data)
-    if(m.ptt == 'on')
-    {
-      pttOn();
-    }    
-    else if( m.ptt == 'off')
-    {
-      pttOff();
-    }
-
-  };
-
+  function connectInput()
+  {
+    nrws = new WebSocket("ws://192.168.1.130:1880/gui");
  
+    nrws.onmessage = function(evt) {
+      m = JSON.parse(evt.data)
+      if(m.ptt == 'on')
+      {
+        pttOn();
+      }    
+      else if( m.ptt == 'off')
+      {
+        pttOff();
+      }
+
+    };
+
+  }
   function parseElement(e)
   {
       if(e.Item.title != null)
@@ -93,6 +116,7 @@
 
 
   function sendUtteranceToTDM(m) {
+    //client.publish("talkamatic/input",m);
     waitForSocketConnection(nrws,function() {
     console.log("sent message");
     nrws.send(m);
@@ -100,6 +124,7 @@
   }; 
  
   function sendPTTToTDM() {
+    //client.publish("talkamatic/ptt","pttpushed")
     waitForSocketConnection(nrws,function() {
     console.log("mic activated");
     nrws.send("pttpushed");
@@ -126,8 +151,10 @@
 
   function connect()
   {
-    ws = new WebSocket("ws://localhost:8888/tdm_gui");
+    connectToTDM();
+    connectInput();
   };
+
   function disconnect() {
     ws.send("[{\"Disconnect\":{}}]")
   };
@@ -139,11 +166,21 @@
     $('#pttbutton').prop('disabled',true);
     $('#pttbutton').css("background-color","green");
   }
-  
   function pttOff()
   {
     $('#pttbutton').css("background-color","");
     $('#pttbutton').prop('disabled',false);
+  }
+
+  function connectedOn()
+  { 
+    $('#cbutton').prop('disabled',true);
+    $('#cbutton').css("background-color","green");
+  }  
+  function connectedOff()
+  {
+    $('#cbutton').css("background-color","red");
+    $('#cbutton').prop('disabled',false);
   }
 
   function getLoc()
@@ -170,6 +207,10 @@
     sendListToTDM('ask(?X.next_cal_event(X))')
   }
   
+  $(document).ready(function() {
+    connect();
+  });
+
   $(function() {
    $("#iform").submit(function(e) {
       e.preventDefault();   
@@ -184,7 +225,7 @@
   <body><div class="container">
   <h1 class="sheader">CARAI</h1>
   <div class="buttons">
-    <button onclick="connect()">Connect</button>
+    <button class="cbutton" onclick="connect()">Connect</button>
     <button onclick="disconnect()">DC</button>
     <button onclick="cancel()">Cancel</button>
   </div>

@@ -12,6 +12,7 @@
   <sort name="locs" dynamic="true"/>
   <sort name="car_seat" dynamic="true"/>
   <sort name="deg" dynamic="true"/>
+  <sort name="day_name" dynamic="true"/>
   <predicate name="selected_contact" sort="contact"/>
   <predicate name="phone_number_of_contact" sort="phone_number"/>
   <predicate name="all_contacts" sort="contact"/>
@@ -29,6 +30,8 @@
   <predicate name="car_not_empty" sort="boolean"/>
   <predicate name="temperature" sort="deg"/>
   <predicate name="next_cal_event" sort="u_name"/>
+  <predicate name="cal_event" sort="u_name"/>
+  <predicate name="day" sort="day_name"/>
   <predicate name="startup" sort="boolean"/>
   <predicate name="ulist" sort="u_name"/>
 </ontology>

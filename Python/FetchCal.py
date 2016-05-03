@@ -73,6 +73,26 @@ def getNextEvent(user):
     else:
       return {} 
 
+def getEvent(user,time):
+    credentials = get_credentials(1)
+    http = credentials.authorize(httplib2.Http())
+    service = discovery.build('calendar', 'v3', http=http)
+
+    #now = datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+    now = time.isoformat()+'Z'
+    #print('Getting the upcoming 10 events')
+    eventsResult = service.events().list(
+        calendarId='primary', timeMin=now, maxResults=5, singleEvents=True,
+        orderBy='startTime').execute()
+    events = eventsResult.get('items', [])
+    retval = []
+    for e in events:
+      start = datetime.strptime(e['start']['dateTime'][:-6],'%Y-%m-%dT%H:%M:%S')
+      if start.date() == time.date():
+        retval.append(e)
+
+   #TODO DO some filtering so only events that within a time frame if time is set 
+    return retval
 
 def parseCal(e):
     #e = json.loads(strin.replace("'","\""))

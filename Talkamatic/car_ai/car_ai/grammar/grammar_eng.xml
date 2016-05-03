@@ -191,4 +191,19 @@
     Your next scheduled event is a <slot type="individual" predicate="next_cal_event"/>
   </answer>
 
+  <question speaker="system" predicate="day">
+    What day
+  </question>
+
+  <question speaker="user" predicate="cal_event" type="wh_question">
+		<one-of>
+      <item>Do i have an event on <slot sort="day_name"/></item>
+    </one-of>
+	</question>
+  <question speaker="all" predicate="cal_event" type="wh_question">
+    calendar query
+  </question> 
+	<answer speaker="system" predicate="cal_event">
+    Yes, you got a <slot type="individual" predicate="cal_event"/>
+  </answer>
 </grammar>
