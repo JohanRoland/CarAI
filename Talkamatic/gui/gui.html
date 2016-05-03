@@ -3,8 +3,10 @@
 <link rel="stylesheet" type="text/css" href="style.css">
 <script src="./gui_files/jquery.min.js"></script>
 <script src="./gui_files/mqtt.js"></script>
+<script src="./gui_files/recorder.js"></script>
 <script>
-  var ws = new WebSocket("ws://localhost:8888/tdm_gui");  
+  //var ws = new WebSocket("ws://localhost:8888/tdm_gui");  
+  var ws = new WebSocket("ws://192.168.1.130:1880/gui");
   var nrws = new WebSocket("ws://192.168.1.130:1880/gui");
 
   /*ws.onopen = function() {
@@ -148,6 +150,47 @@
       document.forms["inform"]["in"].value = "";
     }); 
   });
+  
+  ///////////////RECORDING PART////////////////////
+  
+      var onFail = function(e) {
+        console.log('Rejected!', e);
+      };
+
+      var onSuccess = function(s) {
+        console.log("success!")
+        var context = new webkitAudioContext();
+        var mediaStreamSource = context.createMediaStreamSource(s);
+        recorder = new Recorder(mediaStreamSource);
+        recorder.record();
+
+        // audio loopback
+        // mediaStreamSource.connect(context.destination);
+      }
+
+      window.URL = window.URL || window.webkitURL;
+      navigator.mediaDevices.getUserMedia  = navigator.mediaDevices.getUserMedia || navigator.mediaDevices.webkitGetUserMedia || navigator.mediaDevices.mozGetUserMedia || navigator.mediaDevices.msGetUserMedia;
+
+      var recorder;
+      var audio = document.querySelector('audio');
+
+      function startRecording() {
+        if (navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices.getUserMedia({audio: true}, onSuccess, onFail);
+        } else {
+          console.log('navigator.mediaDevices.getUserMedia not present');
+        }
+      }
+
+      function stopRecording() {
+        recorder.stop();
+        recorder.exportWAV(function(s) {
+          audio.src = window.URL.createObjectURL(s);
+        });
+      }
+  
+  
+  ////////////////////////////////////////////////
 </script></head>
 
   <body><div class="container">
@@ -158,7 +201,8 @@
     <button onclick="cancel()">Cancel</button>
   </div>
   <div class="ptt">
-    <button id="pttbutton">PUSH TO TALK</button> 
+    <button id="pttbutton" onclick="startRecording()" >PUSH TO TALK</button>
+    <button id="pttbutton" onclick="stopRecording()">Stop</button>    
   </div>
   <div class="inputbox">
     <form id="iform" name="inform">
