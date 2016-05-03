@@ -6,6 +6,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.encog.Encog;
+
 import car.CarInterface;
 import facerecognition.FaceMQTT;
 import facerecognition.FaceRecognition;
@@ -51,7 +54,7 @@ public class Main
     		    //	Scheduler s = new Scheduler();
 
     			try {
-        			LocPrediction lp = LocPrediction.getInstance(1, "coords.csv", "networkExport.eg");
+        			LocPrediction lp = LocPrediction.getInstance(3, "coords.csv", "networkExport.eg");
 					lp.predictHyperTwoClust(2, 4);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -206,14 +209,13 @@ public class Main
     		else if(args[0].equals("9"))
     		{
     			
-				NNData nn=new NNData();
+				/*NNData nn=new NNData();
 				nn.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml", 0);
 				nn.coordCullByDist();
 				
-				nn.exportToDB(1);
-				
-    			/*
+				nn.exportToDB(1);*/
 				try {
+					ServerConnection s= ServerConnection.getInstance();
 					s.addGeoUsers("C:\\Users\\Knarkapan\\git\\CarAI\\Java\\CarAI\\data");
 
     				
@@ -222,7 +224,6 @@ public class Main
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				*/
     		}
     		else
     		{
@@ -230,7 +231,20 @@ public class Main
     		}
     	}
     	
+    	//***************Cleanup*****************
+    	try {
+    		
+    		mt.kill();
+		}
+    	catch (MqttException e)
+    	{
+			e.printStackTrace();
+		}
+    	Encog.getInstance().shutdown();
+    	//*************End Cleanup****************
     	
-    	
+    	return ;		
     }
+    
+    
 }

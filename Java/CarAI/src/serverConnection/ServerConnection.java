@@ -147,7 +147,16 @@ public class ServerConnection {
 		
 		while(rs.next())
 		{
-			out.add(new DBQuerry(rs.getDouble("Lat"),rs.getDouble("Lon"),rs.getInt("Hours"),rs.getInt("Minutes") ,rs.getDouble("nextLat"),rs.getDouble("nextLon")));
+			String dateString = rs.getString("eDate");
+			
+			String[] dateAndTime = dateString.split(" ");
+			
+			String[] onlyDate = dateAndTime[0].split("-");
+			String[] onlyTime = dateAndTime[1].split(":");
+			
+			out.add(new DBQuerry(rs.getDouble("Lat"),rs.getDouble("Lon"),Integer.parseInt(onlyDate[0]),
+					Integer.parseInt(onlyDate[1]), Integer.parseInt(onlyDate[2]), Integer.parseInt(onlyTime[0]),
+					Integer.parseInt(onlyTime[1]), rs.getDouble("nextLat"),rs.getDouble("nextLon")));
 		}
 		stmt.close();
 		return out;
@@ -157,7 +166,7 @@ public class ServerConnection {
 	 * @param ID
 	 * @param Long
 	 * @param Lat
-	 * @param time
+	 * @param time YYYY-MM-DD
 	 * @param Long2
 	 * @param Lat2
 	 * @throws SQLException
@@ -165,10 +174,10 @@ public class ServerConnection {
 	 * 
 	 * Adds an entry to the possitionhistory rable through a stored procedure
 	 */
-	public void addPosData(int ID, double Long, double Lat, double time, double Long2,double Lat2) throws SQLException
+	public void addPosData(int ID, double Long, double Lat, String time, double Long2,double Lat2) throws SQLException
 	{
 		Statement stmt = (Statement) connection.createStatement();
-		stmt.executeQuery("CALL enterPossitionData("+ID+","+Long+","+Lat+","+time+","+Long2+","+Lat2+")");
+		stmt.executeQuery("CALL enterPossitionData("+ID+","+Long+","+Lat+", '"+time+"' ,"+Long2+","+Lat2+")");
 		stmt.close();
 	}
 	/**
@@ -187,7 +196,7 @@ public class ServerConnection {
 						
 		
 		Statement stmt = (Statement) connection.createStatement();
-		String values= "INSERT INTO PositionHistoryTable (ID,Lon,Lat,dayOfTheWeek,Hours,Minutes,nextLon,nextLat) VALUES " ;		
+		String values= "INSERT INTO PositionHistoryTable (ID,Lon,nextLon,nextLat,Date) VALUES " ;		
 		stmt.execute("DELETE FROM PositionHistoryTable WHERE ID="+ ID);
 		
 		int i =0;
@@ -195,19 +204,20 @@ public class ServerConnection {
 		int ltoh=0;
 		for(i=0;i<input.length;i=i+ltoh)
 		{
-
 			StringBuilder sb = new StringBuilder();
-			sb.append("INSERT INTO PositionHistoryTable (ID,Lon,Lat,dayOfTheWeek,Hours,Minutes,nextLon,nextLat) VALUES ");
+			sb.append("INSERT INTO mydb.PositionHistoryTable (ID,Lon,Lat,eDate,nextLon,nextLat) VALUES ");
 			ltoh= Math.min((input.length -i), 100);
 			for(int j=i;j<(i+ltoh-1);j++)
 			{
-				sb.append( "(" + ID + ","+ input[j].getLon() + "," + input[j].getLat() + "," + input[j].getDayOfWeek() + "," + input[j].getHTime() + "," + input[j].getMTime() + "," + input[j].getNLon() + "," + input[j].getNLat() +"),");  
+				sb.append( "(" + ID + ","+ input[j].getLon() + "," + input[j].getLat() + ","
+			    +"'"+input[j].getYear()+"-" +input[j].getMonth()+"-"+input[j].getDay()+" " + input[j].getHTime()+":"+input[j].getMTime()+":"+ "00" +"'"+","
+				+ input[j].getNLon() + "," + input[j].getNLat() +"),");
 			}
-			sb.append("(" + ID + ","+ input[(i+ltoh-1)].getLon() + "," + input[(i+ltoh-1)].getLat() + "," + input[(i+ltoh-1)].getDayOfWeek() + "," + input[(i+ltoh-1)].getHTime() + "," + input[(i+ltoh-1)].getMTime() + "," + input[(i+ltoh-1)].getNLon() + "," + input[(i+ltoh-1)].getNLat() +");");
+			sb.append( "(" + ID + ","+ input[(i+ltoh-1)].getLon() + "," + input[(i+ltoh-1)].getLat() + ","
+				    +"'"+input[(i+ltoh-1)].getYear()+"-" +input[(i+ltoh-1)].getMonth()+"-"+input[(i+ltoh-1)].getDay()+" " + input[(i+ltoh-1)].getHTime()+":"+input[(i+ltoh-1)].getMTime()+":"+ "00" +"'"+","
+					+ input[(i+ltoh-1)].getNLon() + "," + input[(i+ltoh-1)].getNLat() +");");
 			
-			//System.out.println(sb.toString());
-			
-			
+			System.out.println(sb.toString());
 			stmt.execute(sb.toString());
 		}
 		}catch(Exception e)
@@ -303,6 +313,7 @@ public class ServerConnection {
 			nextLat = nla;
 			nextLon = nlo;
 		}
+		
 		public DBQuerry(double la, double lo,int year,int month,int day,int hour, int min, double nla,double nlo)
 		{
 			this.lat = la;
@@ -363,6 +374,7 @@ public class ServerConnection {
 		{
 			return day;
 		}
+		
 		public int getMonth()
 		{
 			return month;
@@ -391,6 +403,7 @@ public class ServerConnection {
 			int out = c.get(Calendar.DAY_OF_WEEK);
 			return (out < 6);
 		}
+
 		public int getDayOfWeek() {
 			Calendar c = new GregorianCalendar();// Calendar.getInstance();
 			c.set(Calendar.YEAR, year);
@@ -398,8 +411,7 @@ public class ServerConnection {
 			c.set(Calendar.DATE, day);
 			int out = c.get(Calendar.DAY_OF_WEEK);
 			return out;
-		}
-			
+		}	
 	}
 
 }
