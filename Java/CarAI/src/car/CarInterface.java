@@ -13,8 +13,8 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import com.google.gson.*;
 
 import interfaces.MQTTInterface;
+import prediction.LocPrediction;
 import predictorG.PredictorG;
-import result.LocPrediction;
 import utils.JSONCAR;
 import utils.Tuple;
 import utils.Utils;

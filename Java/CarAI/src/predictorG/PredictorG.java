@@ -13,10 +13,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
+
+import prediction.LocPrediction;
+
 import java.util.Set;
 
 import predictorG.DayTime;
-import result.LocPrediction;
 import utils.Tuple;
 /**
  * @author Johan Ekdahl

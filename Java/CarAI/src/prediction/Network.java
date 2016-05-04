@@ -1,4 +1,4 @@
-package result;
+package prediction;
 
 import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.ml.data.MLData;
