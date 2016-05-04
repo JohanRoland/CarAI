@@ -124,6 +124,83 @@ public class LocPrediction {
 	{
 		EncogDirectoryPersistence.saveObject(new File(filePath), bestMethod);
 	}
+	/**
+	 * 
+	 * 
+	 * 
+	 * @param networkPath
+	 * @param dataPath
+	 * @param networkType 0: clusters, 1: hyper param 2 cluster ,2: coords
+	 */
+	private void loadNetwork(String networkPath, String dataPath, int networkType)
+	{
+		bestMethod = (MLRegression) EncogDirectoryPersistence.loadObject(new File(networkPath));
+		
+		VersatileDataSource source = new CSVDataSource(new File(dataPath),false,format);
+		data =  new VersatileMLDataSet(source);
+
+		data.getNormHelper().setFormat(format);
+		
+		ColumnDefinition previus;		
+		ColumnDefinition here;
+		ColumnDefinition columnDay;
+		ColumnDefinition columnMTime;
+		ColumnDefinition dest;	
+
+		switch(networkType)
+		{
+			case 0:
+				here = data.defineSourceColumn("here",0,ColumnType.nominal);		
+				columnDay = data.defineSourceColumn("day",1,ColumnType.nominal);
+				columnMTime = data.defineSourceColumn("minutes",2,ColumnType.continuous);
+				dest = data.defineSourceColumn("dest",3,ColumnType.nominal);	
+				data.analyze();
+				data.defineInput(here);
+				data.defineInput(columnDay);
+				data.defineInput(columnMTime);
+				data.defineOutput(dest);
+				break;
+			case 1:
+				previus = data.defineSourceColumn("prev",0,ColumnType.nominal);		
+				here = data.defineSourceColumn("here",1,ColumnType.nominal);		
+				columnDay = data.defineSourceColumn("day",2,ColumnType.nominal);
+				columnMTime = data.defineSourceColumn("minutes",3,ColumnType.continuous);
+				dest = data.defineSourceColumn("dest",4,ColumnType.nominal);	
+				data.analyze();
+				data.defineInput(previus);
+				data.defineInput(here);
+				data.defineInput(columnDay);
+				data.defineInput(columnMTime);
+				data.defineOutput(dest);
+				break;
+			case 2:
+				data.getNormHelper().setFormat(format); 
+				ColumnDefinition columnInLon = data.defineSourceColumn("ilon",0,ColumnType.continuous);		
+				ColumnDefinition columnInLat = data.defineSourceColumn("ilat",1,ColumnType.continuous);		
+				columnDay = data.defineSourceColumn("Day",2,ColumnType.nominal);
+				columnMTime = data.defineSourceColumn("minutes",3,ColumnType.continuous);
+				ColumnDefinition columnOutLon = data.defineSourceColumn("olon",4,ColumnType.continuous);		
+				ColumnDefinition columnOutLat = data.defineSourceColumn("olat",5,ColumnType.continuous);	
+				data.analyze();
+				data.defineInput(columnInLon);
+				data.defineInput(columnInLat);
+				data.defineInput(columnDay);
+				data.defineInput(columnMTime);
+				data.defineOutput(columnOutLon);
+				data.defineOutput(columnOutLat);
+				break;
+		}
+		data.getNormHelper().defineUnknownValue("?");
+		
+		EncogModel model = new EncogModel(data);
+		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
+		
+		model.setReport(new ConsoleStatusReportable());
+		
+		data.normalize();
+
+		
+	}
 	
 	private void lern(String method)
 	{
@@ -261,7 +338,6 @@ public class LocPrediction {
 		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",3,ColumnType.continuous);
 		ColumnDefinition columnOutLon = data.defineSourceColumn("olon",4,ColumnType.continuous);		
 		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",5,ColumnType.continuous);	
-		
 		data.analyze();
 		
 		data.defineInput(columnInLon);

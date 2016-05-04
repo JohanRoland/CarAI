@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
@@ -395,6 +396,38 @@ public class NNData
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public void parseTestCSV(String path)
+	{
+		querry = new ArrayList<DatabaseLocation>();
+		try {
+			Calendar cal = Calendar.getInstance();
+			Stream<String> lines = Files.lines(Paths.get(path));
+			lines.forEach(ss ->{ 
+				String[] s = ss.split(" "); 
+				
+				int year = Integer.parseInt(s[0]);
+				int dayOfYear = Integer.parseInt(s[1]);
+				int startClust = Integer.parseInt(s[2]);
+				int endClust = Integer.parseInt(s[4]);
+				int minuteOfDay = Integer.parseInt(s[3]);
+				
+				cal.set(Calendar.YEAR, year);
+				cal.set(Calendar.DAY_OF_YEAR, dayOfYear);
+				
+				
+				querry.add(new DBQuerry(minuteOfDay, minuteOfDay, minuteOfDay, minuteOfDay, minuteOfDay, minuteOfDay));				
+				}
+			);			
+			
+			
+			
+			
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}		
 	}
 	
 	public ArrayList<ArrayList<DatabaseLocation>> importFromElkiClustering(String path)
