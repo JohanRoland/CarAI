@@ -57,5 +57,19 @@
 	  <artifactId>encog-core</artifactId>
 	  <version>3.3.0</version>
     </dependency>
+    <dependency>
+    	<groupId>opencv</groupId>
+    	<artifactId>org.opencv</artifactId>
+    	<version>3.1</version>
+    	<scope>system</scope>
+    	<systemPath>${project.basedir}/dependencies/opencv-310.jar</systemPath>
+	</dependency>
+	<dependency>
+    	<groupId>mysql-connector</groupId>
+    	<artifactId>com.mysql.jdbc</artifactId>
+    	<version>3.1</version>
+    	<scope>system</scope>
+    	<systemPath>${project.basedir}/dependencies/mysql-connector-java-5.1.38-bin.jar</systemPath>
+	</dependency>
   </dependencies>
 </project>
