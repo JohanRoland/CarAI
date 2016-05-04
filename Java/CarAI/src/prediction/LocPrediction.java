@@ -120,7 +120,7 @@ public class LocPrediction {
 	 * @param filePath
 	 */
 	
-	private void saveNetwork(String filePath)
+	public void saveNetwork(String filePath)
 	{
 		EncogDirectoryPersistence.saveObject(new File(filePath), bestMethod);
 	}
@@ -132,7 +132,7 @@ public class LocPrediction {
 	 * @param dataPath
 	 * @param networkType 0: clusters, 1: hyper param 2 cluster ,2: coords
 	 */
-	private void loadNetwork(String networkPath, String dataPath, int networkType)
+	public void loadNetwork(String networkPath, String dataPath, int networkType)
 	{
 		bestMethod = (MLRegression) EncogDirectoryPersistence.loadObject(new File(networkPath));
 		
