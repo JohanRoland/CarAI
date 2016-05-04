@@ -48,7 +48,6 @@ public class NNData
 	HashMap<Integer, Tuple<Double,Double>> viewClustPos; 
 	int nrCluster;
 	int amountofClusts;
-	DBSCAN tree;
 	
 	ArrayList<DatabaseLocation> querry;
 	

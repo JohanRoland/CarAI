@@ -20,14 +20,10 @@ import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
 import interfaces.DatabaseLocation;
-import jade.content.Concept;
-import jade.content.onto.basic.Action;
 import serverConnection.ServerConnection;
 import utils.Tuple;
 import utils.Utils;
-import mashinelearning.DBSCAN;
 import mashinelearning.ELKIController;
-import mashinelearning.KmeansSortOf;
 import mashinelearning.NNData;
 import mashinelearning.PYDBSCAN;
 
@@ -89,137 +85,119 @@ public class PointsPlotter extends JFrame {
 			initTimer();
 			clusterType = i;
 			this.setSize(600, 800);
-			try{
-				points = new ArrayList<DatabaseLocation>();
-				temp2 = new ArrayList<ArrayList<DatabaseLocation>>();
-				NNData data = new NNData(); 
-				switch(clusterType)
-				{
-					case 0:
-						data.importFromDB(1, 600000);
-						points = data.getQuerry();
-						//points = sc.getPosClass(1,600000);
-						DBSCAN sbs = new DBSCAN(points, true); 
-						sbs.cluster(0.002,2);
-						temp2 = sbs.getClusterd(true);
-						break;
-					case 1:
-						points = sc.getPosClass(1,20000);
-						KmeansSortOf sbs2 = new KmeansSortOf(points, true); 
-						sbs2.cluster(0.002);
-						temp2 = sbs2.getClusterd(true);
-						break;
-						
-					case 2:
-						data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",1000);
-						points = data.getQuerry();
-						data.exportAsCoordsToCSV("coords.csv");
-						temp2 = data.importClustFromFile("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\clusterFile.csv");
-						ArrayList<DatabaseLocation> points2 = new ArrayList<DatabaseLocation>();
-						for(int j = 1000-1; j >= 0; j--)
-						{
-							points2.add(points.get(j));
-						}
-						break;
-					case 3:
-						data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
-						points = data.getQuerry();
-						data.exportAsCoordsToCSV("coords.csv");
-						PYDBSCAN ps =  new PYDBSCAN();
-						temp2 = ps.runDBSCAN(points,0.001,20,10000);
-						break;
-					case 4:
-						data.importFromDB(1, 200000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
-						data.coordCullBySpeed(15.0);
-						points = data.getQuerry();
-	
-						data.exportAsCoordsToCSV("coords.csv");
-						PYDBSCAN something =  new PYDBSCAN();
-						temp2 = something.runDBSCAN(points,0.001,20,20000);
-						
-						System.out.println("Nummber of clusters; "+ temp2.size());
-						
-						break;
-					case 5:
-						//data.importFromDB(1, 600000);//
-						data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
-						data.parseCSV("dataFile.txt");
-						//data.coordCullBySpeed(15.0);
-						//data.coordCullByBox(57, 11, 1 , 4);
-						points = data.getQuerry();
-	
-						data.exportAsCoordsToCSV("coords.csv");
+
+			
+			points = new ArrayList<DatabaseLocation>();
+			temp2 = new ArrayList<ArrayList<DatabaseLocation>>();
+			NNData data = new NNData(); 
+			switch(clusterType)
+			{
+				case 2:
+					data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",1000);
+					points = data.getQuerry();
+					data.exportAsCoordsToCSV("coords.csv");
+					temp2 = data.importClustFromFile("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\clusterFile.csv");
+					ArrayList<DatabaseLocation> points2 = new ArrayList<DatabaseLocation>();
+					for(int j = 1000-1; j >= 0; j--)
+					{
+						points2.add(points.get(j));
+					}
+					break;
+				case 3:
+					data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
+					points = data.getQuerry();
+					data.exportAsCoordsToCSV("coords.csv");
+					PYDBSCAN ps =  new PYDBSCAN();
+					temp2 = ps.runDBSCAN(points,0.001,20,10000);
+					break;
+				case 4:
+					data.importFromDB(1, 200000);//parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
+					data.coordCullBySpeed(15.0);
+					points = data.getQuerry();
+
+					data.exportAsCoordsToCSV("coords.csv");
+					PYDBSCAN something =  new PYDBSCAN();
+					temp2 = something.runDBSCAN(points,0.001,20,20000);
+					
+					System.out.println("Nummber of clusters; "+ temp2.size());
+					
+					break;
+				case 5:
+					//data.importFromDB(1, 600000);//
+					data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
+					data.parseCSV("dataFile.txt");
+					//data.coordCullBySpeed(15.0);
+					//data.coordCullByBox(57, 11, 1 , 4);
+					points = data.getQuerry();
+
+					data.exportAsCoordsToCSV("coords.csv");
 
 
-						File f = new File(".");
-						String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
-				    	
-						temp2 = data.importFromElkiClustering(pathToProj+"\\ELKIClusters\\");
+					File f = new File(".");
+					String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
+			    	
+					temp2 = data.importFromElkiClustering(pathToProj+"\\ELKIClusters\\");
 
-						for(int t=1; t<temp2.size(); t++)
+					for(int t=1; t<temp2.size(); t++)
+					{
+						System.out.println(Utils.mean(temp2.get(t)));
+					}
+					System.out.println("Nummber of clusters; "+ temp2.size());						
+					break;
+				case 6:
+					data.importFromDB(11, 60000);//
+					
+					data.coordCullByDist();
+					
+					data.exportAsCoordsWithDateToCSV();
+					
+					points =  data.getQuerry();
+					if(true)
+					{
+						File f2 = new File(".");
+						String pathToProj2 = f2.getAbsolutePath().substring(0, f2.getAbsolutePath().length()-2);
+				    	ELKIController.runElki();
+				    	temp2 = data.importFromElkiClustering(pathToProj2+"\\ELKIClusters\\");
+						data.impElkAndReroutFromNoise(pathToProj2+"\\ELKIClusters\\");
+						minutes=data.getMinutes();
+						hours=data.getHours();
+						days=data.getDays();
+						inputClust=data.getInputClust();
+						outputClust=data.getOutputClust();
+						means=data.getMeans();
+						
+						for(int t=1; t<means.size(); t++)
 						{
-							System.out.println(Utils.mean(temp2.get(t)));
+							System.out.println(means.get(t));
 						}
-						System.out.println("Nummber of clusters; "+ temp2.size());						
-						break;
-					case 6:
-						data.importFromDB(11, 60000);//
-						
-						data.coordCullByDist();
-						
-						data.exportAsCoordsWithDateToCSV();
-						
-						points =  data.getQuerry();
-						if(true)
-						{
-							File f2 = new File(".");
-							String pathToProj2 = f2.getAbsolutePath().substring(0, f2.getAbsolutePath().length()-2);
-					    	ELKIController.runElki();
-					    	temp2 = data.importFromElkiClustering(pathToProj2+"\\ELKIClusters\\");
-							data.impElkAndReroutFromNoise(pathToProj2+"\\ELKIClusters\\");
-							minutes=data.getMinutes();
-							hours=data.getHours();
-							days=data.getDays();
-							inputClust=data.getInputClust();
-							outputClust=data.getOutputClust();
-							means=data.getMeans();
-							
-							for(int t=1; t<means.size(); t++)
-							{
-								System.out.println(means.get(t));
-							}
-							System.out.println("Nummber of clusters; "+ (means.size()-1));
-							data.exportAsClustToCSV();
-						}
-						else{
-							temp2.add(null);
-							temp2.add(points);
-						}
-						break;
-					case 8:
-						data.importFromDB(1, 600000);
-						data.coordCullByBox(57.34, 11, 1 , 1.5);
-						points=data.getQuerry();
+						System.out.println("Nummber of clusters; "+ (means.size()-1));
+						data.exportAsClustToCSV();
+					}
+					else{
 						temp2.add(null);
 						temp2.add(points);
-						
-						break;
-					default:
-						data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
-						
-						points = data.getQuerry();
-						ArrayList<DatabaseLocation> points3 = new ArrayList<DatabaseLocation>();
-						for(int j = points.size()-1; j >= 0; j--)
-						{
-							points3.add(points.get(j));
-						}
-						temp2.add(new ArrayList<DatabaseLocation>(points3.subList(0, 10000)));
-						break;
+					}
+					break;
+				case 8:
+					data.importFromDB(1, 600000);
+					data.coordCullByBox(57.34, 11, 1 , 1.5);
+					points=data.getQuerry();
+					temp2.add(null);
+					temp2.add(points);
 					
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+					break;
+				default:
+					data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
+					
+					points = data.getQuerry();
+					ArrayList<DatabaseLocation> points3 = new ArrayList<DatabaseLocation>();
+					for(int j = points.size()-1; j >= 0; j--)
+					{
+						points3.add(points.get(j));
+					}
+					temp2.add(new ArrayList<DatabaseLocation>(points3.subList(0, 10000)));
+					break;
+				
 			}
 			
 		}
