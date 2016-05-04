@@ -546,9 +546,11 @@ public class LocPrediction {
 			case 1:
 				//loadHyperParamNetwork();
 				hyperParamLerning(tempFile);
+				nd.saveAsCSV(".//temp.txt");
 				saveNetwork(saveFile);
 				break;
 			case 2:
+				nd.loadFromCSV(".//temp.txt");
 				loadNetwork(saveFile,"coords.csv", 1);
 				break;
 			case 3:

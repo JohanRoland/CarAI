@@ -20,6 +20,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -124,73 +125,128 @@ public class NNData
 
 	
 	
-	private void loadFromCSV(String path)
+	public void loadFromCSV(String path)
 	{
+		String line="";
+	
 		try (BufferedReader in  = new BufferedReader(new FileReader(path)))
 		{
-			String[] tempStringList = in.readLine().split(" ");
 			
-			for(String e : tempStringList)
+			line = in.readLine();
+			String[] tempStringList = line.split(" ");
+			
+			if(!line.equals("empty"))
 			{
-				minutes.add(Integer.parseInt(e));
-				
-			}
-			
-			tempStringList = in.readLine().split(" ");
-			for(String e : tempStringList)
-			{
-				hours.add(Integer.parseInt(e));
-				
-			}
-			
-			tempStringList = in.readLine().split(" ");
-			for(String e : tempStringList)
-			{
-				days.add(Integer.parseInt(e));
-			
-			}
-			
-			tempStringList = in.readLine().split(" ");
-			for(String e : tempStringList)
-			{
-				inputClust.add(Integer.parseInt(e));
-				
-			}
-			
-			tempStringList = in.readLine().split("|");
-			for(String e : tempStringList)
-			{
-				String[] tempStringList2 = e.split("|");
-				double[] temp =  new double[tempStringList2.length];
-				for(int i=0; i<tempStringList2.length;i++)
+				minutes= new ArrayList<Integer>();
+				for(String e : tempStringList)
 				{
-					temp[i]=Integer.parseInt(tempStringList2[i]);
-
+					minutes.add(Integer.parseInt(e));
+					
 				}
-				output.add(temp);
 			}
 			
-			tempStringList = in.readLine().split(" ");
-			for(String e : tempStringList)
+			
+			line = in.readLine();
+			tempStringList = line.split(" ");
+			hours = new ArrayList<Integer>();
+			
+			if(!line.equals("empty"))
 			{
-				outputClust.add(Integer.parseInt(e));
-				
+				for(String e : tempStringList)
+				{
+					hours.add(Integer.parseInt(e));
+				}
 			}
 			
-			tempStringList = in.readLine().split(" ");
-			for(int i=0;  i<tempStringList.length;i=i+3)
+			line = in.readLine();
+			tempStringList = line.split(" ");
+			days = new ArrayList<Integer>();
+			if(!line.equals("empty"))
 			{
-				viewClustPos.put(Integer.parseInt(tempStringList[i]), new Tuple<Double,Double>(Double.parseDouble(tempStringList[i+1]), Double.parseDouble(tempStringList[i+2])));
+				for(String e : tempStringList)
+				{
+					days.add(Integer.parseInt(e));
+				}
+
 			}
+			
+			
+			
+			
+			line = in.readLine();
+			tempStringList = line.split(" ");
+			inputClust = new ArrayList<Integer>();
+			
+			if(!line.equals("empty"))
+			{
+				for(String e : tempStringList)
+				{
+					inputClust.add(Integer.parseInt(e));
+					
+				}
+			}
+			
+			line = in.readLine();
+			if(!line.equals("empty"))
+			{
+				tempStringList = line.split("|");
+				output = new ArrayList<double[]>();
+				for(String e : tempStringList)
+				{
+					String[] tempStringList2 = e.split(" ");
+					double[] temp =  new double[tempStringList2.length];
+					for(int i=0; i<tempStringList2.length;i++)
+					{
+						temp[i]=Integer.parseInt(tempStringList2[i]);
+	
+					}
+					output.add(temp);
+				}
+			}
+			
+			line = in.readLine();
+			tempStringList = line.split(" ");
+			outputClust = new ArrayList<Integer>();
+			
+			if(!line.equals("empty"))
+			{
+				for(String e : tempStringList)
+				{
+					outputClust.add(Integer.parseInt(e));
+				}
+
+			}
+			
+			
+			line = in.readLine();
+			tempStringList = line.split(" ");
+
+			viewClustPos = new HashMap<Integer,Tuple<Double,Double>>();
+
+			if(!line.equals("empty"))
+			{
+				for(int i=0;  i<tempStringList.length;i=i+3)
+				{
+					viewClustPos.put(Integer.parseInt(tempStringList[i]), new Tuple<Double,Double>(Double.parseDouble(tempStringList[i+1]), Double.parseDouble(tempStringList[i+2])));
+				}
+			}			
+			
 
 			nrCluster = Integer.parseInt(in.readLine());
 			amountofClusts = Integer.parseInt(in.readLine());
 			
-			tempStringList = in.readLine().split(" ");
-			for(int i=0; i<tempStringList.length;i=i+2)
+			line = in.readLine();
+			tempStringList = line.split(" ");
+			
+			means = new ArrayList<Tuple<Double,Double>>();
+			
+			if(!line.equals("empty"))
 			{
-				means.add(new Tuple<Double,Double>(Double.parseDouble(tempStringList[i]),Double.parseDouble(tempStringList[i+1])));
-
+				for(int i=0; i<tempStringList.length;i=i+2)
+				{
+					means.add(new Tuple<Double,Double>(Double.parseDouble(tempStringList[i]),Double.parseDouble(tempStringList[i+1])));
+	
+				}
 			}
 			
 		} catch (UnsupportedEncodingException e1) {
@@ -205,68 +261,129 @@ public class NNData
 		}
 
 	}
-	private void saveAsCSV(String path)
+	public void saveAsCSV(String path)
 	{
-		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
+		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path),"utf-8")))
 		{
-			for(int e : minutes)
+			if(minutes.size()>0)
 			{
-				writer.write(e +" ");
-			}
-			writer.write("\n");
-			
-			for(int e : hours)
-			{
-				writer.write(e +" ");
-			}
-			writer.write("\n");
-			
-			for(int e : days)
-			{
-				writer.write(e +" ");
-			}
-			writer.write("\n");
-			
-			for(int e : inputClust)
-			{
-				writer.write(e +" ");
-			}
-			writer.write("\n");
-			
-			for(double[] e : output)
-			{
-				for(double e1:e)
+				for(int e : minutes)
 				{
 					writer.write(e +" ");
 				}
-				writer.write("|");
+				writer.write("\n");	
 			}
-			writer.write("\n");
-			
-			for(int e : outputClust)
+			else
 			{
-				writer.write(e +" ");
+				writer.write("empty\n");
 			}
-			writer.write("\n");
-			
-			
-			for(Entry<Integer, Tuple<Double, Double>> e : viewClustPos.entrySet())
+
+			if(hours.size()>0)
 			{
-				writer.write(e.getKey() + " " + e.getValue().fst()+" "+ e.getValue().snd()+" ");
+				for(int e : hours)
+				{
+					writer.write(e +" ");
+				}
+				writer.write("\n");
 			}
-			writer.write("\n");
+			else
+			{
+				writer.write("empty\n");
+			}
 			
+			if(days.size()>0)
+			{
+				for(int e : days)
+				{
+					writer.write(e +" ");
+				}
+				writer.write("\n");
+
+			}
+			else
+			{
+				writer.write("empty\n");
+			}
+			
+			if(inputClust.size()>0)
+			{
+				for(int e : inputClust)
+				{
+					writer.write(e +" ");
+				}
+				writer.write("\n");
+
+			}
+			else
+			{
+				writer.write("empty\n");
+			}
+						
+			if(output.size()>0)
+			{
+				for(double[] e : output)
+				{
+					for(double e1:e)
+					{
+						writer.write(e +" ");
+					}
+					writer.write("|");
+				}
+				writer.write("\n");
+			}
+			else
+			{
+				writer.write("empty\n");
+			}
+			
+			if(outputClust.size()>0)
+			{
+				for(int e : outputClust)
+				{
+					writer.write(e +" ");
+				}
+				writer.write("\n");
+
+			}
+			else
+			{
+				writer.write("empty\n");
+			}
+
+			Set<Entry<Integer, Tuple<Double, Double>>> viewClustPosEntries = viewClustPos.entrySet();
+			
+			if(viewClustPosEntries.size()>0)
+			{
+				for(Entry<Integer, Tuple<Double, Double>> e : viewClustPosEntries)
+				{
+					writer.write(e.getKey() + " " + e.getValue().fst()+" "+ e.getValue().snd()+" ");
+				}
+				writer.write("\n");
+				
+			}
+			else
+			{
+				writer.write("empty\n");
+			}
+			
+
 			writer.write(nrCluster+"\n");
 			writer.write(amountofClusts+"\n");
 			
 			//ArrayList<DatabaseLocation> querry;
-			
-			for(Tuple<Double, Double> e : means)
+			if(means.size()>0)
 			{
-				writer.write(e.fst() + " " + e.snd() + " ");
+				for(Tuple<Double, Double> e : means)
+				{
+					writer.write(e.fst() + " " + e.snd() + " ");
+				}
+				writer.write("\n");	
 			}
-			writer.write("\n");
-			
+			else
+			{
+				writer.write("empty\n");
+			}
+						
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
