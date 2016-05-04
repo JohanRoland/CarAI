@@ -134,7 +134,6 @@ public class LocPrediction {
 	 */
 	public void loadNetwork(String networkPath, String dataPath, int networkType)
 	{
-		format = new CSVFormat('.',' ');
 		bestMethod = (MLRegression) EncogDirectoryPersistence.loadObject(new File(networkPath));
 		
 		VersatileDataSource source = new CSVDataSource(new File(dataPath),false,format);
@@ -195,7 +194,7 @@ public class LocPrediction {
 		
 		EncogModel model = new EncogModel(data);
 		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
-		
+		helper = data.getNormHelper();
 		model.setReport(new ConsoleStatusReportable());
 		
 		data.normalize();
@@ -319,6 +318,7 @@ public class LocPrediction {
 	
 	private void loadStandardNetwork()
 	{
+		
 		format = new CSVFormat('.',' ');
 		
 		bestMethod =(MLRegression)EncogDirectoryPersistence.loadObject(new File("networkExport.eg"));
@@ -526,7 +526,7 @@ public class LocPrediction {
 		
 	
 	}
-	private LocPrediction(int id, String tempFile, String saveFile) throws Exception
+	private LocPrediction(int id, String tempFile, String saveFile, int mode) throws Exception
 	{
 		mqttTime = MqttTime.getInstance();
 		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
@@ -536,12 +536,12 @@ public class LocPrediction {
 		
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 		
-		nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml", 0);
-		nd.coordCullByDist();
+		//nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml", 0);
+		//nd.coordCullByDist();
 		
-		if(true)//nd.importFromDB(id, -1)>0)
+		if(nd.importFromDB(id, -1)>0)
 		{
-			switch(1)
+			switch(mode)
 			{
 			case 1:
 				//loadHyperParamNetwork();
@@ -549,9 +549,10 @@ public class LocPrediction {
 				saveNetwork(saveFile);
 				break;
 			case 2:
-				standardLearning();
+				loadNetwork(saveFile,"coords.csv", 1);
 				break;
 			case 3:
+				standardLearning();
 				break;
 			}
 		}
@@ -577,7 +578,7 @@ public class LocPrediction {
 	 * @return
 	 * @throws Exception
 	 */
-	static public LocPrediction getInstance(int userID, String tempFile, String saveFile) throws Exception
+	static public LocPrediction getInstance(int userID, String tempFile, String saveFile,int mode) throws Exception
 	{
 		if(instanceMap == null)
 		{
@@ -585,7 +586,7 @@ public class LocPrediction {
 		}
 		if(!instanceMap.containsKey(userID))
 		{
-			LocPrediction temp = new LocPrediction(userID, tempFile, saveFile);
+			LocPrediction temp = new LocPrediction(userID, tempFile, saveFile, mode);
 			instanceMap.put(userID, temp);//
 		}
 		else
@@ -599,6 +600,12 @@ public class LocPrediction {
 		
 		return instanceMap.get(userID);
 	}	
+	
+	static public void clearInstance(int userID)
+	{
+		instanceMap.remove(userID);
+	}
+	
 	private String dispError(String x, String y)
 	{
 		return new Double(Double.parseDouble(y)-Double.parseDouble(x)).toString(); 
