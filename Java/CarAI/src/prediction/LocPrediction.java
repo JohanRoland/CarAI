@@ -134,6 +134,7 @@ public class LocPrediction {
 	 */
 	public void loadNetwork(String networkPath, String dataPath, int networkType)
 	{
+		format = new CSVFormat('.',' ');
 		bestMethod = (MLRegression) EncogDirectoryPersistence.loadObject(new File(networkPath));
 		
 		VersatileDataSource source = new CSVDataSource(new File(dataPath),false,format);
@@ -318,7 +319,6 @@ public class LocPrediction {
 	
 	private void loadStandardNetwork()
 	{
-		
 		format = new CSVFormat('.',' ');
 		
 		bestMethod =(MLRegression)EncogDirectoryPersistence.loadObject(new File("networkExport.eg"));
