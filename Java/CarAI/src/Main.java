@@ -13,7 +13,6 @@ import car.CarInterface;
 import facerecognition.FaceMQTT;
 import facerecognition.FaceRecognition;
 import interfaces.DatabaseLocation;
-import mashinelearning.DBSCAN;
 import mashinelearning.NNData;
 import mashinelearning.PYDBSCAN;
 import prediction.LocPrediction;
@@ -100,7 +99,7 @@ public class Main
     			ArrayList<DatabaseLocation> longLat = b.getPosClass(1,10000);
     			
     			
-    			DBSCAN s = new DBSCAN(longLat, true);	
+    			/*DBSCAN s = new DBSCAN(longLat, true);	
     			int temp = s.cluster(0.002,2);
 
     			
