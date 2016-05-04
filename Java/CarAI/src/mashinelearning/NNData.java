@@ -1,10 +1,14 @@
 package mashinelearning;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URI;
 import java.nio.file.Files;
@@ -12,8 +16,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -117,6 +123,163 @@ public class NNData
 
 	
 	
+	private void loadFromCSV(String path)
+	{
+		try (BufferedReader in  = new BufferedReader(new FileReader(path)))
+		{
+			String[] tempStringList = in.readLine().split(" ");
+			
+			for(String e : tempStringList)
+			{
+				minutes.add(Integer.parseInt(e));
+				
+			}
+			
+			tempStringList = in.readLine().split(" ");
+			for(String e : tempStringList)
+			{
+				hours.add(Integer.parseInt(e));
+				
+			}
+			
+			tempStringList = in.readLine().split(" ");
+			for(String e : tempStringList)
+			{
+				days.add(Integer.parseInt(e));
+			
+			}
+			
+			tempStringList = in.readLine().split(" ");
+			for(String e : tempStringList)
+			{
+				inputClust.add(Integer.parseInt(e));
+				
+			}
+			
+			tempStringList = in.readLine().split("|");
+			for(String e : tempStringList)
+			{
+				String[] tempStringList2 = e.split("|");
+				double[] temp =  new double[tempStringList2.length];
+				for(int i=0; i<tempStringList2.length;i++)
+				{
+					temp[i]=Integer.parseInt(tempStringList2[i]);
+
+				}
+				output.add(temp);
+			}
+			
+			tempStringList = in.readLine().split(" ");
+			for(String e : tempStringList)
+			{
+				outputClust.add(Integer.parseInt(e));
+				
+			}
+			
+			tempStringList = in.readLine().split(" ");
+			for(int i=0;  i<tempStringList.length;i=i+3)
+			{
+				viewClustPos.put(Integer.parseInt(tempStringList[i]), new Tuple<Double,Double>(Double.parseDouble(tempStringList[i+1]), Double.parseDouble(tempStringList[i+2])));
+			}
+
+			nrCluster = Integer.parseInt(in.readLine());
+			amountofClusts = Integer.parseInt(in.readLine());
+			
+			tempStringList = in.readLine().split(" ");
+			for(int i=0; i<tempStringList.length;i=i+2)
+			{
+				means.add(new Tuple<Double,Double>(Double.parseDouble(tempStringList[i]),Double.parseDouble(tempStringList[i+1])));
+
+			}
+			
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+	}
+	private void saveAsCSV(String path)
+	{
+		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
+		{
+			for(int e : minutes)
+			{
+				writer.write(e +" ");
+			}
+			writer.write("\n");
+			
+			for(int e : hours)
+			{
+				writer.write(e +" ");
+			}
+			writer.write("\n");
+			
+			for(int e : days)
+			{
+				writer.write(e +" ");
+			}
+			writer.write("\n");
+			
+			for(int e : inputClust)
+			{
+				writer.write(e +" ");
+			}
+			writer.write("\n");
+			
+			for(double[] e : output)
+			{
+				for(double e1:e)
+				{
+					writer.write(e +" ");
+				}
+				writer.write("|");
+			}
+			writer.write("\n");
+			
+			for(int e : outputClust)
+			{
+				writer.write(e +" ");
+			}
+			writer.write("\n");
+			
+			
+			for(Entry<Integer, Tuple<Double, Double>> e : viewClustPos.entrySet())
+			{
+				writer.write(e.getKey() + " " + e.getValue().fst()+" "+ e.getValue().snd()+" ");
+			}
+			writer.write("\n");
+			
+			writer.write(nrCluster+"\n");
+			writer.write(amountofClusts+"\n");
+			
+			//ArrayList<DatabaseLocation> querry;
+			
+			for(Tuple<Double, Double> e : means)
+			{
+				writer.write(e.fst() + " " + e.snd() + " ");
+			}
+			writer.write("\n");
+			
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+	}
+	
+	
 	public HashMap<Integer, Tuple<Double,Double>> getViewClustPos()
 	{
 		return viewClustPos;
@@ -167,7 +330,6 @@ public class NNData
 		}
 		System.out.println("Finished downloading data, " + querry.size() +" entires was added");
 		return querry.size();
-
 	}
 
 	public void parsGeoEntry(String path)
@@ -394,6 +556,38 @@ public class NNData
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public void parseTestCSV(String path)
+	{
+		querry = new ArrayList<DatabaseLocation>();
+		try {
+			Calendar cal = Calendar.getInstance();
+			Stream<String> lines = Files.lines(Paths.get(path));
+			lines.forEach(ss ->{ 
+				String[] s = ss.split(" "); 
+				
+				int year = Integer.parseInt(s[0]);
+				int dayOfYear = Integer.parseInt(s[1]);
+				int startClust = Integer.parseInt(s[2]);
+				int endClust = Integer.parseInt(s[4]);
+				int minuteOfDay = Integer.parseInt(s[3]);
+				
+				cal.set(Calendar.YEAR, year);
+				cal.set(Calendar.DAY_OF_YEAR, dayOfYear);
+				
+				
+				querry.add(new DBQuerry(minuteOfDay, minuteOfDay, minuteOfDay, minuteOfDay, minuteOfDay, minuteOfDay));				
+				}
+			);			
+			
+			
+			
+			
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}		
 	}
 	
 	public ArrayList<ArrayList<DatabaseLocation>> importFromElkiClustering(String path)

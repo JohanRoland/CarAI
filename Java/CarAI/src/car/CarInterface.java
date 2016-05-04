@@ -95,19 +95,19 @@ public class CarInterface implements MQTTInterface
 				
 				if(car.getUser("DRIVER").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID(),"coords.csv", "networkExport.eg");
+					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID(),"coords.csv", "networkExport.eg",2);
 				}
 				if(car.getUser("PASSENGER").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("PASSENGER").getUserID(),"coords.csv", "networkExport.eg");
+					lp = LocPrediction.getInstance(car.getUser("PASSENGER").getUserID(),"coords.csv", "networkExport.eg",2);
 				}
 				if(car.getUser("BACKSEAT0").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("BACKSEAT0").getUserID(),"coords.csv", "networkExport.eg");
+					lp = LocPrediction.getInstance(car.getUser("BACKSEAT0").getUserID(),"coords.csv", "networkExport.eg",2);
 				}
 				if(car.getUser("BACKSEAT1").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID(),"coords.csv", "networkExport.eg");
+					lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID(),"coords.csv", "networkExport.eg",2);
 				}
 				
 			}
@@ -117,25 +117,25 @@ public class CarInterface implements MQTTInterface
 				Gson gs = new Gson();
 				if(car.getUser("DRIVER").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID(),"coords.csv", "networkExport.eg");
+					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID(),"coords.csv", "networkExport.eg",2);
 					ArrayList<double[]> pred = lp.predict();
 					client.publish("carai/car/driverPred", new MqttMessage(gs.toJson(pred).getBytes()));//("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 				if(car.getUser("PASSENGER").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("PASSENGER").getUserID(),"coords.csv", "networkExport.eg");
+					lp = LocPrediction.getInstance(car.getUser("PASSENGER").getUserID(),"coords.csv", "networkExport.eg",2);
 					ArrayList<double[]> pred = lp.predict();
 					client.publish("carai/car/passPred", new MqttMessage(gs.toJson(pred).getBytes()));//("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 				if(car.getUser("BACKSEAT0").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("BACKSEAT0").getUserID(),"coords.csv", "networkExport.eg");
+					lp = LocPrediction.getInstance(car.getUser("BACKSEAT0").getUserID(),"coords.csv", "networkExport.eg",2);
 					ArrayList<double[]> pred= lp.predict();
 					client.publish("carai/car/back0Pred", new MqttMessage(gs.toJson(pred).getBytes()));//("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
 				if(car.getUser("BACKSEAT1").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID(),"coords.csv", "networkExport.eg");
+					lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID(),"coords.csv", "networkExport.eg",2);
 					ArrayList<double[]> pred= lp.predict();
 					client.publish("carai/car/back1Pred", new MqttMessage(gs.toJson(pred).getBytes()));//("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
