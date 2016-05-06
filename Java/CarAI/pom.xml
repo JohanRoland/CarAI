@@ -65,11 +65,9 @@
     	<systemPath>${project.basedir}/dependencies/opencv-310.jar</systemPath>
 	</dependency>
 	<dependency>
-    	<groupId>mysql-connector</groupId>
-    	<artifactId>com.mysql.jdbc</artifactId>
-    	<version>3.1</version>
-    	<scope>system</scope>
-    	<systemPath>${project.basedir}/dependencies/mysql-connector-java-5.1.38-bin.jar</systemPath>
+		<groupId>mysql</groupId>
+		<artifactId>mysql-connector-java</artifactId>
+		<version>5.1.38</version>
 	</dependency>
   </dependencies>
 </project>
