@@ -86,7 +86,8 @@ public class User {
 		{
 			if(file.isFile())
 			{
-				if(file.getAbsolutePath().endsWith(".jpg"));
+				boolean temp = file.getName().endsWith("jpg");
+				if(temp)
 				{
 					files.add(file.getAbsolutePath());
 				}

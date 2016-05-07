@@ -461,7 +461,6 @@ public class FaceRecognition
     		
     		ArrayList<String> ls = new ArrayList<String>();
 			User.getAllUserImgs(pathToUsers, ls);
-			
     		for(String l : ls)
     		{
     			File f = new File(l);
@@ -475,7 +474,7 @@ public class FaceRecognition
 					pers.put(label, new Person(label,name));
 				}
 
-				pers.get(label).addImage(f.getAbsolutePath()+File.separator+"Imgs");
+				pers.get(label).addImage(f.getAbsolutePath());
 						
 				imgs.add(Imgcodecs.imread(f.getAbsolutePath(),0)); 
 				labels.add(label);
