@@ -55,9 +55,8 @@ public class FaceRecognition
     	File f = new File(".");
 		//pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
 		pathToUsers = f.getAbsoluteFile().getParentFile().getParentFile().getParent() +File.separator+ "Data"+File.separator+ "Users"+File.separator;
-    System.out.println(pathToUsers);
-		//pathToTemp = f.getAbsoluteFile().getParentFile().getParentFile().getParent() + "\\Data\\TempImgs\\";
-    pathToTemp = f.getAbsoluteFile().getParentFile().getParentFile().getParent() +File.separator+ "Data"+File.separator+ "TempImgs"+File.separator;
+    	//pathToTemp = f.getAbsoluteFile().getParentFile().getParentFile().getParent() + "\\Data\\TempImgs\\";
+		pathToTemp = f.getAbsoluteFile().getParentFile().getParentFile().getParent() +File.separator+ "Data"+File.separator+ "TempImgs"+File.separator;
 		File tf = new File(pathToTemp);
 		if(!tf.exists())
 		{
@@ -66,12 +65,20 @@ public class FaceRecognition
 		
 	    frame = new Mat();
 	    FaceImage = new Mat();  
-	    
-	    
-	    face_cascade = new CascadeClassifier(f.getAbsolutePath() +"src//haarcascade_frontalface_alt.xml");
+	    //face_cascade = new CascadeClassifier("C:\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_alt.xml");
 	    // Eyes cascade used to align face images
-	    eyes_cascade = new CascadeClassifier(f.getAbsolutePath() +"src//haarcascade_eye.xml"); // _tree_eyeglasses
+	    //eyes_cascade = new CascadeClassifier("C:\\opencv\\sources\\data\\haarcascades\\haarcascade_eye.xml"); // _tree_eyeglasses
 	    
+	    
+	    try{
+	    	String faceCascadePath = f.getCanonicalPath() +File.separator+"src"+File.separator+"haarcascade_frontalface_alt.xml";
+	    	face_cascade = new CascadeClassifier(faceCascadePath);
+	    	// Eyes cascade used to align face images
+	    	eyes_cascade = new CascadeClassifier(f.getCanonicalPath() +File.separator+"src"+File.separator+"haarcascade_eye.xml"); // _tree_eyeglasses
+	    }catch(Exception e)
+	    {
+	    	e.printStackTrace();
+	    }
 	    pers = new HashMap<Integer,Person>();
 	    
 	    Csv cs =  loadCsv2();//loadCsv(pathToProj+"\\test.csv");
@@ -324,7 +331,7 @@ public class FaceRecognition
 			
 			cv.parsePerson(nameString, new DecimalFormat("#.##").format(conf[0]), center, new Point(frame.cols()/2,frame.rows()/2));
 			
-			String tempPath = pathToTemp+cv.getPos(center, new Point(frame.cols()/2,frame.rows()/2))+"\\t"+counter+".jpg";
+			String tempPath = pathToTemp+cv.getPos(center, new Point(frame.cols()/2,frame.rows()/2))+File.separator+"t"+counter+".jpg";
 			Imgcodecs.imwrite(tempPath,face_resized); 
 			
     		
@@ -565,7 +572,7 @@ public class FaceRecognition
     	File tf = new File(pathToTemp+fromseat);
     	for(File f :tf.listFiles())
     	{
-    		f.renameTo(new File(uf.getAbsolutePath()+"\\"+touser+"-"+counter+".jpg"));
+    		f.renameTo(new File(uf.getAbsolutePath()+File.separator+touser+"-"+counter+".jpg"));
     		counter++;
     	}
     	
@@ -609,8 +616,8 @@ public class FaceRecognition
     		{
     			new File(pathToUsers+name).mkdir();
     		}
-    		Imgcodecs.imwrite(pathToUsers+name+"\\"+name+imgs.size() + ".jpg", i);
-    		imgs.add(pathToUsers+name+"\\"+name+imgs.size() + ".jpg");
+    		Imgcodecs.imwrite(pathToUsers+name+File.separator+name+imgs.size() + ".jpg", i);
+    		imgs.add(pathToUsers+name+File.separator+name+imgs.size() + ".jpg");
     	}
     	
     	/**
