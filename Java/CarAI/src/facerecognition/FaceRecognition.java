@@ -54,9 +54,10 @@ public class FaceRecognition
     	
     	File f = new File(".");
 		//pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
-		pathToUsers = f.getAbsoluteFile().getParentFile().getParentFile().getParent() + "\\Data\\Users\\";
-		pathToTemp = f.getAbsoluteFile().getParentFile().getParentFile().getParent() + "\\Data\\TempImgs\\";
-
+		pathToUsers = f.getAbsoluteFile().getParentFile().getParentFile().getParent() +File.separator+ "Data"+File.separator+ "Users"+File.separator;
+    System.out.println(pathToUsers);
+		//pathToTemp = f.getAbsoluteFile().getParentFile().getParentFile().getParent() + "\\Data\\TempImgs\\";
+    pathToTemp = f.getAbsoluteFile().getParentFile().getParentFile().getParent() +File.separator+ "Data"+File.separator+ "TempImgs"+File.separator;
 		File tf = new File(pathToTemp);
 		if(!tf.exists())
 		{
@@ -67,9 +68,9 @@ public class FaceRecognition
 	    FaceImage = new Mat();  
 	    
 	    
-	    face_cascade = new CascadeClassifier("C://opencv//build//etc//haarcascades//haarcascade_frontalface_alt.xml");
+	    face_cascade = new CascadeClassifier(f.getAbsolutePath() +"src//haarcascade_frontalface_alt.xml");
 	    // Eyes cascade used to align face images
-	    eyes_cascade = new CascadeClassifier("C://opencv//build//etc//haarcascades//haarcascade_eye.xml"); // _tree_eyeglasses
+	    eyes_cascade = new CascadeClassifier(f.getAbsolutePath() +"src//haarcascade_eye.xml"); // _tree_eyeglasses
 	    
 	    pers = new HashMap<Integer,Person>();
 	    
@@ -467,7 +468,7 @@ public class FaceRecognition
 					pers.put(label, new Person(label,name));
 				}
 
-				pers.get(label).addImage(f.getAbsolutePath());
+				pers.get(label).addImage(f.getAbsolutePath()+File.separator+"Imgs");
 						
 				imgs.add(Imgcodecs.imread(f.getAbsolutePath(),0)); 
 				labels.add(label);
