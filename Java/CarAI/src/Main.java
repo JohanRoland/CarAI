@@ -27,7 +27,7 @@ public class Main
     public static void main(String[] args) {
     	//EMpty gommecnt
     	
-    	MqttTime mt = MqttTime.getInstance();
+    	//MqttTime mt = MqttTime.getInstance();
     	//Analyze.analyzeLearningData();
     	//System.exit(0);
     	if(args.length > 0)
@@ -233,15 +233,15 @@ public class Main
     	}
     	
     	//***************Cleanup*****************
-    	try {
+    	/*try {
     		
     		mt.kill();
 		}
     	catch (MqttException e)
     	{
 			e.printStackTrace();
-		}
-    	Encog.getInstance().shutdown();
+		}*/
+    	//Encog.getInstance().shutdown();
     	//*************End Cleanup****************
     	
     	return ;		

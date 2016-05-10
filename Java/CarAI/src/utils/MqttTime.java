@@ -110,8 +110,8 @@ public class MqttTime implements MQTTInterface {
 	{
 
 		public void connectionLost(Throwable arg0) {
-			System.out.println("Connection to Mqtt Server lost in Face detection");
-			
+			System.out.println("Connection lost in MQTT get time");
+			arg0.printStackTrace();
 		}
 
 		public void deliveryComplete(IMqttDeliveryToken arg0) {
