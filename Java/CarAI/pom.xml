@@ -95,8 +95,8 @@
     	<groupId>org.opencv</groupId>
     	<artifactId>opencv</artifactId>
     	<version>3.1</version>
-     <!-- <scope>system</scope>
-      <systemPath>${basedir}/dependencies/opencv-310.jar</systemPath>  -->
+      <scope>system</scope>
+      <systemPath>${basedir}/dependencies/opencv-310.jar</systemPath> 
 	  </dependency>
 	  <dependency>
 		  <groupId>mysql</groupId>
