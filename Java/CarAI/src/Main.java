@@ -27,7 +27,7 @@ public class Main
     public static void main(String[] args) {
     	//EMpty gommecnt
     	
-    	//MqttTime mt = MqttTime.getInstance();
+    	MqttTime mt = MqttTime.getInstance();
     	//Analyze.analyzeLearningData();
     	//System.exit(0);
     	if(args.length > 0)
@@ -210,14 +210,15 @@ public class Main
     		else if(args[0].equals("9"))
     		{
     			
-				/*NNData nn=new NNData();
+				NNData nn=new NNData();
 				nn.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml", 0);
 				nn.coordCullByDist();
 				
-				nn.exportToDB(1);*/
+				nn.exportToDB(1);
 				try {
 					ServerConnection s= ServerConnection.getInstance();
-					s.addGeoUsers("C:\\Users\\Knarkapan\\git\\CarAI\\Java\\CarAI\\data");
+					s.replacePosData(0, nn.getQuerry());
+					//s.addGeoUsers("C:\\Users\\Knarkapan\\git\\CarAI\\Java\\CarAI\\data");
 
     				
     				

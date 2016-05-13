@@ -189,9 +189,9 @@ public class ServerConnection {
 	 * 
 	 * 
 	 */
-	public void replacePosData(int ID, DBQuerry[] input) throws SQLException
+	public void replacePosData(int ID, ArrayList<DatabaseLocation> input) throws SQLException
 	{
-		if(input.length==0)
+		if(input.size()==0)
 			throw new SQLException("length of input must be greater than zero");
 						
 		
@@ -202,20 +202,20 @@ public class ServerConnection {
 		int i =0;
 		try{
 		int ltoh=0;
-		for(i=0;i<input.length;i=i+ltoh)
+		for(i=0;i<input.size();i=i+ltoh)
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.append("INSERT INTO mydb.PositionHistoryTable (ID,Lon,Lat,eDate,nextLon,nextLat) VALUES ");
-			ltoh= Math.min((input.length -i), 100);
+			ltoh= Math.min((input.size() -i), 100);
 			for(int j=i;j<(i+ltoh-1);j++)
 			{
-				sb.append( "(" + ID + ","+ input[j].getLon() + "," + input[j].getLat() + ","
-			    +"'"+input[j].getYear()+"-" +input[j].getMonth()+"-"+input[j].getDay()+" " + input[j].getHTime()+":"+input[j].getMTime()+":"+ "00" +"'"+","
-				+ input[j].getNLon() + "," + input[j].getNLat() +"),");
+				sb.append( "(" + ID + ","+ input.get(j).getLon() + "," + input.get(j).getLat() + ","
+			    +"'"+input.get(j).getYear()+"-" +input.get(j).getMonth()+"-"+input.get(j).getDay()+" " + input.get(j).getHTime()+":"+input.get(j).getMTime()+":"+ "00" +"'"+","
+				+ input.get(j).getNLon() + "," + input.get(j).getNLat() +"),");
 			}
-			sb.append( "(" + ID + ","+ input[(i+ltoh-1)].getLon() + "," + input[(i+ltoh-1)].getLat() + ","
-				    +"'"+input[(i+ltoh-1)].getYear()+"-" +input[(i+ltoh-1)].getMonth()+"-"+input[(i+ltoh-1)].getDay()+" " + input[(i+ltoh-1)].getHTime()+":"+input[(i+ltoh-1)].getMTime()+":"+ "00" +"'"+","
-					+ input[(i+ltoh-1)].getNLon() + "," + input[(i+ltoh-1)].getNLat() +");");
+			sb.append( "(" + ID + ","+ input.get((i+ltoh-1)).getLon() + "," + input.get((i+ltoh-1)).getLat() + ","
+				    +"'"+input.get((i+ltoh-1)).getYear()+"-" +input.get((i+ltoh-1)).getMonth()+"-"+input.get((i+ltoh-1)).getDay()+" " + input.get((i+ltoh-1)).getHTime()+":"+input.get((i+ltoh-1)).getMTime()+":"+ "00" +"'"+","
+					+ input.get((i+ltoh-1)).getNLon() + "," + input.get((i+ltoh-1)).getNLat() +");");
 			
 			System.out.println(sb.toString());
 			stmt.execute(sb.toString());
@@ -254,8 +254,8 @@ public class ServerConnection {
 				user.coordCullByDist();
 				
 				long x = addUserData(userName);
-				DBQuerry[] temp = user.getQuerry().toArray(new DBQuerry[user.getQuerry().size()]);
-				if(temp.length>0)
+				ArrayList<DatabaseLocation> temp = user.getQuerry();
+				if(temp.size()>0)
 					replacePosData((int)x,temp);
 			}
 		}

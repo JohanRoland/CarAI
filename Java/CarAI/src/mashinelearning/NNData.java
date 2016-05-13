@@ -1262,8 +1262,8 @@ public class NNData
 		try {
 			
 			System.out.println("Done formatting QuerryArrayList " + querry.size());
-			DBQuerry[] sendDB = querry.toArray(new DBQuerry[querry.size()]);
-			sc.replacePosData(id, sendDB );
+			//DBQuerry[] sendDB = querry.toArray(new DBQuerry[querry.size()]);
+			sc.replacePosData(id, querry );
 			//sc.addPosData(0, input.get(i)[0], input.get(i)[1], input.get(i)[2], output.get(i)[0], output.get(i)[1]);
 		} catch (SQLException e) {
 			e.printStackTrace();

@@ -95,19 +95,19 @@ public class CarInterface implements MQTTInterface
 				
 				if(car.getUser("DRIVER").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID(),"coords.csv", "networkExport.eg",2);
+					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID(),"coords.csv", "networkExport.eg",1);
 				}
 				if(car.getUser("PASSENGER").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("PASSENGER").getUserID(),"coords.csv", "networkExport.eg",2);
+					lp = LocPrediction.getInstance(car.getUser("PASSENGER").getUserID(),"coords.csv", "networkExport.eg",1);
 				}
 				if(car.getUser("BACKSEAT0").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("BACKSEAT0").getUserID(),"coords.csv", "networkExport.eg",2);
+					lp = LocPrediction.getInstance(car.getUser("BACKSEAT0").getUserID(),"coords.csv", "networkExport.eg",1);
 				}
 				if(car.getUser("BACKSEAT1").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID(),"coords.csv", "networkExport.eg",2);
+					lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID(),"coords.csv", "networkExport.eg",1);
 				}
 				
 			}

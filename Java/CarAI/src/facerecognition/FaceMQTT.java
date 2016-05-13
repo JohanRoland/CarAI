@@ -55,7 +55,6 @@ public class FaceMQTT implements MQTTInterface {
 	{
 
 		public void connectionLost(Throwable arg0) {
-			System.out.print("HurrDurr not working");
 			System.out.println("Connection to Mqtt Server lost in Face detection");
 			arg0.printStackTrace();
 		}
