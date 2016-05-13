@@ -6,8 +6,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.encog.Encog;
 
 import car.CarInterface;
 import facerecognition.FaceMQTT;
