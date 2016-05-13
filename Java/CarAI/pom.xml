@@ -20,8 +20,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.3</version>
         <configuration>
-          <source/>
-          <target/>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
       <plugin>
@@ -33,19 +33,57 @@
           <downloadJavadocs>true</downloadJavadocs>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.6</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>Main</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+          <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <archive>
+            <manifest>
+              <mainClass>Main</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   <repositories>	
-	<repository>
-        <id>Eclipse Paho Repo</id>
-        <url>https://repo.eclipse.org/content/repositories/paho-releases/</url>
+  	  <repository>
+  	  	<id>maven2</id>
+  	  	<url>http://repo1.maven.org/maven2</url>
+  	  </repository>
+	  <repository>
+      <id>Eclipse Paho Repo</id>
+      <url>https://repo.eclipse.org/content/repositories/paho-releases</url>
     </repository>
   </repositories>
   <dependencies>
     <dependency>
- 	  <groupId>com.google.code.gson</groupId>
-	  <artifactId>gson</artifactId>
-	  <version>2.5</version>
+ 	    <groupId>com.google.code.gson</groupId>
+	    <artifactId>gson</artifactId>
+	    <version>2.5</version>
     </dependency> 
     <dependency>
         <groupId>org.eclipse.paho</groupId>
@@ -53,19 +91,21 @@
         <version>1.0.1</version>
     </dependency>
     <dependency>
- 	  <groupId>com.google.code.gson</groupId>
-	  <artifactId>gson</artifactId>
-	  <version>2.5</version>
+	    <groupId>org.encog</groupId>
+	    <artifactId>encog-core</artifactId>
+	    <version>3.3.0</version>
     </dependency>
-    <dependency>
-        <groupId>org.eclipse.paho</groupId>
-        <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-        <version>1.0.1</version>
-    </dependency>
-    <dependency>
-	  <groupId>org.encog</groupId>
-	  <artifactId>encog-core</artifactId>
-	  <version>3.3.0</version>
-    </dependency>
+    <!--<dependency>
+    	<groupId>org.opencv</groupId>
+    	<artifactId>opencv</artifactId>
+    	<version>3.1</version>
+        <scope>system</scope>
+        <systemPath>${basedir}/dependencies/opencv-310.jar</systemPath> 
+	</dependency> -->
+	<dependency>
+		<groupId>mysql</groupId>
+		<artifactId>mysql-connector-java</artifactId>
+		<version>5.1.38</version>
+	</dependency>
   </dependencies>
 </project>

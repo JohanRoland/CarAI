@@ -1,44 +1,24 @@
 package prediction;
 
-import interfaces.DatabaseLocation;
-import serverConnection.ServerConnection;
-import serverConnection.ServerConnection.DBQuerry;
 import utils.*;
 import mashinelearning.ELKIController;
 import mashinelearning.NNData;
 
-import java.sql.SQLException;
-import java.sql.Time;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.encog.ConsoleStatusReportable;
-import org.encog.Encog;
-import org.encog.app.analyst.AnalystFileFormat;
-import org.encog.app.analyst.EncogAnalyst;
-import org.encog.app.analyst.csv.normalize.AnalystNormalizeCSV;
-import org.encog.app.analyst.wizard.AnalystWizard;
 import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.engine.network.activation.ActivationTANH;
-import org.encog.util.arrayutil.VectorWindow;
 import org.encog.util.csv.CSVFormat;
-import org.encog.util.csv.ReadCSV;
-import org.encog.util.logging.EncogFormatter;
 import org.encog.util.obj.SerializeObject;
-import org.encog.util.simple.EncogUtility;
 import org.encog.ml.data.versatile.sources.CSVDataSource;
 import org.encog.ml.data.versatile.columns.ColumnDefinition;
 import org.encog.ml.data.versatile.sources.VersatileDataSource;
 import org.encog.ml.factory.MLMethodFactory;
-import org.encog.ml.genetic.MLMethodGenomeFactory;
 import org.encog.ml.model.EncogModel;
 import org.encog.ml.train.MLTrain;
 import org.encog.ml.train.strategy.Greedy;
@@ -49,7 +29,6 @@ import org.encog.neural.freeform.FreeformNetwork;
 import org.encog.neural.freeform.training.FreeformBackPropagation;
 import org.encog.neural.networks.training.TrainingSetScore;
 import org.encog.neural.networks.training.anneal.NeuralSimulatedAnnealing;
-import org.encog.neural.networks.training.propagation.resilient.ResilientPropagation;
 import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.ml.MLRegression;
 import org.encog.ml.data.MLData;
@@ -58,13 +37,6 @@ import org.encog.ml.data.basic.BasicMLDataSet;
 import org.encog.ml.data.versatile.NormalizationHelper;
 import org.encog.ml.data.versatile.VersatileMLDataSet;
 import org.encog.ml.data.versatile.columns.ColumnType;
-import org.encog.ml.data.versatile.normalizers.strategies.NormalizationStrategy;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import com.mysql.jdbc.Statement;
 
 import car.Car;
 
@@ -201,7 +173,7 @@ public class LocPrediction {
 		
 	}
 	
-	private void lern(String method)
+	private void learn(String method)
 	{
 		if(method.equals("standard"))
 		{
