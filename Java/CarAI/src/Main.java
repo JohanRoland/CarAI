@@ -53,9 +53,9 @@ public class Main
     		    //	Scheduler s = new Scheduler();
 
     			try {
-        			LocPrediction lp = LocPrediction.getInstance(3, "coords.csv", "networkExport.eg",1);
+        			LocPrediction lp = LocPrediction.getInstance(1, "coords.csv", "networkExport.eg",1);
         			LocPrediction.clearInstance(3);
-        			LocPrediction lp2 = LocPrediction.getInstance(3, "coords.csv", "networkExport.eg",2);
+        			LocPrediction lp2 = LocPrediction.getInstance(1, "coords.csv", "networkExport.eg",2);
         			lp2.predictHyperTwoClust(2, 4);
 				} catch (Exception e) {
 					e.printStackTrace();
