@@ -41,7 +41,7 @@ public class User {
 			//   ADD THE IMAGE MATCHING IMAGES
 			imgPaths = new ArrayList<String>(); 
 			File f = new File(".");
-			String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
+			String pathToProj = f.getAbsoluteFile().getParentFile().getParentFile().getParentFile().getAbsolutePath();
 			imgPath = pathToProj + File.separator+"Data" +File.separator+"Users" +File.separator+ id;
 			File folder = new File(imgPath);
 			File[] imgs = folder.listFiles(new FilenameFilter() {@Override public boolean accept(File dir,String name){return name.endsWith(".jpg");}});
