@@ -199,7 +199,7 @@ public class LocPrediction {
 		
 		ELKIController.runElki();
 		
-		nd.exportAsClustToCSVWithHyperTwo();
+		nd.exportAsClustToCSVWithHyperTwo("coords.csv");
 		
 		bestMethod =(MLRegression)EncogDirectoryPersistence.loadObject(new File("networkExport.eg"));
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
@@ -244,7 +244,7 @@ public class LocPrediction {
 		
 		ELKIController.runElki();
 		
-		nd.exportAsClustToCSVWithHyperTwo();
+		nd.exportAsClustToCSVWithHyperTwo(tempFileName);
 		
 		VersatileDataSource source = new CSVDataSource(new File(tempFileName),false,format);
 		
