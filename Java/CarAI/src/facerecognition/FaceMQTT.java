@@ -73,7 +73,11 @@ public class FaceMQTT implements MQTTInterface {
 				}
 				else
 				{
+					long t1 = System.currentTimeMillis();
 					String passPack = fr.sample();
+					long t2 = System.currentTimeMillis();
+					System.out.println(t2-t1);
+					
 					MqttMessage msg = new MqttMessage(passPack.getBytes());
 					msg.setQos(qos);
 					client.publish(ctopic, msg);
