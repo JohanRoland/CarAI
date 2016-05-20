@@ -61,93 +61,11 @@ public class Main
     		}
     		else if(args[0].equals("4"))
     		{
-    			ServerConnection sc= ServerConnection.getInstance();    			
-    			try {
-					System.out.println("Created ID: " +sc.addUserData("Johan"));
-				} catch (SQLException e) {
-					System.out.println("Faild to add user");
-					e.printStackTrace();
-				}
-    			
-    		}
-    		else if(args[0].equals("5"))
-    		{
-    			/*
-    			try {
-    			FileReader fileReader = new FileReader("PhoneData.txt");
-    			BufferedReader bufferedReader = new BufferedReader(fileReader);
-    			String line=null;
-    			ArrayList<Double> longs = new ArrayList<Double>();
-    			ArrayList<Double> lats = new  ArrayList<Double>();
-    			int counter=0;
-
-					while((line = bufferedReader.readLine()) != null) {
-					        String[] temp = line.split(",");
-					        longs.add(Double.parseDouble(temp[2]));
-					        lats .add(Double.parseDouble(temp[3]));
-					        if (counter<50000)
-					        	counter++;
-					        else
-					        	break;
-					    }
-				*/
-    			ServerConnection b = ServerConnection.getInstance();
-    			//b= new ServerConnection("mydb","3306","localhost" , "car", "RigedyRigedyrektSon");
-    			try (PrintStream out = new PrintStream(new FileOutputStream("clusterd.txt"))) {
-    			ArrayList<DatabaseLocation> longLat = b.getPosClass(1,10000);
-    			
-    			
-    			/*DBSCAN s = new DBSCAN(longLat, true);	
-    			int temp = s.cluster(0.002,2);
-
-    			
-    			
-    				ArrayList<ArrayList<DatabaseLocation>> temp2 = s.getClusterd(true);
-    				int count=0;
-    				for(ArrayList<DatabaseLocation> str : temp2)
-    				{
-    					count++;
-    					out.print("x"+count +" = [");
-    					for(DatabaseLocation v : str)
-    					{
-	    					out.print(v.getLat()+" ");
-	    					
-    					}
-    					out.print("];\n");
-    					out.print("y"+count +" = [");
-    					for(DatabaseLocation v : str)
-    					{
-	    					out.print(v.getLon()+" ");	    					
-    					}
-    					out.print("];\n");
-    				}
-    				out.print("plot(");
-    				for(int i=count; i>1;i--)
-    				{
-    					out.print("x"+i+" ,");
-    					out.print("y"+i+",'o' ,");
-    				}
-    				out.print("x1,");
-					out.print("y1,'o')");
-    				
-    			/*} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-    			bufferedReader.close();
-    			*/
-    			} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-    			
-    		}
-    		else if(args[0].equals("6"))
-    		{
     			PointsPlotter pp = new PointsPlotter();
     			pp.setVisible(true);
     			
     		}
-    		else if(args[0].equals("7"))
+    		else if(args[0].equals("5"))
     		{
     			PredictorG graph = PredictorG.getInstance(1);
     			
@@ -201,11 +119,7 @@ public class Main
     			
     			
     		}
-    		else if(args[0].equals("8"))
-    		{
-    			Network n = new Network();
-    		}
-    		else if(args[0].equals("9"))
+    		else if(args[0].equals("6"))
     		{
     			
 				NNData nn=new NNData();
@@ -224,6 +138,19 @@ public class Main
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+    		}
+    		else if(args[0].equals("7"))
+    		{
+    			/**
+    			 * Make the test sute thingi
+    			 */
+    			try {
+        			LocPrediction lp = LocPrediction.getInstance(3, "output.txt", "networkExport.eg",4);
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+    			
     		}
     		else
     		{

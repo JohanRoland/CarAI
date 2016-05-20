@@ -199,7 +199,7 @@ public class LocPrediction {
 		
 		ELKIController.runElki();
 		
-		nd.exportAsClustToCSVWithHyperTwo();
+		nd.exportAsClustToCSVWithHyperTwo("coords.csv");
 		
 		bestMethod =(MLRegression)EncogDirectoryPersistence.loadObject(new File("networkExport.eg"));
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
@@ -228,7 +228,38 @@ public class LocPrediction {
 		
 		
 	}
-	
+
+	public void loadHyperParamNetworkFromCSV(String tempFileName)
+	{
+		File f = new File(".");
+		String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
+		
+		nd.impElkAndReroutFromNoise(pathToProj+"\\ELKIClusters\\");
+		VersatileDataSource source = new CSVDataSource(new File(tempFileName),false,format);
+		
+		data =  new VersatileMLDataSet(source);
+		
+		data.getNormHelper().setFormat(format); 
+		ColumnDefinition previus = data.defineSourceColumn("prev",0,ColumnType.nominal);		
+		ColumnDefinition here = data.defineSourceColumn("here",1,ColumnType.nominal);		
+		ColumnDefinition columnDay = data.defineSourceColumn("day",2,ColumnType.nominal);
+		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",3,ColumnType.continuous);
+		ColumnDefinition dest = data.defineSourceColumn("dest",4,ColumnType.nominal);	
+		
+		data.analyze();
+		
+		data.defineInput(previus);
+		data.defineInput(here);
+		data.defineInput(columnDay);
+		data.defineInput(columnMTime);
+		data.defineOutput(dest);
+		
+		data.getNormHelper().defineUnknownValue("?");
+		EncogModel model = new EncogModel(data);
+		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);	
+		helper = data.getNormHelper();
+
+	}
 	/**
 	 * Trains a netwotk with the contents of coords.txt as clusterd paths,
 	 * considering one path back. And loads it as the bestMethod as well
@@ -244,7 +275,7 @@ public class LocPrediction {
 		
 		ELKIController.runElki();
 		
-		nd.exportAsClustToCSVWithHyperTwo();
+		nd.exportAsClustToCSVWithHyperTwo(tempFileName);
 		
 		VersatileDataSource source = new CSVDataSource(new File(tempFileName),false,format);
 		
@@ -283,9 +314,81 @@ public class LocPrediction {
 		helper = data.getNormHelper();
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
-		
-		
+				
 	}
+	public void hyperParamLernTestLoad(String tempFileName, String network)
+	{
+		bestMethod =(MLRegression)EncogDirectoryPersistence.loadObject(new File(network));
+		VersatileDataSource source = new CSVDataSource(new File(tempFileName),false,format);
+		
+		data =  new VersatileMLDataSet(source);
+		
+		data.getNormHelper().setFormat(format); 
+		//ColumnDefinition previus = data.defineSourceColumn("prev",0,ColumnType.nominal);		
+		ColumnDefinition here = data.defineSourceColumn("here",1,ColumnType.nominal);		
+		ColumnDefinition columnDay = data.defineSourceColumn("day",2,ColumnType.nominal);
+		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",3,ColumnType.continuous);
+		ColumnDefinition dest = data.defineSourceColumn("dest",4,ColumnType.nominal);	
+
+		data.analyze();
+		
+		//data.defineInput(previus);
+		data.defineInput(here);
+		data.defineInput(columnDay);
+		data.defineInput(columnMTime);
+		data.defineOutput(dest);
+
+		data.getNormHelper().defineUnknownValue("?");
+		
+		EncogModel model = new EncogModel(data);
+		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
+		
+		model.setReport(new ConsoleStatusReportable());
+		
+		data.normalize();
+
+	}
+	public void hyperParamLernTestTrain(String tempFileName, String network)
+	{
+		VersatileDataSource source = new CSVDataSource(new File(tempFileName),false,format);
+		
+		data =  new VersatileMLDataSet(source);
+		
+		data.getNormHelper().setFormat(format); 
+		//ColumnDefinition previus = data.defineSourceColumn("prev",0,ColumnType.nominal);		
+		ColumnDefinition here = data.defineSourceColumn("here",1,ColumnType.nominal);		
+		ColumnDefinition columnDay = data.defineSourceColumn("day",2,ColumnType.nominal);
+		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",3,ColumnType.continuous);
+		ColumnDefinition dest = data.defineSourceColumn("dest",4,ColumnType.nominal);	
+
+		data.analyze();
+		
+		//data.defineInput(previus);
+		data.defineInput(here);
+		data.defineInput(columnDay);
+		data.defineInput(columnMTime);
+		data.defineOutput(dest);
+
+		data.getNormHelper().defineUnknownValue("?");
+		
+		EncogModel model = new EncogModel(data);
+		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
+		
+		model.setReport(new ConsoleStatusReportable());
+		
+		data.normalize();
+		
+		model.holdBackValidation(0.3, true, 1001);
+		model.selectTrainingType(data);
+		bestMethod = (MLRegression)model.crossvalidate(20, true);
+		saveNetwork(network);
+		System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
+		System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
+		helper = data.getNormHelper();
+		System.out.println(helper.toString());
+		System.out.println("Final model: " + bestMethod);
+	}
+	
 	
 	private void loadStandardNetwork()
 	{
@@ -527,15 +630,87 @@ public class LocPrediction {
 			case 3:
 				standardLearning();
 				break;
+			case 4:
+					final int maxClust=22;
+					hyperParamLernTestTrain("output.txt", "testSaveFile.eg");
+					hyperParamLernTestLoad("output.txt", "testSaveFile.eg");
+					
+					String[] line = new String[4];
+					MLData input = helper.allocateInputVector();
+					
+					try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(".//testResult2.txt"),"utf-8")))
+					{
+						//for(int prevClust=1; prevClust<=maxClust; prevClust++)
+						//{
+							for(int currClust=1; currClust<=maxClust; currClust++)
+							{
+								writer.write("--------------- "/*+prevClust + " -> "*/+ currClust + " ---------------\n");
+								//line[0] = ""+prevClust;
+								line[0] = ""+currClust;
+								for(int dayOfWeek=1;dayOfWeek<=7;dayOfWeek++)
+								{
+									double minSertanty=1;
+									double maxSertanty=0;
+									
+									int lastPrediction=-1;
+									for(int hour = 0; hour<24; hour++)
+									{
+										for(int minute=0; minute<60 ; minute++)
+										{
+											
+											line[1] = ""+dayOfWeek;
+											line[2] = ""+(hour*60+minute);
+											
+											helper.normalizeInputVector(line,input.getData(),false);
+											MLData output = bestMethod.compute(input);
+											
+											String res = helper.denormalizeOutputVectorToString(output)[0];
+											
+											double maxSer=getMaxDoubleFromList(output.getData());
+											if(minSertanty>maxSer)
+											{
+												minSertanty=maxSer;
+											}
+											if(maxSertanty<maxSer)
+											{
+												maxSertanty=maxSer;
+											}
+											
+											
+											int predictedClust = Integer.parseInt(res);
+											if(predictedClust!=lastPrediction)
+											{
+												lastPrediction=predictedClust;
+												writer.write("dayOfWeek: " + dayOfWeek +" hour: " + hour +" minute: " +minute+ " clust: "+predictedClust+"\n");
+											}
+										}
+									}
+								}
+							}
+						//}
+					}					
+					
+
+				break;
+			default:
+				throw new Error("Unimplemented network mode");
 			}
 		}
 		else
 		{
 			throw new Exception("No traning data available");
 		}
-
 	}
-	
+	double getMaxDoubleFromList(double[] in)
+	{
+		double max=Double.MIN_VALUE;
+		
+		for(double e : in)
+			if(e>max)
+				max=e;
+		
+		return max;
+	}
 	/**
 	 * Returns the specifyed user if it exsists,
 	 * if it doesn't exsitst it will retrieved the user
