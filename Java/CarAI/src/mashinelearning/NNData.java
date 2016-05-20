@@ -892,7 +892,7 @@ public class NNData
 		}
 		
 	}
-	public void exportAsClustToCSVWithHyperTwo()
+	public void exportAsClustToCSVWithHyperTwo(String tempFileName)
 	{
 		
 		File f = new File(".");
@@ -902,7 +902,7 @@ public class NNData
 		int tempFirstInputClust=0, tempSecondInputClust=0, tempFirstOutputClust=0, tempSecondOutputClust=0;
 		
 		
-		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
+		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempFileName),"utf-8")))
 		{
 			for(int i = 0; i < inputClust.size();i++)
 			{
