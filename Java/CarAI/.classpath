@@ -16,7 +16,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="D:/Programming projects/NIB/CarAI/Java/CarAI/dependencies/opencv-310.jar">
+	<classpathentry kind="lib" path="C:/Users/Knarkapan/git/CarAI/Java/CarAI/dependencies/opencv-310.jar">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/opencv/build/java/x64"/>
 		</attributes>
