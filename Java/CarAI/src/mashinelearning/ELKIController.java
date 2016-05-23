@@ -1,7 +1,10 @@
 package mashinelearning;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class ELKIController {
 	
@@ -37,8 +40,16 @@ public class ELKIController {
 			}
 			System.out.println("");
 			Process p = rt.exec(commands);
-			p.waitFor();
-			
+			InputStream stderr = p.getErrorStream();
+			InputStreamReader isr = new InputStreamReader(stderr);
+            BufferedReader br = new BufferedReader(isr);
+            String line = null;
+            System.out.println("<ERROR>");
+            while ( (line = br.readLine()) != null)
+                System.out.println(line);
+            System.out.println("</ERROR>");
+			int exitVal = p.waitFor();
+			System.out.println("Process exitValue: " + exitVal);
 			
 		} catch (IOException | InterruptedException e) {
 			// TODO Auto-generated catch block
