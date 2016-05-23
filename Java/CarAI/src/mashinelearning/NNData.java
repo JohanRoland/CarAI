@@ -7,6 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
@@ -14,6 +16,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -581,6 +584,82 @@ public class NNData
 			
 			Document doc  = dBuilder.parse(xmlFile);
 			
+			doc.getDocumentElement().normalize();
+			
+			NodeList nList = doc.getElementsByTagName("gx:coord");
+			NodeList tList = doc.getElementsByTagName("when");
+			int count = amount;
+			if(amount <= 0)
+			{
+				count = nList.getLength();
+			}
+			
+			String builder = "";
+			for(int i = count-1; i >= 0; i--)
+			{
+				Node nNode = nList.item(i);
+				Node tNode = tList.item(i);
+				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+	
+					Element eElement = (Element) nNode;
+					Element tElement = (Element) tNode;
+					
+					String[] coordinates = eElement.getTextContent().split(" ");
+					String[] fullDateTime = tElement.getTextContent().substring(0, tElement.getTextContent().length()-1).split("T");
+					
+					//TIME PARSING
+					String[] splitTime = fullDateTime[1].split(":");
+					int h = Integer.parseInt(splitTime[0]);
+					int min = Integer.parseInt(splitTime[1]);;
+					String[] splitDate = fullDateTime[0].split("-");
+					int y = Integer.parseInt(splitDate[0]);
+					int m = Integer.parseInt(splitDate[1]);
+					int d = Integer.parseInt(splitDate[2]);
+					
+					//GPS PARSING
+					double lat = ((double)Math.round(Double.parseDouble(coordinates[0])*10000000))/10000000;
+				 	double lon = ((double)Math.round(Double.parseDouble(coordinates[1])*10000000))/10000000;
+					double[] tmp =  {lon,lat};
+					double[] tmp2=new double[2];
+					if(i != 0)
+					{
+						Node oNode = nList.item(i-1);
+						if (oNode.getNodeType() == Node.ELEMENT_NODE) {
+							Element oElement = (Element) oNode;
+							String[] nCoordinates = oElement.getTextContent().split(" ");
+							double lat2 = ((double)Math.round(Double.parseDouble(nCoordinates[1])*10000000))/10000000;
+						 	double lon2 = ((double)Math.round(Double.parseDouble(nCoordinates[0])*10000000))/10000000;
+							tmp2[0]	=lat2;
+							tmp2[1] = lon2;
+
+						}
+					}
+					else
+					{
+						tmp2[0]=lon;
+						tmp2[1]= lat;
+						
+					}
+					querry.add(new DBQuerry(tmp[0], tmp[1],y,m,d, h,min, tmp2[0],tmp2[1]));
+				}
+			}
+			System.out.println("Done fetching data");
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	public void parseKMLString(String text,int amount)
+	{
+		System.out.println("Reading KML File");
+		try{
+			querry = new ArrayList<DatabaseLocation>();
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			InputStream is = new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
+			Document doc  = dBuilder.parse(is);
+
 			doc.getDocumentElement().normalize();
 			
 			NodeList nList = doc.getElementsByTagName("gx:coord");
