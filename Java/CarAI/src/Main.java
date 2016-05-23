@@ -1,7 +1,13 @@
-import java.io.File;
+
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -20,7 +26,11 @@ import prediction.Network;
 import predictorG.PredictorG;
 import serverConnection.ServerConnection;
 import utils.MqttTime;
+<<<<<<< HEAD
+import utils.Tuple;
+=======
 import utils.Utils;
+>>>>>>> branch 'master' of https://github.com/JohanRoland/CarAI.git
 import displayData.PointsPlotter;
 
 public class Main
@@ -72,15 +82,15 @@ public class Main
     		{
     			PredictorG graph = PredictorG.getInstance(1);
     			
-    			PYDBSCAN clusters = new PYDBSCAN();
-    			NNData nn = new NNData();
+    			//PYDBSCAN clusters = new PYDBSCAN();
+    			//NNData nn = new NNData();
 
-    			nn.importFromDB(1,60000);
-    			nn.exportAsClustToCSV();
+    			//nn.importFromDB(1,60000);
+    			//nn.exportAsClustToCSV();
     			
     			//ArrayList<ArrayList<DatabaseLocation>> temp = clusters.runDBSCAN(nn.getQuerry(), 0.002, 10, 10000);
     			
-    			int numberOfClusters=nn.getNrCluster();
+    			int numberOfClusters=22;//nn.getNrCluster();
     			
     			for(int i=1;i<=	numberOfClusters; i++)
     			{
@@ -89,35 +99,76 @@ public class Main
     				
     			Stream<String> lines;
 				try {
-					lines = java.nio.file.Files.lines(Paths.get("coords.csv"));
+					int dayOfTheYear=0;
+					lines = java.nio.file.Files.lines(Paths.get("output.txt"));
 	    			lines.forEach(ss -> {
 	    				String[] s = ss.split(" " );
-	    				graph.enterPath(Integer.parseInt(s[0]), Integer.parseInt(s[3]), (Integer.parseInt(s[1])*60)+Integer.parseInt(s[2]), 0, 0);
+	    				int humm =Integer.parseInt(s[1]);
+	    				if((humm!=13) && Integer.parseInt(s[3])==1)
+	    					throw new Error("humm was: " + humm);
+	    				graph.enterPath(Integer.parseInt(s[1]), Integer.parseInt(s[4]), (Integer.parseInt(s[3])), Integer.parseInt(s[2]), 0);
 	    				
 	    			});
+				
+    			
+
+					double[] waightFactors = {1.0,1.0,1.0,1.0,1.0};
+					Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(".//testResult3.txt"),"utf-8"));
+							
+						
+					for(int i = 1 ; i<=22; i++)
+					{
+						writer.write("-----------" + i + "-----------\n");
+						graph.setCurrentNode(i);
+						int lastClust=-1;
+						for(int k=1;k<=7;k++)
+						{
+							for(int j=0;j<1440;j++)
+							{
+
+								
+								Tuple<Tuple<Integer, Double>, ArrayList<Tuple<Integer, Double>>> tempTemp = graph.predictNextNode(j,k,0, waightFactors);
+								Tuple<Integer, Double> temp = tempTemp.fst();
+								int currClust= temp.fst();
+								if(currClust==13)
+								 {
+									 int e = 0;
+									 e++;
+								 }
+								double conf = temp.snd();
+								if(currClust!=lastClust )
+								{
+									lastClust=currClust;
+									writer.write("Day: " + k + " Time: " + j + " Clust: "+ lastClust +"\n");
+								}
+							}
+						
+						}
+					}
+					writer.close();
+					System.out.println("Done !!!!");
+	    			/*
+	    			for(int i=0; i<numberOfClusters;i++)
+	    			{
+	    				int size=temp.get(i).size();
+	    				for(int j=0;j<size;j++)
+	    				{
+	    					int cluster = 0; // need to fin what cluster it is goint to 
+	    					
+	    					graph.enterPath(i,cluster,temp.get(i).get(j).getHTime(),temp.get(i).get(j).getMTime(),0);
+	    				}
+	    			}
+	    			*/
+    			}catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-    			
-				graph.setCurrentNode(2);
-				double[] waightFactors = {1.0,1.0,1.0,1.0,1.0};
-				for(int i = 0 ; i<1440; i=i+30)
-					System.out.println("prediction at time: " + i + " "+ graph.predictNextNode(i,0,0, waightFactors ));
-				
-				
-    			/*
-    			for(int i=0; i<numberOfClusters;i++)
-    			{
-    				int size=temp.get(i).size();
-    				for(int j=0;j<size;j++)
-    				{
-    					int cluster = 0; // need to fin what cluster it is goint to 
-    					
-    					graph.enterPath(i,cluster,temp.get(i).get(j).getHTime(),temp.get(i).get(j).getMTime(),0);
-    				}
-    			}
-    			*/
     			
     			
     			

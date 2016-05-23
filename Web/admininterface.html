@@ -2,7 +2,8 @@
 <html>
   <head>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
-    <style>
+	<script src="script.js"></script>
+	<style>
       #map {
         width: 800px;
         height: 600px;
@@ -12,71 +13,22 @@
         font-size:20px;
       }
     </style>
-    <script>
-    $(function() {
-   $("#iform").submit(function(e) {
-      e.preventDefault();   
-      var s = document.forms["inform"]["in"].value;
-			var res;
-      var latlongs = s.split("\n")
-			$.ajax(
-			{
-				type:"POST",
-				url:'cullocs.php',
-				dataType:'json',
-				data: {functionname:'cull',arguments:[s]},
-				success: function(obj,textstatus) {
-					if(!('error' in obj))
-					{
-						res = obj.result;
-						console.log(res);
-					}
-					else {
-						console.log(obj.error);
-					}
-				}
-			});
-			for(var l = 0; l <latlongs.length; l++)
-      {
-        var coords = latlongs[l].split(",");
-        //var coords = results.features[i].geometry.coordinates;
-        var latLng = new google.maps.LatLng(Number(coords[0]),Number(coords[1]));
-        var marker = new google.maps.Marker({
-          position: latLng,
-          map: map
-        });
-        
-      }
-    }); 
-  });
-    </script>
   </head>
   <body>
   
     <div id="header">ADMIN INTERFACE</div>
 
-    <form id="iform" name="inform">
+		<form action="upload.php" method="post" enctype="multipart/form-data">
+			Upload KML file:
+			<input type="file" name="fileToUpload" id="fileToUpload">
+			<input type="submit" value="Upload KML" name="submit">
+		</form>
+
+    <form id="iform" name="inform" style="display:nonnonee;">
         <textarea name="in" rows="4" cols="50"></textarea> <br>
         <input type="submit" value="Submit"/> 
     </form>
     <div id="map"></div>
-    <script>
-
-        var map;
-        function initMap() {
-        var myLatLng = {lat: 57.697032, lng: 11.976045};
-
-        map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 11,
-          center: {lat: 57.697032, lng: 11.976045}
-        });
-
-        var marker = new google.maps.Marker({
-          position: myLatLng,
-          map: map,
-        });
-      }
-    </script> 
     <script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
         async defer></script>
   </body>
