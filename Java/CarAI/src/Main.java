@@ -1,5 +1,6 @@
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 
 import java.io.FileOutputStream;
@@ -26,11 +27,8 @@ import prediction.Network;
 import predictorG.PredictorG;
 import serverConnection.ServerConnection;
 import utils.MqttTime;
-<<<<<<< HEAD
 import utils.Tuple;
-=======
 import utils.Utils;
->>>>>>> branch 'master' of https://github.com/JohanRoland/CarAI.git
 import displayData.PointsPlotter;
 
 public class Main
