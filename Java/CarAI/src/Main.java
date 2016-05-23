@@ -36,7 +36,7 @@ public class Main
     public static void main(String[] args) {
     	//EMpty gommecnt
     	
-    	MqttTime mt = MqttTime.getInstance();
+    	//MqttTime mt = MqttTime.getInstance();
     	//Analyze.analyzeLearningData();
     	//System.exit(0);
     	if(args.length > 0)
@@ -236,7 +236,8 @@ public class Main
 				String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
     			
     			NNData n = new NNData();
-    			n.parseKMLString(0);
+    			//n.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\OlofLoc.kml", 0);
+    		 	n.parseKMLString(0);
     			n.coordCullByBox(57, 11, 2, 8);
     			n.coordCullByDist();
     			n.exportAsCoordsToCSV(pathToProj+File.separator+"coords.csv");
