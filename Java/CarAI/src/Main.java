@@ -240,7 +240,7 @@ public class Main
     			n.coordCullByBox(57, 11, 2, 8);
     			n.coordCullByDist();
     			ELKIController.runElki();
-    			ArrayList<ArrayList<DatabaseLocation>> clusters = n.importFromElkiClustering(pathToProj+"\\ELKIClusters\\");
+    			ArrayList<ArrayList<DatabaseLocation>> clusters = n.importFromElkiClustering(pathToProj+File.separator+"ELKIClusters"+File.separator);
     			
     			for(ArrayList<DatabaseLocation> c : clusters)
     			{

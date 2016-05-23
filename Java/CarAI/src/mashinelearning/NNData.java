@@ -957,7 +957,7 @@ public class NNData
 	{
 		File f = new File(".");
 		String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
-		impElkAndReroutFromNoise(pathToProj+"\\ELKIClusters\\");
+		impElkAndReroutFromNoise(pathToProj+File.separator+"ELKIClusters"+File.separator);
 		
 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
 		{
@@ -978,7 +978,7 @@ public class NNData
 		
 		File f = new File(".");
 		String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
-		impElkAndReroutFromNoise(pathToProj+"\\ELKIClusters\\");
+		impElkAndReroutFromNoise(pathToProj+File.separator+"ELKIClusters"+File.separator);
 		
 		int tempFirstInputClust=0, tempSecondInputClust=0, tempFirstOutputClust=0, tempSecondOutputClust=0;
 		
