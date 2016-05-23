@@ -17,8 +17,26 @@
    $("#iform").submit(function(e) {
       e.preventDefault();   
       var s = document.forms["inform"]["in"].value;
-      var latlongs = s.split("\n");
-      for(var l = 0; l <latlongs.length; l++)
+			var res;
+      var latlongs = s.split("\n")
+			$.ajax(
+			{
+				type:"POST",
+				url:'cullocs.php',
+				dataType:'json',
+				data: {functionname:'cull',arguments:[s]},
+				success: function(obj,textstatus) {
+					if(!('error' in obj))
+					{
+						res = obj.result;
+						console.log(res);
+					}
+					else {
+						console.log(obj.error);
+					}
+				}
+			});
+			for(var l = 0; l <latlongs.length; l++)
       {
         var coords = latlongs[l].split(",");
         //var coords = results.features[i].geometry.coordinates;
