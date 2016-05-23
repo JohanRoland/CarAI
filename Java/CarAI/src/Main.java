@@ -1,5 +1,7 @@
+
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -16,6 +18,7 @@ import car.CarInterface;
 import facerecognition.FaceMQTT;
 import facerecognition.FaceRecognition;
 import interfaces.DatabaseLocation;
+import mashinelearning.ELKIController;
 import mashinelearning.NNData;
 import mashinelearning.PYDBSCAN;
 import prediction.LocPrediction;
@@ -23,7 +26,11 @@ import prediction.Network;
 import predictorG.PredictorG;
 import serverConnection.ServerConnection;
 import utils.MqttTime;
+<<<<<<< HEAD
 import utils.Tuple;
+=======
+import utils.Utils;
+>>>>>>> branch 'master' of https://github.com/JohanRoland/CarAI.git
 import displayData.PointsPlotter;
 
 public class Main
@@ -198,6 +205,49 @@ public class Main
 					e.printStackTrace();
 				}
     			
+    		}
+    		else if(args[0].equals("8"))
+    		{
+    		 	NNData n = new NNData();
+    		 	//n.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml", 0);
+
+    		 	n.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\OlofLoc.kml", 0);
+    		 	n.coordCullByBox(57, 11, 2, 8);
+    		 	System.out.println("Amount of Entries: " +n.getQuerry().size());
+    		 	double dist1 = 0;
+    		 	for(DatabaseLocation d : n.getQuerry())
+    		 	{
+    		 		dist1 += Utils.distDB(d);
+    		 	}
+    		 	System.out.println("Dist before Distance culling: "+ dist1);
+    		 	
+    		 	n.coordCullBySpeed(25);;
+    		 	System.out.println("Amount of Entries after dist cull: " +n.getQuerry().size());
+    		 	double dist2 = 0;
+    		 	for(DatabaseLocation d : n.getQuerry())
+    		 	{
+    		 		dist2 += Utils.distDB(d);
+    		 	}
+    		 	System.out.println("Dist after Distance culling: "+ dist2);
+    		 	
+    		 	
+    		}
+    		else if(args[0].equals("9"))
+    		{
+    			File f = new File(".");
+				String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
+    			
+    			NNData n = new NNData();
+    			n.parseKMLString(0);
+    			n.coordCullByBox(57, 11, 2, 8);
+    			n.coordCullByDist();
+    			ELKIController.runElki();
+    			ArrayList<ArrayList<DatabaseLocation>> clusters = n.importFromElkiClustering(pathToProj+"\\ELKIClusters\\");
+    			
+    			for(ArrayList<DatabaseLocation> c : clusters)
+    			{
+    				System.out.println(Utils.mean(c));
+    			}
     		}
     		else
     		{
