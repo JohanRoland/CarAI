@@ -239,6 +239,7 @@ public class Main
     			n.parseKMLString(0);
     			n.coordCullByBox(57, 11, 2, 8);
     			n.coordCullByDist();
+    			n.exportAsCoordsToCSV(pathToProj+File.separator+"coords.csv");
     			ELKIController.runElki();
     			ArrayList<ArrayList<DatabaseLocation>> clusters = n.importFromElkiClustering(pathToProj+File.separator+"ELKIClusters"+File.separator);
     			
