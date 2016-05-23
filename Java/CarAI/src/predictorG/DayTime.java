@@ -26,7 +26,7 @@ import java.lang.Double;
 		public Double relativeDistanceT(DayTime input) {
 		double temp = Math.abs(input.getTime()-time);	// Hopefully abut 30 tolerance
 		//if(temp<500.0)
-			return 1/(Math.pow(temp, 3)+1); //Math.cos(temp);
+			return 1/(temp+1); //Math.cos(temp);
 		//else
 			//return 0.0;
 		}
