@@ -650,15 +650,17 @@ public class NNData
 			e.printStackTrace();
 		}
 	}
-	public void parseKMLString(String text,int amount)
+	public void parseKMLString(int amount)
 	{
 		System.out.println("Reading KML File");
 		try{
 			querry = new ArrayList<DatabaseLocation>();
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			InputStream is = new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
-			Document doc  = dBuilder.parse(is);
+			//InputStream is = new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
+			
+			
+			Document doc  = dBuilder.parse(System.in);
 
 			doc.getDocumentElement().normalize();
 			

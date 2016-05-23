@@ -187,7 +187,7 @@ public class Main
 				String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
     			
     			NNData n = new NNData();
-    			n.parseKMLString(args[1], 0);
+    			n.parseKMLString(0);
     			n.coordCullByBox(57, 11, 2, 8);
     			n.coordCullByDist();
     			ELKIController.runElki();
