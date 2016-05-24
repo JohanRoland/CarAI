@@ -5,19 +5,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Date;
 
 
 public class ELKIController {
 	
-	public static void runElki()
+	public static void runElki(String tempName)
 	{
 		File f = new File(".");
 		
 		String currentPath = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
-    	Date d = new Date();
-		//File file1 = new File(currentPath+File.separator+"ELKIClusters");
-		String tempName = "ELKIClusters" + d.getTime();
+    	//File file1 = new File(currentPath+File.separator+"ELKIClusters");
+		//
     	File elkiTemp = new File(currentPath+File.separator+tempName);
     	if(!elkiTemp.exists())
     	{
@@ -58,8 +56,7 @@ public class ELKIController {
 			int exitVal = p.waitFor();
 			System.out.println("Process exitValue: " + exitVal);
 			
-			for(File file: elkiTemp.listFiles()) file.delete();
-			elkiTemp.delete();
+			
 			
 			
 		} catch (IOException | InterruptedException e) {

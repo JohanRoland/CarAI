@@ -7,6 +7,7 @@ import mashinelearning.NNData;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -197,7 +198,9 @@ public class LocPrediction {
 		
 		nd.exportAsCoordsToCSV("coords.csv");
 		
-		ELKIController.runElki();
+		Date date = new Date();
+		String tempName = "ELKIClusters" + date.getTime();
+		ELKIController.runElki(tempName);
 		
 		nd.exportAsClustToCSVWithHyperTwo("coords.csv");
 		
@@ -273,7 +276,9 @@ public class LocPrediction {
 		//nd.coordCullByDist();
 		nd.exportAsCoordsToCSV(tempFileName);
 		
-		ELKIController.runElki();
+		Date date = new Date();
+		String tempName = "ELKIClusters" + date.getTime();
+		ELKIController.runElki(tempName);
 		
 		nd.exportAsClustToCSVWithHyperTwo(tempFileName);
 		

@@ -788,6 +788,11 @@ public class NNData
 		}		
 	}
 	
+	/***
+	 * Note: deletes the temporary elkifiles!!!
+	 * @param path
+	 * @return
+	 */
 	public ArrayList<ArrayList<DatabaseLocation>> importFromElkiClustering(String path)
 	{
 		ArrayList<ArrayList<DatabaseLocation>> output = new ArrayList<ArrayList<DatabaseLocation>>(); 
@@ -827,6 +832,10 @@ public class NNData
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+		File elkiDir = new File(path);
+		for(File file: elkiDir.listFiles()) file.delete();
+		elkiDir.delete();
+		
 		for(int i = 0 ; i <= amountofClusts; i++)
 		{
 			output.add(new ArrayList<DatabaseLocation>());
@@ -1372,7 +1381,7 @@ public class NNData
 	}
 	
 
-	public ArrayList<ArrayList<DatabaseLocation>> importClustFromFile(String path)
+	public ArrayList<ArrayList<DatabaseLocation>> ClustFromFile(String path)
 	{
 		ArrayList<ArrayList<DatabaseLocation>> output = new ArrayList<ArrayList<DatabaseLocation>>(); 
 		HashMap<Tuple<Double,Double>, Integer> clusterMap = new HashMap<Tuple<Double,Double>, Integer>();

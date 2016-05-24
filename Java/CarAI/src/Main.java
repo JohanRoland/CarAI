@@ -12,6 +12,7 @@ import java.io.Writer;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.stream.Stream;
 
 
@@ -232,6 +233,9 @@ public class Main
     		}
     		else if(args[0].equals("9"))
     		{
+    			Date date = new Date();
+    			String tempName = "ELKIClusters" + date.getTime();
+    			
     			File f = new File(".");
 				String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
     			
@@ -260,8 +264,8 @@ public class Main
     		 	
     			
     			n.exportAsCoordsToCSV(pathToProj+File.separator+"coords.csv");
-    			ELKIController.runElki();
-    			ArrayList<ArrayList<DatabaseLocation>> clusters = n.importFromElkiClustering(pathToProj+File.separator+"ELKIClusters"+File.separator);
+    			ELKIController.runElki(tempName);
+    			ArrayList<ArrayList<DatabaseLocation>> clusters = n.importFromElkiClustering(tempName+File.separator);
     			
     			for(ArrayList<DatabaseLocation> c : clusters)
     			{
