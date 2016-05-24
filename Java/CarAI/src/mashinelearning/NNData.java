@@ -1089,7 +1089,7 @@ public class NNData
 					counterOfRemovedCoords++;
 				}
 		}
-		System.out.println("The nummber of culled coords wasr: "+counterOfRemovedCoords);
+		System.out.println("The number of culled coords was: "+counterOfRemovedCoords);
 		//stemp.add(new DBQuerry(temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon(),temp.get(temp.size()-1).getHTime(),temp.get(temp.size()-1).getMTime(),temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon()));
 		querry = temp;
 		
@@ -1175,14 +1175,14 @@ public class NNData
 			
 			
 		}
-		System.out.println("The nummber of culled coords wasr: "+counterOfRemovedCoords);
+		System.out.println("The number of culled coords was: "+counterOfRemovedCoords);
 		//stemp.add(new DBQuerry(temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon(),temp.get(temp.size()-1).getHTime(),temp.get(temp.size()-1).getMTime(),temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon()));
 		querry = temp;
 	}
 
 	public void coordCullByDist()
 	{
-		System.out.println("Has " + querry.size() + " befor cull");
+		System.out.println("Has " + querry.size() + " before cull");
 		ArrayList<DatabaseLocation> temp = new ArrayList<DatabaseLocation>();
 
  		ArrayList<Tuple<Double,Double>> median =  new ArrayList<Tuple<Double,Double>>();
