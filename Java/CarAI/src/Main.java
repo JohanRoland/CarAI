@@ -238,7 +238,7 @@ public class Main
     			NNData n = new NNData();
     			//n.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\OlofLoc.kml", 0);
     		 	n.parseKMLString(0);
-    			n.coordCullByBox(57, 11, 2, 8);
+    			//n.coordCullByBox(57, 11, 2, 8);
     			
     			System.out.println("Amount of Entries: " +n.getQuerry().size());
     		 	double dist1 = 0;
