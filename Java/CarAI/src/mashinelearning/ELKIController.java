@@ -34,11 +34,11 @@ public class ELKIController {
 			
 
 			System.out.println("Starting Clustering");
-			for(String s : commands)
+			/*for(String s : commands)
 			{
 				System.out.print(s+" ");
 			}
-			System.out.println("");
+			System.out.println("");*/
 			Process p = rt.exec(commands);
 			InputStream stderr = p.getErrorStream();
 			InputStreamReader isr = new InputStreamReader(stderr);

@@ -239,7 +239,26 @@ public class Main
     			//n.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\OlofLoc.kml", 0);
     		 	n.parseKMLString(0);
     			n.coordCullByBox(57, 11, 2, 8);
+    			
+    			System.out.println("Amount of Entries: " +n.getQuerry().size());
+    		 	double dist1 = 0;
+    		 	for(DatabaseLocation d : n.getQuerry())
+    		 	{
+    		 		dist1 += Utils.distDB(d);
+    		 	}
+    		 	System.out.println("Dist before Distance culling: "+ dist1);
+    		 	
+    			
     			n.coordCullByDist();
+    			System.out.println("Amount of Entries after dist cull: " +n.getQuerry().size());
+    		 	double dist2 = 0;
+    		 	for(DatabaseLocation d : n.getQuerry())
+    		 	{
+    		 		dist2 += Utils.distDB(d);
+    		 	}
+    		 	System.out.println("Dist after Distance culling: "+ dist2);
+    		 	
+    			
     			n.exportAsCoordsToCSV(pathToProj+File.separator+"coords.csv");
     			ELKIController.runElki();
     			ArrayList<ArrayList<DatabaseLocation>> clusters = n.importFromElkiClustering(pathToProj+File.separator+"ELKIClusters"+File.separator);
