@@ -7,6 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
@@ -14,6 +16,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -647,6 +650,84 @@ public class NNData
 			e.printStackTrace();
 		}
 	}
+	public void parseKMLString(int amount)
+	{
+		System.out.println("Reading KML File");
+		try{
+			querry = new ArrayList<DatabaseLocation>();
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			//InputStream is = new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
+			
+			
+			Document doc  = dBuilder.parse(System.in);
+
+			doc.getDocumentElement().normalize();
+			
+			NodeList nList = doc.getElementsByTagName("gx:coord");
+			NodeList tList = doc.getElementsByTagName("when");
+			int count = amount;
+			if(amount <= 0)
+			{
+				count = nList.getLength();
+			}
+			
+			String builder = "";
+			for(int i = count-1; i >= 0; i--)
+			{
+				Node nNode = nList.item(i);
+				Node tNode = tList.item(i);
+				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+	
+					Element eElement = (Element) nNode;
+					Element tElement = (Element) tNode;
+					
+					String[] coordinates = eElement.getTextContent().split(" ");
+					String[] fullDateTime = tElement.getTextContent().substring(0, tElement.getTextContent().length()-1).split("T");
+					
+					//TIME PARSING
+					String[] splitTime = fullDateTime[1].split(":");
+					int h = Integer.parseInt(splitTime[0]);
+					int min = Integer.parseInt(splitTime[1]);;
+					String[] splitDate = fullDateTime[0].split("-");
+					int y = Integer.parseInt(splitDate[0]);
+					int m = Integer.parseInt(splitDate[1]);
+					int d = Integer.parseInt(splitDate[2]);
+					
+					//GPS PARSING
+					double lat = ((double)Math.round(Double.parseDouble(coordinates[0])*10000000))/10000000;
+				 	double lon = ((double)Math.round(Double.parseDouble(coordinates[1])*10000000))/10000000;
+					double[] tmp =  {lon,lat};
+					double[] tmp2=new double[2];
+					if(i != 0)
+					{
+						Node oNode = nList.item(i-1);
+						if (oNode.getNodeType() == Node.ELEMENT_NODE) {
+							Element oElement = (Element) oNode;
+							String[] nCoordinates = oElement.getTextContent().split(" ");
+							double lat2 = ((double)Math.round(Double.parseDouble(nCoordinates[1])*10000000))/10000000;
+						 	double lon2 = ((double)Math.round(Double.parseDouble(nCoordinates[0])*10000000))/10000000;
+							tmp2[0]	=lat2;
+							tmp2[1] = lon2;
+
+						}
+					}
+					else
+					{
+						tmp2[0]=lon;
+						tmp2[1]= lat;
+						
+					}
+					querry.add(new DBQuerry(tmp[0], tmp[1],y,m,d, h,min, tmp2[0],tmp2[1]));
+				}
+			}
+			System.out.println("Done fetching data");
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 	public void parseCSV(String path)
 	{
@@ -707,6 +788,11 @@ public class NNData
 		}		
 	}
 	
+	/***
+	 * Note: deletes the temporary elkifiles!!!
+	 * @param path
+	 * @return
+	 */
 	public ArrayList<ArrayList<DatabaseLocation>> importFromElkiClustering(String path)
 	{
 		ArrayList<ArrayList<DatabaseLocation>> output = new ArrayList<ArrayList<DatabaseLocation>>(); 
@@ -746,6 +832,10 @@ public class NNData
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+		File elkiDir = new File(path);
+		for(File file: elkiDir.listFiles()) file.delete();
+		elkiDir.delete();
+		
 		for(int i = 0 ; i <= amountofClusts; i++)
 		{
 			output.add(new ArrayList<DatabaseLocation>());
@@ -876,7 +966,7 @@ public class NNData
 	{
 		File f = new File(".");
 		String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
-		impElkAndReroutFromNoise(pathToProj+"\\ELKIClusters\\");
+		impElkAndReroutFromNoise(pathToProj+File.separator+"ELKIClusters"+File.separator);
 		
 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
 		{
@@ -892,17 +982,17 @@ public class NNData
 		}
 		
 	}
-	public void exportAsClustToCSVWithHyperTwo()
+	public void exportAsClustToCSVWithHyperTwo(String tempFileName)
 	{
 		
 		File f = new File(".");
 		String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
-		impElkAndReroutFromNoise(pathToProj+"\\ELKIClusters\\");
+		impElkAndReroutFromNoise(pathToProj+File.separator+"ELKIClusters"+File.separator);
 		
 		int tempFirstInputClust=0, tempSecondInputClust=0, tempFirstOutputClust=0, tempSecondOutputClust=0;
 		
 		
-		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
+		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempFileName),"utf-8")))
 		{
 			for(int i = 0; i < inputClust.size();i++)
 			{
@@ -1008,7 +1098,7 @@ public class NNData
 					counterOfRemovedCoords++;
 				}
 		}
-		System.out.println("The nummber of culled coords wasr: "+counterOfRemovedCoords);
+		System.out.println("The number of culled coords was: "+counterOfRemovedCoords);
 		//stemp.add(new DBQuerry(temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon(),temp.get(temp.size()-1).getHTime(),temp.get(temp.size()-1).getMTime(),temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon()));
 		querry = temp;
 		
@@ -1094,14 +1184,14 @@ public class NNData
 			
 			
 		}
-		System.out.println("The nummber of culled coords wasr: "+counterOfRemovedCoords);
+		System.out.println("The number of culled coords was: "+counterOfRemovedCoords);
 		//stemp.add(new DBQuerry(temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon(),temp.get(temp.size()-1).getHTime(),temp.get(temp.size()-1).getMTime(),temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon()));
 		querry = temp;
 	}
 
 	public void coordCullByDist()
 	{
-		System.out.println("Has " + querry.size() + " befor cull");
+		System.out.println("Has " + querry.size() + " before cull");
 		ArrayList<DatabaseLocation> temp = new ArrayList<DatabaseLocation>();
 
  		ArrayList<Tuple<Double,Double>> median =  new ArrayList<Tuple<Double,Double>>();
@@ -1291,7 +1381,7 @@ public class NNData
 	}
 	
 
-	public ArrayList<ArrayList<DatabaseLocation>> importClustFromFile(String path)
+	public ArrayList<ArrayList<DatabaseLocation>> ClustFromFile(String path)
 	{
 		ArrayList<ArrayList<DatabaseLocation>> output = new ArrayList<ArrayList<DatabaseLocation>>(); 
 		HashMap<Tuple<Double,Double>, Integer> clusterMap = new HashMap<Tuple<Double,Double>, Integer>();

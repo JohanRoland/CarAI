@@ -119,8 +119,13 @@ public class PredictorG {
 	}
 	public Tuple<Tuple<Integer, Double>, ArrayList<Tuple<Integer, Double>>> predictNextNode(int t,int d,int w, double[] waightFactors)
 	{
+		if(t==341)
+		{		
+			int g=0;
+			g++;
+		}
 		 DayTime dt= new DayTime(t,d,w);
-		 ArrayList<Double> temp =currentNode.neibors.proxSerch(dt, 40);
+		 ArrayList<Double> temp =currentNode.neibors.proxSerch(dt, 30);
 		 ArrayList<Tuple<Integer,Double>> outList = new ArrayList<Tuple<Integer,Double>>();
 		 double highestFactor=0;
 		 int highestNode=-1;
@@ -130,10 +135,15 @@ public class PredictorG {
 			 if(temp.get(i)>highestFactor)
 			 {
 				 highestFactor=temp.get(i);
-				 highestNode=i;
+				 highestNode=i+1;
+				 if(highestNode==13)
+				 {
+					 int e=0;
+					 e++;
+				 }
 			 }
 			 if(temp.get(i)!=0)
-				 outList.add(new Tuple<Integer,Double>(i,temp.get(i)));
+				 outList.add(new Tuple<Integer,Double>(i+1,temp.get(i)));
 		 }
 		 return new Tuple<Tuple<Integer,Double>,ArrayList<Tuple<Integer,Double>>>(new Tuple<Integer,Double>(highestNode,highestFactor), outList);
 				
@@ -200,26 +210,30 @@ public class PredictorG {
 			{
 				connections2 = new ArrayList<Tuple<DayTime,ArrayList<Tuple<Integer,Integer>>>>();
 			}
-			void addConnection(int t,int d,int m, Integer n)
+			void addConnection(int t,int d,int m, int n)
 			{
 				addConnection(t, d, m, n, Calendar.getInstance().get(Calendar.DAY_OF_YEAR));
 			}
-			void addConnection(int t,int d,int m, Integer n, int timeStamp)
+			void addConnection(int t,int d,int m, int n, int timeStamp)
 			{	
 				 //ArrayList<Tuple<Integer, Integer>> listOfEntries= new  ArrayList<Tuple<Integer, Integer>>();
-				 				
+				if(n==13 && d==1)
+				{
+					int y=0;
+					y++;
+				}
 				for(Tuple<DayTime, ArrayList<Tuple<Integer, Integer>>> e : connections2)
 				{
 					if(e.fst().getTime()==t &&e.fst().getDay()==d && e.fst().getMonth()==m )
 					{
-						e.snd().add(new Tuple<Integer,Integer>(n,timeStamp));
+						e.snd().add(new Tuple<Integer,Integer>(n,/*timeStamp*/ null));
 						return;
 								
 					}
 				}
 				DayTime pl =new DayTime(t, d,m);
 				ArrayList<Tuple<Integer, Integer>> temp = new ArrayList<Tuple<Integer,Integer>>();
-				temp.add(new Tuple<Integer,Integer>(n, Calendar.getInstance().get(Calendar.DAY_OF_YEAR)));
+				temp.add(new Tuple<Integer,Integer>(n, /*Calendar.getInstance().get(Calendar.DAY_OF_YEAR)*/null));
 				connections2.add(new Tuple<DayTime,ArrayList<Tuple<Integer, Integer>>>(pl, temp));
 				
 			}
@@ -232,7 +246,7 @@ public class PredictorG {
 				
 				ArrayList<Double> out = new ArrayList<Double>();
 				
-				for(int i =0; i<nummberOfNodes+1;i++)			//??
+				for(int i =0; i<nummberOfNodes+1;i++)
 				{
 					out.add(0.0);
 				}
@@ -246,41 +260,48 @@ public class PredictorG {
 					{
 						for(Tuple<Integer, Integer> cd :e.snd())
 						{
-							Calendar temp2 = Calendar.getInstance();
-							int dateDiff = temp2.get(Calendar.DAY_OF_YEAR)-cd.snd();
-							if(dateDiff<0)
+							//Calendar temp2 = Calendar.getInstance();
+							//int dateDiff = temp2.get(Calendar.DAY_OF_YEAR)-cd.snd();
+							/*
+							if(dateDiff<0) 
 							{
 								int toEOY = 365 - cd.snd();
 								dateDiff= toEOY+temp2.get(Calendar.DAY_OF_YEAR);
 								
 							}
-							
+							*/
 							double factorT = e.fst().relativeDistanceT(d);//*(Math.log(0.1+cd.snd()/100)+3)/4;
 							
 							if(matchingD)
 							{
 								if(e.fst().getDay()!=d.getDay())
+								{
 									factorT=0;
+								}
 							}
 							else if(e.fst().getDay()==d.getDay())
 							{
 								matchingD=true;
-								out.set(cd.fst(),0.0);
+								out.set(cd.fst()-1,0.0);
 							}
-							if(matchingM)
+							/*
+							if(matchingM) 
 							{
-								if(e.fst().getDay()!=d.getDay())
+								if(e.fst().getMonth()!=d.getMonth())
+								{
 									factorT=0;
+									System.out.println("Failed after match Month");
+								}
 							}
-							else if(e.fst().getDay()==d.getDay())
+							else if(e.fst().getMonth()==d.getMonth())
 							{
 								matchingM=true;
-								out.set(cd.fst(),0.0);
-							}
-							
-							if(factorT>0 && 14>dateDiff)
+								out.set(cd.fst()-1,0.0);
+							}*/
+							//608-692 && 841
+							if(factorT>0 && matchingD /*&& 14>dateDiff*/)
 							{
-								out.set(cd.fst(), out.get(cd.fst())+factorT);
+								out.set(cd.fst()-1, out.get(cd.fst()-1)+factorT);
 							}
 						}
 					}
