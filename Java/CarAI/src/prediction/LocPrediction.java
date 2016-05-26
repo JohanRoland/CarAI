@@ -16,6 +16,7 @@ import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.engine.network.activation.ActivationTANH;
 import org.encog.util.csv.CSVFormat;
 import org.encog.util.obj.SerializeObject;
+import org.encog.util.simple.EncogUtility;
 import org.encog.ml.data.versatile.sources.CSVDataSource;
 import org.encog.ml.data.versatile.columns.ColumnDefinition;
 import org.encog.ml.data.versatile.sources.VersatileDataSource;
@@ -178,7 +179,7 @@ public class LocPrediction {
 	{
 		if(method.equals("standard"))
 		{
-			standardLearning();
+			standardLearning("coords.csv");
 		}else if(method.equals("custom"))
 		{
 			customLearning("coords.csv");
@@ -202,7 +203,7 @@ public class LocPrediction {
 		String tempName = "ELKIClusters" + date.getTime();
 		ELKIController.runElki(tempName);
 		
-		nd.exportAsClustToCSVWithHyperTwo("coords.csv");
+		nd.exportAsClustToCSVWithHyperTwo("coords.csv",tempName);
 		
 		bestMethod =(MLRegression)EncogDirectoryPersistence.loadObject(new File("networkExport.eg"));
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
@@ -280,7 +281,7 @@ public class LocPrediction {
 		String tempName = "ELKIClusters" + date.getTime();
 		ELKIController.runElki(tempName);
 		
-		nd.exportAsClustToCSVWithHyperTwo(tempFileName);
+		nd.exportAsClustToCSVWithHyperTwo(tempFileName, tempName);
 		
 		VersatileDataSource source = new CSVDataSource(new File(tempFileName),false,format);
 		
@@ -309,13 +310,26 @@ public class LocPrediction {
 		model.setReport(new ConsoleStatusReportable());
 		
 		data.normalize();
-		
+
 		model.holdBackValidation(0.3, true, 1001);
 		model.selectTrainingType(data);
 		bestMethod = (MLRegression)model.crossvalidate(20, true);
 		
-		System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
+		//EncogUtility.evaluate(bestMethod, model.getValidationDataset());
+		try {
+			BufferedWriter bw = new BufferedWriter(new FileWriter("logFile.txt", true));
+			bw.write("Network with path = 2 \n");
+			bw.write("Network training error: " +EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\n");
+			bw.write("Network validation error: " +EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\n");
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		/*System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
 		System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
+		*/
 		helper = data.getNormHelper();
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
@@ -395,7 +409,7 @@ public class LocPrediction {
 	}
 	
 	
-	private void loadStandardNetwork()
+	private void loadStandardNetwork(String tempFile)
 	{
 		
 		format = new CSVFormat('.',' ');
@@ -404,7 +418,7 @@ public class LocPrediction {
 		
 		nd.coordCullByBox(57.34, 11, 1 , 4);
 		
-		nd.exportAsCoordsWithDateToCSV();
+		nd.exportAsCoordsWithDateToCSV(tempFile);
 		
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
 		
@@ -438,20 +452,20 @@ public class LocPrediction {
 	 * Trains a netwotk with the contents of coords.txt as coordinates to coordinates,
 	 * considering one path back. And loads it as the bestMethod as well as saving it.
 	 */
-	private void standardLearning()
+	private void standardLearning(String tempFile)
 	{		
 		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
 		format = new CSVFormat('.',' ');
 		
-		NNData nd = new NNData();
+		//NNData nd = new NNData();
 		
-		nd.coordCullByBox(57.34, 11, 1 , 4);
+		//nd.coordCullByBox(57.34, 11, 1 , 4);
 		
 		//nd.coordCullByDist();
 		
-		nd.exportAsCoordsWithDateToCSV();
+		nd.exportAsCoordsWithDateToCSV(tempFile);
 		
-		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
+		VersatileDataSource source = new CSVDataSource(new File(tempFile),false,format);
 		
 		data =  new VersatileMLDataSet(source);
 		
@@ -484,9 +498,22 @@ public class LocPrediction {
 		model.selectTrainingType(data);
 		bestMethod = (MLRegression)model.crossvalidate(20, true);
 		
-		
+		BufferedWriter bw;
+		try {
+			bw = new BufferedWriter(new FileWriter("logFile.txt", true));
+			bw.write("Network with path = 1 \n");
+			bw.write("Network training error: " +EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\n");
+			bw.write("Network validation error: " +EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\n");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+
+		/*
 		System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
 		System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
+		*/
 		helper = data.getNormHelper();
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
@@ -497,14 +524,14 @@ public class LocPrediction {
 		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
 		format = new CSVFormat('.',' ');
 		
-		nd = new NNData();
+		//nd = new NNData();
 
 		//nd.importFromDB(0, 600000);
 
-		nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
-		nd.coordCullByBox(57.34, 11, 1 , 4);
+		//nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",0);
+		//nd.coordCullByBox(57.34, 11, 1 , 4);
 		//data.cullByRDP();
-		nd.coordCullByDist();
+		//nd.coordCullByDist();
 		//nd.coordCullBySpeed(15.0);
 		nd.exportAsCoordsToCSV(tempFile);
 		
@@ -517,84 +544,47 @@ public class LocPrediction {
 		ColumnDefinition columnInLon = data.defineSourceColumn("ilon",0,ColumnType.continuous);		
 		ColumnDefinition columnInLat = data.defineSourceColumn("ilat",1,ColumnType.continuous);		
 		ColumnDefinition columnDay = data.defineSourceColumn("day",2,ColumnType.ordinal);
-		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",2,ColumnType.continuous);
-		ColumnDefinition columnOutLon = data.defineSourceColumn("olon",3,ColumnType.continuous);		
-		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",4,ColumnType.continuous);	
+		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",3,ColumnType.continuous);
+		ColumnDefinition columnOutLon = data.defineSourceColumn("olon",4,ColumnType.continuous);		
+		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",5,ColumnType.continuous);	
 		
+		columnDay.defineClass(new String[] {"1","2","3","4","5","6","7"});
 		data.analyze();
 		
 		data.defineInput(columnInLon);
 		data.defineInput(columnInLat);
+		
 		data.defineInput(columnDay);
 		data.defineInput(columnMTime);
 		data.defineOutput(columnOutLon);
 		data.defineOutput(columnOutLat);
 		data.getNormHelper().defineUnknownValue("?");
-		
+				
 		
 		EncogModel model = new EncogModel(data);
 		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
 		
 		model.setReport(new ConsoleStatusReportable());
 		
-		
 		data.normalize();
+
+		model.holdBackValidation(0.3, true, 1001);
+		model.selectTrainingType(data);
+		bestMethod = (MLRegression)model.crossvalidate(20, true);
 		
-		helper = data.getNormHelper();
-		ArrayList<double[]> in = new ArrayList<double[]>(); 
-		ArrayList<double[]> out = new ArrayList<double[]>(); 
+		model.holdBackValidation(0.3, true, 101);
 		
-		data.forEach(e -> {
-			in.add(e.getInputArray());
-			out.add(e.getIdealArray());
-		});
-		
-		
-		MLDataSet trainingSet = new BasicMLDataSet(in.toArray(new double[in.size()][]),out.toArray(new double[out.size()][]));
-		
-		
-		
-		/////// CREATE NETWORK
-		network = new FreeformNetwork(); //(new FreeformNetwork()).createElman(3, 7, 2, new ActivationTANH());
-		
-		
-		FreeformLayer input = network.createInputLayer(3);
-		FreeformLayer hiddenLayer = network.createLayer(7);
-		FreeformLayer hiddenLayer2 = network.createLayer(7);
-		FreeformLayer output = network.createOutputLayer(2);
-		
-		
-		network.connectLayers(input, hiddenLayer, new ActivationTANH(), 1.0, false);
-		network.connectLayers(input, hiddenLayer2, new ActivationSigmoid(), 0.0, false);
-		network.connectLayers(hiddenLayer, hiddenLayer2, new ActivationTANH(), 0.0, false);
-		//network.connectLayers(hiddenLayer, output, new ActivationSigmoid(), 1.0, false);
-		
-		network.connectLayers(hiddenLayer2, output, new ActivationTANH(), 1.0, false);
-		
-		network.reset();
-		/////// END CREATE NETWORK
-		
-		TrainingSetScore score = new TrainingSetScore(trainingSet);
-		
-		MLTrain trainAlt = new NeuralSimulatedAnnealing(network, score, 10, 2, 100);
-		
-		MLTrain train = new FreeformBackPropagation(network,trainingSet,0.00001, 0.0);// 0.7, 0.9);
-		
-		StopTrainingStrategy stop = new StopTrainingStrategy();
-		
-		train.addStrategy(new Greedy());
-		train.addStrategy(new HybridStrategy(trainAlt));
-		train.addStrategy(stop);
-		
-		int epoch = 0;
-		do
-		{
-			train.iteration();
-			System.out.println("Epoch #" + (epoch++) + " Error:" + train.getError());
-		}while(train.getError() > 0.0001 && epoch < 3000);
-			
-		
-		train.finishTraining();
+
+		try {
+			BufferedWriter bw = new BufferedWriter(new FileWriter("logFile.txt", true));
+			bw.write("Network with GPS \n");
+			bw.write("Network training error: " +EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\n");
+			bw.write("Network validation error: " +EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\n");
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		try {
 			SerializeObject.save(new File("freeformNetworkExport.eg"), network);
@@ -623,19 +613,21 @@ public class LocPrediction {
 			switch(mode)
 			{
 			case 1:
-				//loadHyperParamNetwork();
+				standardLearning(tempFile);
+				break;
+			case 2:
 				hyperParamLerning(tempFile);
 				nd.saveAsCSV(".//temp.txt");
 				saveNetwork(saveFile);
+				break;	
+			case 3:
+				customLearning(tempFile);
 				break;
-			case 2:
+			case 4:
 				nd.loadFromCSV(".//temp.txt");
 				loadNetwork(saveFile,"coords.csv", 1);
 				break;
-			case 3:
-				standardLearning();
-				break;
-			case 4:
+			case 5:
 					final int maxClust=22;
 					hyperParamLernTestTrain("output.txt", "testSaveFile.eg");
 					hyperParamLernTestLoad("output.txt", "testSaveFile.eg");

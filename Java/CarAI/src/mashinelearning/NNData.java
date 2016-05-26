@@ -982,12 +982,12 @@ public class NNData
 		}
 		
 	}
-	public void exportAsClustToCSVWithHyperTwo(String tempFileName)
+	public void exportAsClustToCSVWithHyperTwo(String tempFileName, String ELKIEnd)
 	{
 		
 		File f = new File(".");
 		String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
-		impElkAndReroutFromNoise(pathToProj+File.separator+"ELKIClusters"+File.separator);
+		impElkAndReroutFromNoise(pathToProj+File.separator+ELKIEnd+File.separator);
 		
 		int tempFirstInputClust=0, tempSecondInputClust=0, tempFirstOutputClust=0, tempSecondOutputClust=0;
 		
@@ -1025,7 +1025,10 @@ public class NNData
 			System.out.println("Error on creating csv file");
 			e.printStackTrace();
 		}
-		
+		File del = new File(pathToProj+File.separator+ELKIEnd);
+		/*for(File delsub: del.listFiles())
+			delsub.delete();
+		del.delete();*/
 	}
 	public void exportAsCoordsToCSV(String fileName)
 	{
@@ -1045,9 +1048,9 @@ public class NNData
 			e.printStackTrace();
 		}
 	}
-	public void exportAsCoordsWithDateToCSV()
+	public void exportAsCoordsWithDateToCSV(String tempFile)
 	{
-		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
+		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempFile),"utf-8")))
 		{
 			for(int i = 0; i < querry.size();i++)
 			{
