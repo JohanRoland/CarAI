@@ -788,6 +788,11 @@ public class NNData
 		}		
 	}
 	
+	/***
+	 * Note: deletes the temporary elkifiles!!!
+	 * @param path
+	 * @return
+	 */
 	public ArrayList<ArrayList<DatabaseLocation>> importFromElkiClustering(String path)
 	{
 		ArrayList<ArrayList<DatabaseLocation>> output = new ArrayList<ArrayList<DatabaseLocation>>(); 
@@ -827,6 +832,10 @@ public class NNData
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+		File elkiDir = new File(path);
+		for(File file: elkiDir.listFiles()) file.delete();
+		elkiDir.delete();
+		
 		for(int i = 0 ; i <= amountofClusts; i++)
 		{
 			output.add(new ArrayList<DatabaseLocation>());
@@ -957,7 +966,7 @@ public class NNData
 	{
 		File f = new File(".");
 		String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
-		impElkAndReroutFromNoise(pathToProj+"\\ELKIClusters\\");
+		impElkAndReroutFromNoise(pathToProj+File.separator+"ELKIClusters"+File.separator);
 		
 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("coords.csv"),"utf-8")))
 		{
@@ -978,7 +987,7 @@ public class NNData
 		
 		File f = new File(".");
 		String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
-		impElkAndReroutFromNoise(pathToProj+"\\ELKIClusters\\");
+		impElkAndReroutFromNoise(pathToProj+File.separator+"ELKIClusters"+File.separator);
 		
 		int tempFirstInputClust=0, tempSecondInputClust=0, tempFirstOutputClust=0, tempSecondOutputClust=0;
 		
@@ -1089,7 +1098,7 @@ public class NNData
 					counterOfRemovedCoords++;
 				}
 		}
-		System.out.println("The nummber of culled coords wasr: "+counterOfRemovedCoords);
+		System.out.println("The number of culled coords was: "+counterOfRemovedCoords);
 		//stemp.add(new DBQuerry(temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon(),temp.get(temp.size()-1).getHTime(),temp.get(temp.size()-1).getMTime(),temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon()));
 		querry = temp;
 		
@@ -1175,14 +1184,14 @@ public class NNData
 			
 			
 		}
-		System.out.println("The nummber of culled coords wasr: "+counterOfRemovedCoords);
+		System.out.println("The number of culled coords was: "+counterOfRemovedCoords);
 		//stemp.add(new DBQuerry(temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon(),temp.get(temp.size()-1).getHTime(),temp.get(temp.size()-1).getMTime(),temp.get(temp.size()-1).getNLat(),temp.get(temp.size()-1).getNLon()));
 		querry = temp;
 	}
 
 	public void coordCullByDist()
 	{
-		System.out.println("Has " + querry.size() + " befor cull");
+		System.out.println("Has " + querry.size() + " before cull");
 		ArrayList<DatabaseLocation> temp = new ArrayList<DatabaseLocation>();
 
  		ArrayList<Tuple<Double,Double>> median =  new ArrayList<Tuple<Double,Double>>();
@@ -1372,7 +1381,7 @@ public class NNData
 	}
 	
 
-	public ArrayList<ArrayList<DatabaseLocation>> importClustFromFile(String path)
+	public ArrayList<ArrayList<DatabaseLocation>> ClustFromFile(String path)
 	{
 		ArrayList<ArrayList<DatabaseLocation>> output = new ArrayList<ArrayList<DatabaseLocation>>(); 
 		HashMap<Tuple<Double,Double>, Integer> clusterMap = new HashMap<Tuple<Double,Double>, Integer>();

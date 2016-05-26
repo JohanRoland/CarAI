@@ -1,7 +1,7 @@
 <?php
-$file = fopen("admininterface.html","r");
-echo fread($file,filesize("admininterface.html"));
+$file = fopen("index.html","r");
+echo fread($file,filesize("index.html"));
 
-phpinfo();
+
 
 ?>

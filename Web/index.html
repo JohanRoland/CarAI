@@ -1,0 +1,46 @@
+<html>
+	<head>
+		<style>
+			#map{
+				width: 800px;
+      	height: 600px;
+			}
+			#header {
+				text-align:center;
+		  	font-size:20px;
+			}
+			.bodydiv {
+				
+			}
+			#formdiv{
+				margin:auto;
+				padding:4px;
+				border-style:solid;
+				border-width:2px;
+				width:50%
+			}
+		</style>
+	</head>
+		<body>																							
+ 			<div id="header">CARAI INTERFACE</div>
+			<div class="bodydiv">
+				<div id="formdiv">
+ 					<form action="upload.php" method="post" enctype="multipart/form-data">
+						<h3>Upload KML file:</h3><br>
+						<input type="file" name="fileToUpload" id="fileToUpload"> <br>
+ 						<input type="submit" value="Upload KML" name="submit">
+ 					</form>
+					<h3>How to get your KML file:</h3>
+					<p>
+					<a href="http://www.google.com/settings/takeout" target="_blank">Go To Google Takeout</a> <br> 
+					Login using your google account <br>
+					Select Location data and download as KML.<br>
+					Google will now process your request (this can take some time) <br>
+					Download the processed zip and extract the content <br>
+					Upload the resulting KML file (this aswell can take some time depending on load) <br>
+					Please answer the questionnaire <br>
+					</p>
+				</div>
+			</div>
+		</body>
+</html>																																				

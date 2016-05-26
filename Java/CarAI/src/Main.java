@@ -1,5 +1,6 @@
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 
 import java.io.FileOutputStream;
@@ -11,6 +12,7 @@ import java.io.Writer;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.stream.Stream;
 
 
@@ -26,11 +28,8 @@ import prediction.Network;
 import predictorG.PredictorG;
 import serverConnection.ServerConnection;
 import utils.MqttTime;
-<<<<<<< HEAD
 import utils.Tuple;
-=======
 import utils.Utils;
->>>>>>> branch 'master' of https://github.com/JohanRoland/CarAI.git
 import displayData.PointsPlotter;
 
 public class Main
@@ -38,7 +37,7 @@ public class Main
     public static void main(String[] args) {
     	//EMpty gommecnt
     	
-    	MqttTime mt = MqttTime.getInstance();
+    	//MqttTime mt = MqttTime.getInstance();
     	//Analyze.analyzeLearningData();
     	//System.exit(0);
     	if(args.length > 0)
@@ -234,15 +233,39 @@ public class Main
     		}
     		else if(args[0].equals("9"))
     		{
+    			Date date = new Date();
+    			String tempName = "ELKIClusters" + date.getTime();
+    			
     			File f = new File(".");
 				String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
     			
     			NNData n = new NNData();
-    			n.parseKMLString(0);
-    			n.coordCullByBox(57, 11, 2, 8);
+    			//n.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\OlofLoc.kml", 0);
+    		 	n.parseKMLString(0);
+    			n.coordCullByBox(55, 11, 14, 13.4);
+    			
+    			System.out.println("Amount of Entries: " +n.getQuerry().size());
+    		 	double dist1 = 0;
+    		 	for(DatabaseLocation d : n.getQuerry())
+    		 	{
+    		 		dist1 += Utils.distDB(d);
+    		 	}
+    		 	System.out.println("Dist before Distance culling: "+ dist1);
+    		 	
+    			
     			n.coordCullByDist();
-    			ELKIController.runElki();
-    			ArrayList<ArrayList<DatabaseLocation>> clusters = n.importFromElkiClustering(pathToProj+"\\ELKIClusters\\");
+    			System.out.println("Amount of Entries after dist cull: " +n.getQuerry().size());
+    		 	double dist2 = 0;
+    		 	for(DatabaseLocation d : n.getQuerry())
+    		 	{
+    		 		dist2 += Utils.distDB(d);
+    		 	}
+    		 	System.out.println("Dist after Distance culling: "+ dist2);
+    		 	
+    			
+    			n.exportAsCoordsToCSV(pathToProj+File.separator+"coords.csv");
+    			ELKIController.runElki(tempName);
+    			ArrayList<ArrayList<DatabaseLocation>> clusters = n.importFromElkiClustering(tempName+File.separator);
     			
     			for(ArrayList<DatabaseLocation> c : clusters)
     			{

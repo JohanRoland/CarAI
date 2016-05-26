@@ -11,6 +11,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
@@ -93,7 +94,7 @@ public class PointsPlotter extends JFrame {
 			switch(clusterType)
 			{
 				case 2:
-					data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",1000);
+					/*data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",1000);
 					points = data.getQuerry();
 					data.exportAsCoordsToCSV("coords.csv");
 					temp2 = data.importClustFromFile("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\clusterFile.csv");
@@ -101,7 +102,7 @@ public class PointsPlotter extends JFrame {
 					for(int j = 1000-1; j >= 0; j--)
 					{
 						points2.add(points.get(j));
-					}
+					}*/
 					break;
 				case 3:
 					data.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml",10000);
@@ -156,8 +157,10 @@ public class PointsPlotter extends JFrame {
 					{
 						File f2 = new File(".");
 						String pathToProj2 = f2.getAbsolutePath().substring(0, f2.getAbsolutePath().length()-2);
-				    	ELKIController.runElki();
-				    	temp2 = data.importFromElkiClustering(pathToProj2+"\\ELKIClusters\\");
+						Date date = new Date();
+		    			String tempName = "ELKIClusters" + date.getTime();
+						ELKIController.runElki(tempName);
+				    	temp2 = data.importFromElkiClustering(pathToProj2+File.separator+tempName+File.separator);
 						data.impElkAndReroutFromNoise(pathToProj2+"\\ELKIClusters\\");
 						minutes=data.getMinutes();
 						hours=data.getHours();
