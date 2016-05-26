@@ -150,7 +150,7 @@ public class PointsPlotter extends JFrame {
 					
 					data.coordCullByDist();
 					
-					data.exportAsCoordsWithDateToCSV();
+					data.exportAsCoordsWithDateToCSV("coords.csv");
 					
 					points =  data.getQuerry();
 					if(true)
