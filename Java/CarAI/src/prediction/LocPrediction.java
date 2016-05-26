@@ -321,7 +321,7 @@ public class LocPrediction {
 			bw.write("Network with path = 2 \n");
 			bw.write("Network training error: " +EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\n");
 			bw.write("Network validation error: " +EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\n");
-
+			bw.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -504,6 +504,7 @@ public class LocPrediction {
 			bw.write("Network with path = 1 \n");
 			bw.write("Network training error: " +EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\n");
 			bw.write("Network validation error: " +EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\n");
+			bw.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -580,7 +581,7 @@ public class LocPrediction {
 			bw.write("Network with GPS \n");
 			bw.write("Network training error: " +EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\n");
 			bw.write("Network validation error: " +EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\n");
-
+			bw.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
