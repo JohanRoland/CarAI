@@ -6,6 +6,7 @@ Y =[]
 for line in alllines:
     lines = line.split()
     Y = Y  + [[float(lines[0]), float(lines[1])]]
+
 f.close()
     
 of = open('testELKI.txt','wb')
