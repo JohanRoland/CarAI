@@ -459,7 +459,7 @@ public class NNData
 			Files.walk(Paths.get(path)).
 				forEach(filePath -> {
 					
-					if(Files.isRegularFile(filePath) && !filePath.endsWith("labels"))
+					if(Files.isRegularFile(filePath) && !filePath.endsWith("labels.txt"))
 					{
 						ArrayList<String> lines;
 						try {
