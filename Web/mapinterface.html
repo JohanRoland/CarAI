@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+	<script src="script.js"></script>
+	<style>
+      #map {
+        width: 800px;
+        height: 600px;
+      }
+      #header {
+        text-align:center;
+        font-size:20px;
+      }
+			#stats {
+				margin:auto;
+				padding:4px;
+				border-style:solid;
+				border-width:3px;
+			}
+    </style>
+  </head>
+  <body>
+  
+    <div id="header">MAP INTERFACE</div>
+
+		<form action="upload.php" method="post" enctype="multipart/form-data" style="display:none;">
+			Upload KML file:
+			<input type="file" name="fileToUpload" id="fileToUpload">
+			<input type="submit" value="Upload KML" name="submit">
+		</form>
+
+    <form id="iform" name="inform" style="display:none;">
+        <textarea name="in" rows="4" cols="50"></textarea> <br>
+        <input type="submit" value="Submit"/> 
+    </form>
+
+		<div id="stats">
+			<h3>Debugg information</h3>
+			<p style="text-decoration:underline;">Please copy this data into the questionnaire</p>
+			<p style="border-style:dotted;border-widht:1px;" id="statData"></p>
+		</div>
+		<a href="http://goo.gl/forms/IpYwbEX7OipHAMZp1" target="_blank">Questionnaire</a>
+    <div id="map"></div>
+    <script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
+        async defer></script>
+  </body>
+</html>
