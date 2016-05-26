@@ -249,6 +249,27 @@ public class Main
     				System.out.println(Utils.mean(c));
     			}
     		}
+    		else if(args[0].equals("10"))
+    		{
+    			double[] longs= new double[22];
+    			double[] lats= new double[22];
+    			
+    			
+    			Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(".//outputGPSCoord.txt"),"utf-8"));
+    			Stream<String> lines = java.nio.file.Files.lines(Paths.get("output.txt"));
+    			lines.forEachOrdered(ss ->
+    			{
+    				String[] s = ss.split(" ");
+    				writer.write
+    				(
+    							longs[Integer.parseInt(s[0])-1]+" " +lats[Integer.parseInt(s[0])-1]+ " " 
+    						    +longs[Integer.parseInt(s[1])-1]+" " +lats[Integer.parseInt(s[1])-1]+ " "
+    						    +Integer.parseInt(s[2])+ " " +Integer.parseInt(s[3])+ " "
+    						    +longs[Integer.parseInt(s[4])-1]+" " +lats[Integer.parseInt(s[4])-1]
+    				);
+    			});
+    			
+    		}
     		else
     		{
     			System.out.println("No argument provided");
