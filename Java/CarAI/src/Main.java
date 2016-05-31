@@ -260,7 +260,7 @@ public class Main
 		    		 		dist2 += Utils.distDB(d);
 		    		 	}*/
 		    		 	System.out.println("Dist after Distance culling: "+ dist2);
-		    		 	
+		    		
 		    		 	Date date = new Date();
 		    		 	String tempName = "ELKIClusters" + date.getTime();
 		    		 	n.exportAsCoordsToCSV(pathToProj+File.separator+"coords.csv");
@@ -313,7 +313,6 @@ public class Main
     		 	}
     		 	System.out.println("Dist after Distance culling: "+ dist2);
     		 	
-    			
     			n.exportAsCoordsToCSV(pathToProj+File.separator+"coords.csv");
     			ELKIController.runElki(tempName);
     			ArrayList<ArrayList<DatabaseLocation>> clusters = n.importFromElkiClustering(tempName+File.separator);
@@ -358,6 +357,36 @@ public class Main
 					e1.printStackTrace();
 				}
     			
+    		}
+    		else if(args[0].equals("11"))
+    		{
+    			NNData n = new NNData();
+    		 	//n.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml", 0);
+
+    		 	//n.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\OlofLoc.kml", 0);
+    		 	
+    		 	//n.coordCullByBox(57, 11, 2, 8);
+    		 	File f = new File(".");
+				String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
+				
+				
+    		 	File data = new File("data");
+    		 	for(File fs : data.listFiles())
+    		 	{
+    		 		System.out.println("User: "+ fs.getName());
+    		 		n.parsGeoEntry(fs.getAbsolutePath());
+	    		 	System.out.println("Amount of Entries: " +n.getQuerry().size());
+	    		 	if(n.getQuerry().size() != 0)
+	    		 	{
+		    		 	n.coordCullByDist();
+		    		 	
+		    		 	if(0<n.getQuerry().size())
+		    		 	{
+		    		 		System.out.println("#OOPS");
+		    		 		n.exportToDB(Integer.parseInt(fs.getName())+3);
+		    		 	}
+	    		 	}
+	    		 }
     		}
     		else
     		{
