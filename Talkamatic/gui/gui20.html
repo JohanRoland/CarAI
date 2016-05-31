@@ -1,0 +1,259 @@
+<html>
+    <header>
+        <script src="./gui_files/jquery.min.js"></script>
+        <script src="./script.js"></script>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Roboto:400,500' rel='stylesheet' type='text/css'>
+        <style>
+            ::-webkit-scrollbar { 
+                display: none; 
+            }
+            
+            body {
+              background-color:#000000;
+            }
+            
+            button {
+              outline:none;
+            }
+            
+
+            .background {
+              margin:auto;
+              width: 1440px;
+              height: 1024px;
+              object-fit: contain;
+              background-image:url("content/background.svg");
+            }
+            .Rectangle-3 {
+              width: 1440px;
+              height: 1024px;
+              background-image: radial-gradient(circle at 52% 62%, rgba(0, 0, 0, 0), #000000);
+            }
+            .logo {
+              position:relative;
+              top:50px;
+              left:100px;
+              width:121px;
+              height:55px;
+              object-fit: contain;
+              font-family: "Open Sans";
+              font-weight: bold;
+              font-size:40px;
+              color:#FFFFFF;
+            }
+            
+            .debug-menu {
+              position:relative;
+              top:66px;
+              left:959px;
+              width:450px; 
+            }
+            
+            .debug-button {
+              margin:25px;
+              background-color:transparent;
+              border-color:transparent;
+              font-family: Roboto;
+              font-weight:500;
+              font-size: 20px;
+              text-align: right;
+              color: #4a4a4a;
+            }
+            
+            .quick-menu {
+              position:relative;
+              top:222px;
+              left:328px;
+              width:850px;
+            }
+            
+            .quick-button {
+              margin:5px;
+              padding-right:20px;
+              padding-left:20px;
+              padding-top:11px;
+              padding-bottom:11px;
+              background-color:transparent;
+              font-family: "Open Sans";
+              font-size: 26px;
+              color: #ffffff;
+              border-color: #ffffff;
+            }
+            
+            .BG {
+              position: relative;
+              top: 233px;
+              bottom:199px; 
+              left: 379px;
+              width: 682px;
+              height: 394px;
+              border-radius: 10px;
+              background-color: #0a0a0a;
+              border: solid 3px rgba(255, 255, 255, 0.1);
+            }
+            
+            .contentContainer {
+              position:absolute;  
+              bottom:100px;
+              width:100%;
+              overflow: auto;
+              max-height:284px;
+            }
+            
+            .contentArea {
+              position:relative;
+              bottom:0;
+                //height:324px;
+                width:100%;
+                
+            }
+            
+            .text-field {
+              position: absolute;
+              bottom:0;
+              width: 682px;
+              height: 70px;
+              object-fit: contain;
+              background-color: #191919;
+            }
+            
+            .mic-button {
+              position: absolute;
+              left:10px;
+              bottom:10px;
+              width: 80px;
+              height: 80px;
+              object-fit: contain;
+              background-color: #000000;
+              background:url(content/mic-icon.svg);
+              border: none;
+            }
+            
+            .input-form{
+              position:absolute;
+              bottom:20px;
+              left:113.5px;
+              margin:0;
+              width: 313px;
+              height: 34px;
+              
+            }
+            
+            .input-field {
+              font-family: "Open Sans" ;
+              font-size: 25px;
+              background: transparent;
+              border: none;
+              opacity: 0.3;
+              color: #ffffff;
+            }
+            
+            .convo {
+              
+              display: inline-block;
+              margin-top:5px;
+              margin-bottom:5px;
+              margin-left:5px;
+              padding-top:12px;
+              padding-bottom:12px;
+              padding-right:20px;
+              
+              border-radius: 25px 25px 25px 0;
+              background-color: #1A1A1A;
+              width: 50%;
+              float:left;
+              
+            }
+            
+            .convo p {
+              margin:0;
+              opacity:1.0;
+              font-family: "Open Sans";
+              font-size: 19px;
+              text-align: right;
+              color: #50e3c2;
+            }
+
+            .convo2 {
+              //display: inline-block;
+              float:right; 
+              //opacity: 0.1;
+              margin-top:5px;
+              margin-bottom:5px;
+              margin-right:5px;
+              padding-left:20px;
+              padding-top:12px;
+              padding-bottom:12px;
+              
+              border-radius: 25px 25px 0 25px;
+              background-color: #1A1A1A;
+              padding: 25px; 
+              width: 50%;
+              
+            }
+            
+            .convo2 p {
+              margin:0;
+              opacity:1.0;
+              font-family: "Open Sans";
+              font-size: 19px;
+              color: #ffffff;
+            }
+            
+            .tdmbutton {
+              border-radius: 100px;
+              background-color: #373737;
+              font-family: OpenSans-Semibold;
+              font-size: 15px;
+              text-align: center;
+              color: #ffffff;
+              border: none;
+              margin:5px;
+              padding-top:8px;
+              padding-bottom:8px;
+              padding-right:30px;
+              padding-left:30px;
+              float:right;
+            }
+            
+        </style>
+    </header>
+    <body>
+        <div class="background">
+                <div class="Rectangle-3">
+                    <div class="logo">
+                        <p>CAR<span style="color:#50e3c2;">AI</span></p>
+                    </div>
+                    <div class="debug-menu">
+                        <button class="debug-button" onclick="connect()">Connect</button>
+                        <button class="debug-button" onclick="disconnect()">Disconnect</button>
+                        <button class="debug-button" onclick="cancel()">Cancel</button>
+                    </div>
+            
+                    <div class="quick-menu">
+                        <button class="quick-button" onclick="getLoc()">Where are we?</button>
+                        <button class="quick-button" onclick="getDest()">Where are we going?</button>
+                        <button class="quick-button" onclick="getEta()">ETA?</button>
+                        <button class="quick-button" onclick="getMeeting()">Meeting?</button>
+                    </div>
+            
+                    <div class="BG" >
+                        <div class="contentContainer">
+                            <div class="contentArea">
+                            </div>
+                        </div>
+                        <div class="text-field">
+                        <button class="mic-button" onclick="startRecording()"></button>
+                        <form class="input-form" name="inform">
+                            <input name="in" class="input-field" onfocus="if(this.value=='Enter Text Here...') this.value=''" onblur="this.value='Enter Text Here...'" type="text" value="Enter Text Here..." autocomplete="off">
+                        </form>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </body>
+
+
+
+</html>
