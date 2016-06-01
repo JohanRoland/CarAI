@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
@@ -13,8 +14,10 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Random;
 import java.util.stream.Stream;
 
+import org.encog.util.simple.EncogUtility;
 
 import car.CarInterface;
 import facerecognition.FaceMQTT;
@@ -34,7 +37,8 @@ import displayData.PointsPlotter;
 
 public class Main
 {
-    public static void main(String[] args) {
+    @SuppressWarnings("resource")
+	public static void main(String[] args) {
     	//EMpty gommecnt
     	
     	//MqttTime mt = MqttTime.getInstance();
@@ -63,10 +67,22 @@ public class Main
     		    //	Scheduler s = new Scheduler();
 
     			try {
-        			LocPrediction lp = LocPrediction.getInstance(3, "coords.csv", "networkExport.eg",1);
-        			LocPrediction.clearInstance(3);
-        			LocPrediction lp2 = LocPrediction.getInstance(3, "coords.csv", "networkExport.eg",2);
-        			lp2.predictHyperTwoClust(2, 4);
+    				
+    				for(int i=1; i<182;i++)
+        			{
+    					if(i!=2)
+    					{
+		    				LocPrediction lp = LocPrediction.getInstance(i, "coords.csv", "networkExport.eg",1);
+		        			LocPrediction.clearInstance(i);
+		        			
+		        			LocPrediction lp2 = LocPrediction.getInstance(i, "coords.csv", "networkExport.eg",2);      			
+		        			LocPrediction.clearInstance(i);
+		        			
+		        			LocPrediction lp3 = LocPrediction.getInstance(i, "coords.csv", "networkExport.eg",3);
+		        			LocPrediction.clearInstance(i);
+    					}
+        			}
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -208,26 +224,61 @@ public class Main
     		else if(args[0].equals("8"))
     		{
     		 	NNData n = new NNData();
-    		 	//n.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml", 0);
+    		 	n.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml", 0);
 
-    		 	n.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\OlofLoc.kml", 0);
-    		 	n.coordCullByBox(57, 11, 2, 8);
-    		 	System.out.println("Amount of Entries: " +n.getQuerry().size());
-    		 	double dist1 = 0;
-    		 	for(DatabaseLocation d : n.getQuerry())
-    		 	{
-    		 		dist1 += Utils.distDB(d);
-    		 	}
-    		 	System.out.println("Dist before Distance culling: "+ dist1);
+    		 	//n.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\OlofLoc.kml", 0);
     		 	
-    		 	n.coordCullBySpeed(25);;
-    		 	System.out.println("Amount of Entries after dist cull: " +n.getQuerry().size());
-    		 	double dist2 = 0;
-    		 	for(DatabaseLocation d : n.getQuerry())
-    		 	{
-    		 		dist2 += Utils.distDB(d);
-    		 	}
-    		 	System.out.println("Dist after Distance culling: "+ dist2);
+    		 	n.coordCullByBox(57, 11, 2, 8);
+    		 	File f = new File(".");
+				String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
+				
+				
+    		 	//File data = new File("data");
+    		 	//for(File fs : data.listFiles())
+    		 	//{
+    		 		//System.out.println("User: "+ fs.getName());
+    		 		//n.parsGeoEntry(fs.getAbsolutePath());
+	    		 	
+					System.out.println("Amount of Entries: " +n.getQuerry().size());
+	    		 	int size1 = n.getQuerry().size();
+	    		 	if(n.getQuerry().size() != 0)
+	    		 	{
+	    		 		double dist1 = 0;
+		    		 	/*for(DatabaseLocation d : n.getQuerry())
+		    		 	{
+		    		 		dist1 += Utils.distDB(d);
+		    		 	}*/
+		    		 	System.out.println("Dist before Distance culling: "+ dist1);
+		    		 	
+		    		 	n.coordCullBySpeed(25);
+		    		 	//n.coordCullByDist();
+		    		 	System.out.println("Amount of Entries after dist cull: " +n.getQuerry().size());
+		    		 	int size2 = n.getQuerry().size();
+		    		 	double dist2 = 0;
+		    		 	/*for(DatabaseLocation d : n.getQuerry())
+		    		 	{
+		    		 		dist2 += Utils.distDB(d);
+		    		 	}*/
+		    		 	System.out.println("Dist after Distance culling: "+ dist2);
+		    		
+		    		 	Date date = new Date();
+		    		 	String tempName = "ELKIClusters" + date.getTime();
+		    		 	n.exportAsCoordsToCSV(pathToProj+File.separator+"coords.csv");
+		    			boolean er = ELKIController.runElki(tempName);
+		    			ArrayList<ArrayList<DatabaseLocation>> clusters = n.importFromElkiClustering(tempName+File.separator);
+		    			System.out.println("Amount of Clusters " + (clusters.size()-1));
+		    		 	
+	    		 	
+		    		 	/*try {
+		    				BufferedWriter bw = new BufferedWriter(new FileWriter("resultofNoclustering.txt", true));
+		    				bw.write(fs.getName()+ "\t" + size1 + "\t" + dist1 +"\t"+  size2+"\t" + dist2 +"\t"+ (clusters.size()-1)+"\t" + er +"\n");
+		    				bw.close();
+		    			} catch (IOException e) {
+		    				// TODO Auto-generated catch block
+		    				e.printStackTrace();
+		    			}*/
+	    		 	//}
+	    		 }
     		 	
     		 	
     		}
@@ -262,7 +313,6 @@ public class Main
     		 	}
     		 	System.out.println("Dist after Distance culling: "+ dist2);
     		 	
-    			
     			n.exportAsCoordsToCSV(pathToProj+File.separator+"coords.csv");
     			ELKIController.runElki(tempName);
     			ArrayList<ArrayList<DatabaseLocation>> clusters = n.importFromElkiClustering(tempName+File.separator);
@@ -271,6 +321,72 @@ public class Main
     			{
     				System.out.println(Utils.mean(c));
     			}
+    		}
+    		else if(args[0].equals("10"))
+    		{
+    			double[] longs= {12.21473,12.00045,11.9039,11.97063,11.97607,11.94459,11.99262,11.94685,11.97925,11.96961,11.96156,11.96171,11.98528,11.99464,11.98372,12.29634,12.07617,11.97857,18.3124,11.96527,11.93096,11.98611,11.8989,12.00779};
+    			double[] lats = {57.64189,57.68377,57.63886,57.69373,57.69683,57.53214,57.69577,57.65056,57.70664,57.74346,57.52621,57.53129,57.70205,57.46538,57.68424,57.66948,57.48712,57.68714,59.27767,57.52312,57.53361,57.68754,57.64275,57.48198};
+    			Random r = new Random();
+    			try {
+    			Writer writer;
+				
+				writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(".//outputGPSCoord.txt"),"utf-8"));
+			
+    			Stream<String> lines = java.nio.file.Files.lines(Paths.get("output.txt"));
+    			lines.forEachOrdered(ss ->
+    			{
+    				String[] s = ss.split(" ");
+    				try {
+						writer.write
+						(
+									(lats[Integer.parseInt(s[0])-1] + r.nextGaussian()*0.002)+" " +(longs[Integer.parseInt(s[0])-1]+ r.nextGaussian()*0.002)+ " " 
+								    +(lats[Integer.parseInt(s[1])-1]+ r.nextGaussian()*0.002)+" " +(longs[Integer.parseInt(s[1])-1]+ r.nextGaussian()*0.002)+ " "
+								    +Integer.parseInt(s[2])+ " " +Integer.parseInt(s[3])+ " "
+								    +(lats[Integer.parseInt(s[4])-1]+ r.nextGaussian()*0.002)+" " +(longs[Integer.parseInt(s[4])-1]+ r.nextGaussian()*0.002)+"\n"
+						);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+    			});
+    			} catch (UnsupportedEncodingException | FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+    			
+    		}
+    		else if(args[0].equals("11"))
+    		{
+    			NNData n = new NNData();
+    		 	//n.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml", 0);
+
+    		 	//n.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\OlofLoc.kml", 0);
+    		 	
+    		 	//n.coordCullByBox(57, 11, 2, 8);
+    		 	File f = new File(".");
+				String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
+				
+				
+    		 	File data = new File("data");
+    		 	for(File fs : data.listFiles())
+    		 	{
+    		 		System.out.println("User: "+ fs.getName());
+    		 		n.parsGeoEntry(fs.getAbsolutePath());
+	    		 	System.out.println("Amount of Entries: " +n.getQuerry().size());
+	    		 	if(n.getQuerry().size() != 0)
+	    		 	{
+		    		 	n.coordCullByDist();
+		    		 	
+		    		 	if(0<n.getQuerry().size())
+		    		 	{
+		    		 		System.out.println("#OOPS");
+		    		 		n.exportToDB(Integer.parseInt(fs.getName())+3);
+		    		 	}
+	    		 	}
+	    		 }
     		}
     		else
     		{
