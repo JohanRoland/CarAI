@@ -38,7 +38,7 @@
                   extra += parseElement( msg[i].Popup.elements[0].Element.items[j]);
                 }
               }
-              $(".contentArea").prepend("<div class=\"convo\"><p>"+m+"</p>"+extra+"</div>");
+              $(".contentArea").append("<div class=\"convo\"><p>"+m+"</p>"+extra+"</div>");
               $('.contentContainer').scrollTop($('.contentContainer')[0].scrollHeight);
             }
           }
@@ -54,7 +54,7 @@
                 extra += parseElement( msg[i].Screen.elements[0].Element.items[j]);
               }
             }
-            $(".contentArea").prepend("<div class=\"convo\"><p>"+m+"</p>"+extra+"</div>");
+            $(".contentArea").append("<div class=\"convo\"><p>"+m+"</p>"+extra+"</div>");
             $('.contentContainer').scrollTop($('.contentContainer')[0].scrollHeight);
           }
         }
@@ -64,7 +64,7 @@
  
   function connectInput()
   {
-    nrws = new WebSocket("ws://192.168.1.130:1880/gui");
+    nrws = new WebSocket("ws://192.168.1.127:1880/gui");
  
     nrws.onmessage = function(evt) {
       m = JSON.parse(evt.data)
@@ -151,13 +151,13 @@
   }
   function pttOn()
   { 
-    $('#pttbutton').prop('disabled',true);
-    $('#pttbutton').css("background-color","green");
+    $('.mic-button').css("background","url(content/mic-icon.svg)");
+    //$('#mic-button').prop('disabled',true);
   }
   function pttOff()
   {
-    $('#pttbutton').css("background-color","");
-    $('#pttbutton').prop('disabled',false);
+    $('.mic-button').css("background","url(content/mic-icon-inactive.svg)");
+    //$('#mic-button').prop('disabled',false);
   }
 
   function connectedOn()

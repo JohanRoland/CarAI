@@ -180,6 +180,7 @@ public class LocPrediction {
 		if(method.equals("standard"))
 		{
 			standardLearning("coords.csv");
+
 		}else if(method.equals("custom"))
 		{
 			customLearning("coords.csv");
@@ -204,6 +205,7 @@ public class LocPrediction {
 		ELKIController.runElki(tempName);
 		
 		nd.exportAsClustToCSVWithHyperTwo("coords.csv",tempName);
+
 		
 		bestMethod =(MLRegression)EncogDirectoryPersistence.loadObject(new File("networkExport.eg"));
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
@@ -282,7 +284,7 @@ public class LocPrediction {
 		ELKIController.runElki(tempName);
 		
 		nd.exportAsClustToCSVWithHyperTwo(tempFileName, tempName);
-		
+
 		VersatileDataSource source = new CSVDataSource(new File(tempFileName),false,format);
 		
 		data =  new VersatileMLDataSet(source);
@@ -311,6 +313,7 @@ public class LocPrediction {
 		
 		data.normalize();
 
+        
 		model.holdBackValidation(0.3, true, 1001);
 		model.selectTrainingType(data);
 		bestMethod = (MLRegression)model.crossvalidate(20, true);
@@ -330,6 +333,7 @@ public class LocPrediction {
 		/*System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
 		System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
 		*/
+
 		helper = data.getNormHelper();
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
@@ -466,6 +470,7 @@ public class LocPrediction {
 		nd.exportAsCoordsWithDateToCSV(tempFile);
 		
 		VersatileDataSource source = new CSVDataSource(new File(tempFile),false,format);
+
 		
 		data =  new VersatileMLDataSet(source);
 		
@@ -497,7 +502,7 @@ public class LocPrediction {
 		model.holdBackValidation(0.3, true, 1001);
 		model.selectTrainingType(data);
 		bestMethod = (MLRegression)model.crossvalidate(20, true);
-		
+
 		BufferedWriter bw;
 		try {
 			bw = new BufferedWriter(new FileWriter("logFile.txt", true));
@@ -515,6 +520,7 @@ public class LocPrediction {
 		System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
 		System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
 		*/
+
 		helper = data.getNormHelper();
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
@@ -533,6 +539,7 @@ public class LocPrediction {
 		//nd.coordCullByBox(57.34, 11, 1 , 4);
 		//data.cullByRDP();
 		//nd.coordCullByDist();
+
 		//nd.coordCullBySpeed(15.0);
 		nd.exportAsCoordsToCSV(tempFile);
 		
@@ -550,17 +557,20 @@ public class LocPrediction {
 		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",5,ColumnType.continuous);	
 		
 		columnDay.defineClass(new String[] {"1","2","3","4","5","6","7"});
+
 		data.analyze();
 		
 		data.defineInput(columnInLon);
 		data.defineInput(columnInLat);
-		
+
+        
 		data.defineInput(columnDay);
 		data.defineInput(columnMTime);
 		data.defineOutput(columnOutLon);
 		data.defineOutput(columnOutLat);
 		data.getNormHelper().defineUnknownValue("?");
-				
+
+        
 		
 		EncogModel model = new EncogModel(data);
 		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
@@ -946,4 +956,4 @@ public class LocPrediction {
 				}
 			}
 	}
-}
+
