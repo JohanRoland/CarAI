@@ -11,6 +11,7 @@
             
             body {
               background-color:#000000;
+              margin:0;
             }
             
             button {
@@ -19,7 +20,7 @@
             
 
             .background {
-              margin:auto;
+              margin:0 auto;
               width: 1440px;
               height: 1024px;
               object-fit: contain;
@@ -47,7 +48,7 @@
               position:relative;
               top:66px;
               left:959px;
-              width:450px; 
+              width:500px; 
             }
             
             .debug-button {
@@ -65,7 +66,7 @@
               position:relative;
               top:222px;
               left:328px;
-              width:850px;
+              width:860px;
             }
             
             .quick-button {
@@ -135,7 +136,7 @@
               bottom:20px;
               left:113.5px;
               margin:0;
-              width: 313px;
+              width: 80%;
               height: 34px;
               
             }
@@ -147,6 +148,7 @@
               border: none;
               opacity: 0.3;
               color: #ffffff;
+              width:100%;
             }
             
             .convo {
@@ -244,7 +246,7 @@
                             </div>
                         </div>
                         <div class="text-field">
-                        <button class="mic-button" onclick="startRecording()"></button>
+                        <button class="mic-button" onclick="sendPTTToTDM()"></button>
                         <form class="input-form" name="inform">
                             <input name="in" class="input-field" onfocus="if(this.value=='Enter Text Here...') this.value=''" onblur="this.value='Enter Text Here...'" type="text" value="Enter Text Here..." autocomplete="off">
                         </form>
