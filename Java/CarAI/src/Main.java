@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Stream;
 
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.encog.Encog;
 import org.encog.util.simple.EncogUtility;
 
 import car.CarInterface;
@@ -463,18 +465,17 @@ public class Main
     			System.out.println("No argument provided");
     		}
     	}
-
-    	//***************Cleanup*****************
-    	/*try {
-    		
-    		mt.kill();
+    	try {
+			System.in.read();
+	    	Encog.getInstance().shutdown();
+			System.exit(0);
+    		//mt.kill();
 		}
-    	catch (MqttException e)
-    	{
+    	catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
-    	//Encog.getInstance().shutdown();
-    	//*************End Cleanup****************
+    	}
+
     	
     	return ;		
     }
