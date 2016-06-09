@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
@@ -13,9 +14,11 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.stream.Stream;
 
+import org.encog.util.simple.EncogUtility;
 
 import car.CarInterface;
 import facerecognition.FaceMQTT;
@@ -65,22 +68,56 @@ public class Main
     		    //	Scheduler s = new Scheduler();
 
     			try {
-    				
+    				/*
+    				BufferedWriter bw2;
+					try {
+						bw2 = new BufferedWriter(new FileWriter("logFile.txt", true));
+						bw2.write("User \t Net 1 \t\t  Net 2  \t\t Net 3\n"
+								+ "\t training error \t validation error\t training error \t validation error\t training error \t validation error");
+						bw2.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
     				for(int i=1; i<182;i++)
         			{
     					if(i!=2)
     					{
-		    				LocPrediction lp = LocPrediction.getInstance(i, "coords.csv", "networkExport.eg",1);
-		        			LocPrediction.clearInstance(i);
-		        			
-		        			LocPrediction lp2 = LocPrediction.getInstance(i, "coords.csv", "networkExport.eg",2);      			
-		        			LocPrediction.clearInstance(i);
-		        			
-		        			LocPrediction lp3 = LocPrediction.getInstance(i, "coords.csv", "networkExport.eg",3);
-		        			LocPrediction.clearInstance(i);
-    					}
-        			}
+    						BufferedWriter bw;
+    						try {
+    							bw = new BufferedWriter(new FileWriter("logFile.txt", true));
+    							bw.write(i+"\t");
+    							bw.close();
+    						} catch (IOException e) {
+    							// TODO Auto-generated catch block
+    							e.printStackTrace();
+    						}
 
+    						
+		    				LocPrediction lp = LocPrediction.getInstance(1, "coords.csv", "networkExport.eg",5);
+		        			LocPrediction.clearInstance(1);
+		        			
+		        			LocPrediction lp2 = LocPrediction.getInstance(1, "coords.csv", "networkExport.eg",5);      			
+		        			LocPrediction.clearInstance(1);
+		        			*/
+		        			LocPrediction lp3 = LocPrediction.getInstance(1, "coords.csv", "networkExport.eg",5);
+		        			LocPrediction.clearInstance(1);
+    						/*
+    						try {
+    						 
+    							bw = new BufferedWriter(new FileWriter("logFile.txt", true));
+    							bw.write("\n");
+    							bw.close();
+    						} catch (IOException e) {
+    							// TODO Auto-generated catch block
+    							e.printStackTrace();
+    						}
+    						
+    					}
+    					
+        			}
+    				*/
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -110,25 +147,60 @@ public class Main
     				graph.addNode(i);
     			}
     				
-    			Stream<String> lines;
+    			List<String> lines;
 				try {
 					int dayOfTheYear=0;
-					lines = java.nio.file.Files.lines(Paths.get("output.txt"));
-	    			lines.forEach(ss -> {
-	    				String[] s = ss.split(" " );
+					lines = java.nio.file.Files.readAllLines(Paths.get("output.txt"));
+					
+					Random r = new Random();
+					for(int j=lines.size()-1;j>0;j--)
+					{
+						int index = r.nextInt(j+1);
+						String a = lines.get(index);
+						lines.set(index, lines.get(j));
+						lines.set(j, a);
+					}
+					
+					for(int i=0; i<Math.floor(lines.size()*0.7) ;i++)
+					{
+						String ss = lines.get(i);
+						String[] s = ss.split(" " );
 	    				int humm =Integer.parseInt(s[1]);
-	    				if((humm!=13) && Integer.parseInt(s[3])==1)
-	    					throw new Error("humm was: " + humm);
 	    				graph.enterPath(Integer.parseInt(s[1]), Integer.parseInt(s[4]), (Integer.parseInt(s[3])), Integer.parseInt(s[2]), 0);
 	    				
-	    			});
-				
-    			
-
+					}
+					
 					double[] waightFactors = {1.0,1.0,1.0,1.0,1.0};
-					Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(".//testResult3.txt"),"utf-8"));
-							
 						
+					int tot=0;
+					int corr=0; 
+					
+					for(int i=(int)Math.floor(lines.size()*0.7); i<lines.size() ;i++)
+					{
+						String ss = lines.get(i);
+						String[] s = ss.split(" " );
+						
+						graph.setCurrentNode(Integer.parseInt(s[1]));
+						Tuple<Tuple<Integer, Double>, ArrayList<Tuple<Integer, Double>>> predicted = graph.predictNextNode((Integer.parseInt(s[3])),  Integer.parseInt(s[2]), 0, waightFactors);
+						
+						if(predicted.fst().fst()== Integer.parseInt(s[4]))
+						{
+							tot++;
+							corr++;
+						}
+						else
+						{
+							tot++;
+						}
+						
+					}
+    			
+					Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(".//testResult3.txt"),"utf-8"));
+					writer.write(
+							"The nummber of correct predictions was: " + corr + " out of the total: "+ tot+" ratio of: " + (((double) corr)/((double) tot))
+							);
+
+					/*	
 					for(int i = 1 ; i<=22; i++)
 					{
 						writer.write("-----------" + i + "-----------\n");
@@ -158,6 +230,7 @@ public class Main
 						
 						}
 					}
+					*/
 					writer.close();
 					System.out.println("Done !!!!");
 	    			/*
@@ -365,7 +438,6 @@ public class Main
 		    		 	
 		    		 	if(0<n.getQuerry().size())
 		    		 	{
-		    		 		System.out.println("#OOPS");
 		    		 		n.exportToDB(Integer.parseInt(fs.getName())+3);
 		    		 	}
 	    		 	}
@@ -376,7 +448,7 @@ public class Main
     			System.out.println("No argument provided");
     		}
     	}
-    	
+
     	//***************Cleanup*****************
     	/*try {
     		
