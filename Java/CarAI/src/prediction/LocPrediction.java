@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.encog.ConsoleStatusReportable;
+import org.encog.EncogError;
 import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.engine.network.activation.ActivationTANH;
 import org.encog.util.csv.CSVFormat;
@@ -180,7 +181,6 @@ public class LocPrediction {
 		if(method.equals("standard"))
 		{
 			standardLearning("coords.csv");
-
 		}else if(method.equals("custom"))
 		{
 			customLearning("coords.csv");
@@ -205,7 +205,6 @@ public class LocPrediction {
 		ELKIController.runElki(tempName);
 		
 		nd.exportAsClustToCSVWithHyperTwo("coords.csv",tempName);
-
 		
 		bestMethod =(MLRegression)EncogDirectoryPersistence.loadObject(new File("networkExport.eg"));
 		VersatileDataSource source = new CSVDataSource(new File("coords.csv"),false,format);
@@ -284,7 +283,7 @@ public class LocPrediction {
 		ELKIController.runElki(tempName);
 		
 		nd.exportAsClustToCSVWithHyperTwo(tempFileName, tempName);
-
+		
 		VersatileDataSource source = new CSVDataSource(new File(tempFileName),false,format);
 		
 		data =  new VersatileMLDataSet(source);
@@ -313,7 +312,6 @@ public class LocPrediction {
 		
 		data.normalize();
 
-        
 		model.holdBackValidation(0.3, true, 1001);
 		model.selectTrainingType(data);
 		bestMethod = (MLRegression)model.crossvalidate(20, true);
@@ -321,9 +319,8 @@ public class LocPrediction {
 		//EncogUtility.evaluate(bestMethod, model.getValidationDataset());
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter("logFile.txt", true));
-			bw.write("Network with path = 2 \n");
-			bw.write("Network training error: " +EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\n");
-			bw.write("Network validation error: " +EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\n");
+			bw.write(EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\t");
+			bw.write(EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\t");
 			bw.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -333,7 +330,6 @@ public class LocPrediction {
 		/*System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
 		System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
 		*/
-
 		helper = data.getNormHelper();
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
@@ -378,7 +374,7 @@ public class LocPrediction {
 		data =  new VersatileMLDataSet(source);
 		
 		data.getNormHelper().setFormat(format); 
-		//ColumnDefinition previus = data.defineSourceColumn("prev",0,ColumnType.nominal);		
+		ColumnDefinition previus = data.defineSourceColumn("prev",0,ColumnType.nominal);		
 		ColumnDefinition here = data.defineSourceColumn("here",1,ColumnType.nominal);		
 		ColumnDefinition columnDay = data.defineSourceColumn("day",2,ColumnType.nominal);
 		ColumnDefinition columnMTime = data.defineSourceColumn("minutes",3,ColumnType.continuous);
@@ -386,7 +382,7 @@ public class LocPrediction {
 
 		data.analyze();
 		
-		//data.defineInput(previus);
+		data.defineInput(previus);
 		data.defineInput(here);
 		data.defineInput(columnDay);
 		data.defineInput(columnMTime);
@@ -404,9 +400,11 @@ public class LocPrediction {
 		model.holdBackValidation(0.3, true, 1001);
 		model.selectTrainingType(data);
 		bestMethod = (MLRegression)model.crossvalidate(20, true);
+		
+		System.out.println("Training Error: " + EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset()));
+		System.out.println("Validation Error:  " + EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset()));
+		
 		saveNetwork(network);
-		System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
-		System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
 		helper = data.getNormHelper();
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
@@ -470,7 +468,6 @@ public class LocPrediction {
 		nd.exportAsCoordsWithDateToCSV(tempFile);
 		
 		VersatileDataSource source = new CSVDataSource(new File(tempFile),false,format);
-
 		
 		data =  new VersatileMLDataSet(source);
 		
@@ -502,13 +499,13 @@ public class LocPrediction {
 		model.holdBackValidation(0.3, true, 1001);
 		model.selectTrainingType(data);
 		bestMethod = (MLRegression)model.crossvalidate(20, true);
-
+		
+		
 		BufferedWriter bw;
 		try {
 			bw = new BufferedWriter(new FileWriter("logFile.txt", true));
-			bw.write("Network with path = 1 \n");
-			bw.write("Network training error: " +EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\n");
-			bw.write("Network validation error: " +EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\n");
+			bw.write(EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\t");
+			bw.write(EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\t");
 			bw.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -520,7 +517,6 @@ public class LocPrediction {
 		System.out.println("Training error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
 		System.out.println("Validation error: " + model.calculateError(bestMethod, model.getValidationDataset()));
 		*/
-
 		helper = data.getNormHelper();
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
@@ -539,7 +535,6 @@ public class LocPrediction {
 		//nd.coordCullByBox(57.34, 11, 1 , 4);
 		//data.cullByRDP();
 		//nd.coordCullByDist();
-
 		//nd.coordCullBySpeed(15.0);
 		nd.exportAsCoordsToCSV(tempFile);
 		
@@ -557,20 +552,17 @@ public class LocPrediction {
 		ColumnDefinition columnOutLat = data.defineSourceColumn("olat",5,ColumnType.continuous);	
 		
 		columnDay.defineClass(new String[] {"1","2","3","4","5","6","7"});
-
 		data.analyze();
 		
 		data.defineInput(columnInLon);
 		data.defineInput(columnInLat);
-
-        
+		
 		data.defineInput(columnDay);
 		data.defineInput(columnMTime);
 		data.defineOutput(columnOutLon);
 		data.defineOutput(columnOutLat);
 		data.getNormHelper().defineUnknownValue("?");
-
-        
+				
 		
 		EncogModel model = new EncogModel(data);
 		model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
@@ -588,9 +580,8 @@ public class LocPrediction {
 
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter("logFile.txt", true));
-			bw.write("Network with GPS \n");
-			bw.write("Network training error: " +EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\n");
-			bw.write("Network validation error: " +EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\n");
+			bw.write(EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\t");
+			bw.write(EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\t");
 			bw.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -619,20 +610,69 @@ public class LocPrediction {
 		//nd.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml", 0);
 		//nd.coordCullByDist();
 		
-		if(nd.importFromDB(id, -1)>0)
+		
+		
+		BufferedWriter bw;		
+		if(/*nd.importFromDB(id, -1)>25*/true)
 		{
 			switch(mode)
 			{
 			case 1:
-				standardLearning(tempFile);
+				try
+				{
+					standardLearning(tempFile);
+				}
+				catch(EncogError e)
+				{
+
+					try {
+						bw = new BufferedWriter(new FileWriter("logFile.txt", true));
+						bw.write("\t\t");
+						bw.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					System.out.println("Network FAIL ID: " + id);
+				}
 				break;
 			case 2:
-				hyperParamLerning(tempFile);
-				nd.saveAsCSV(".//temp.txt");
-				saveNetwork(saveFile);
+				try
+				{
+					hyperParamLerning(tempFile);
+				}
+				catch(EncogError e)
+				{
+					try {
+						bw = new BufferedWriter(new FileWriter("logFile.txt", true));
+						bw.write("\t\t");
+						bw.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					System.out.println("Network FAIL ID: " + id);
+				}
+				//nd.saveAsCSV(".//temp.txt");
+				//saveNetwork(saveFile);
 				break;	
 			case 3:
+				try
+				{
 				customLearning(tempFile);
+				}
+				catch(EncogError e)
+				{
+					try {
+						bw = new BufferedWriter(new FileWriter("logFile.txt", true));
+						bw.write("\t\t");
+						bw.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					System.out.println("Network FAIL ID: " + id);
+				}
 				break;
 			case 4:
 				nd.loadFromCSV(".//temp.txt");
@@ -641,6 +681,7 @@ public class LocPrediction {
 			case 5:
 					final int maxClust=22;
 					hyperParamLernTestTrain("output.txt", "testSaveFile.eg");
+					/*
 					hyperParamLernTestLoad("output.txt", "testSaveFile.eg");
 					
 					String[] line = new String[4];
@@ -648,12 +689,12 @@ public class LocPrediction {
 					
 					try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(".//testResult2.txt"),"utf-8")))
 					{
-						//for(int prevClust=1; prevClust<=maxClust; prevClust++)
-						//{
+						for(int prevClust=1; prevClust<=maxClust; prevClust++)
+						{
 							for(int currClust=1; currClust<=maxClust; currClust++)
 							{
-								writer.write("--------------- "/*+prevClust + " -> "*/+ currClust + " ---------------\n");
-								//line[0] = ""+prevClust;
+								writer.write("--------------- " +prevClust + " -> " + currClust + " ---------------\n");
+								line[0] = ""+prevClust;
 								line[0] = ""+currClust;
 								for(int dayOfWeek=1;dayOfWeek<=7;dayOfWeek++)
 								{
@@ -695,9 +736,9 @@ public class LocPrediction {
 									}
 								}
 							}
-						//}
+						}
 					}					
-					
+					*/
 
 				break;
 			default:
@@ -706,7 +747,16 @@ public class LocPrediction {
 		}
 		else
 		{
-			throw new Exception("No traning data available");
+			try {
+				bw = new BufferedWriter(new FileWriter("logFile.txt", true));
+				bw.write("\t\t");
+				bw.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			//throw new Exception("No traning data available");
 		}
 	}
 	double getMaxDoubleFromList(double[] in)
@@ -956,4 +1006,4 @@ public class LocPrediction {
 				}
 			}
 	}
-
+}
