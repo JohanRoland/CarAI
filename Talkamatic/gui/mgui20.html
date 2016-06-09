@@ -20,16 +20,22 @@
             p {
               margin:0; 
             }
+            
+            .page-head {
+                text-align:center;
+            
+            }
+            
             .logo {
               //position:relative;
               //top:50px;
               //left:100px;
               //width:121px;
-              height:55px;
+              height:100px;
               object-fit: contain;
               font-family: "Open Sans";
               font-weight: bold;
-              font-size:40px;
+              font-size:100px;
               color:#FFFFFF;
               text-align:center;
             }
@@ -40,6 +46,7 @@
               //right: 10px;
               //left:959px;
               //width:500px; 
+              margin:auto;
             }
             
             .debug-button {
@@ -58,6 +65,7 @@
               /*top:222px;
               left:328px;*/
               width:860px;
+              margin:auto;
             }
             
             .quick-button {
@@ -74,23 +82,22 @@
             }
             
             .BG {
-              //position: relative;
-              top: 233px;
-              bottom:199px; 
-              left: 379px;
+              position: static;
+              top: 252px;
+              bottom:0px; 
               width: 100%;
-              height: 90%;
+              //height: 100% ;
               border-radius: 10px;
               background-color: #0a0a0a;
               border: solid 3px rgba(255, 255, 255, 0.1);
             }
             
             .contentContainer {
-              position:absolute;  
+              position:absolute; 
               bottom:100px;
               width:100%;
               overflow: auto;
-              max-height:80%;
+              max-height:77%;
             }
             
             .contentArea {
@@ -214,22 +221,23 @@
     </header>
     <body>
         <div class="background">
-	    <div class="logo">
-		<p>CAR<span style="color:#50e3c2;">AI</span></p>
-	    </div>
-	    <div class="debug-menu">
-		<button class="debug-button" onclick="connect()">Connect</button>
-		<button class="debug-button" onclick="disconnect()">Disconnect</button>
-		<button class="debug-button" onclick="cancel()">Cancel</button>
-	    </div>
+        <div class="page-head">
+            <div class="logo">
+                <p>CAR<span style="color:#50e3c2;">AI</span></p>
+            </div>
+            <div class="debug-menu">
+            <button class="debug-button" onclick="connect()">Connect</button>
+            <button class="debug-button" onclick="disconnect()">Disconnect</button>
+            <button class="debug-button" onclick="cancel()">Cancel</button>
+            </div>
 
-	    <div class="quick-menu">
-		<button class="quick-button" onclick="getLoc()">Where are we?</button>
-		<button class="quick-button" onclick="getDest()">Where are we going?</button>
-		<button class="quick-button" onclick="getEta()">ETA?</button>
-		<button class="quick-button" onclick="getMeeting()">Meeting?</button>
-	    </div>
-
+            <div class="quick-menu">
+            <button class="quick-button" onclick="getLoc()">Where are we?</button>
+            <button class="quick-button" onclick="getDest()">Where are we going?</button>
+            <button class="quick-button" onclick="getEta()">ETA?</button>
+            <button class="quick-button" onclick="getMeeting()">Meeting?</button>
+            </div>
+        </div>
 	    <div class="BG" >
 		<div class="contentContainer">
 		    <div class="contentArea">
