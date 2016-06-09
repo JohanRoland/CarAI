@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
 
 public class ELKIController {
 	
-	public static void runElki(String tempName)
+	public static boolean runElki(String tempName)
 	{
 		File f = new File(".");
 		
@@ -29,7 +29,7 @@ public class ELKIController {
 		//-dbc.in "D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\testELKI.txt" -dbc.parser NumberVectorLabelParser -db.index tree.spatial.rstarvariants.rstar.RStarTreeFactory -spatial.bulkstrategy SortTileRecursiveBulkSplit -algorithm clustering.DBSCAN -algorithm.distancefunction geo.LatLngDistanceFunction -geo.model WGS84SpheroidEarthModel -dbscan.epsilon 50.0 -dbscan.minpts 10 -resulthandler ResultWriter -out "D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\ELKIClusters"
 		String[] commands = {"java" ,"-jar" , "elki-bundle-0.7.1.jar","KDDCLIApplication", "-dbc.in","testELKI.txt","-dbc.parser","NumberVectorLabelParser","-db.index","tree.spatial.rstarvariants.rstar.RStarTreeFactory","-spatial.bulkstrategy","SortTileRecursiveBulkSplit","-algorithm","clustering.DBSCAN","-algorithm.distancefunction","geo.LatLngDistanceFunction","-geo.model","WGS84SpheroidEarthModel","-dbscan.epsilon",""+eps,"-dbscan.minpts",""+minp,"-resulthandler","ResultWriter","-out",tempName};
 		String[] com2 = {"python","convert.py","coords.csv"};
-		
+		String err = "";
 		try {
 			
 			System.out.println("Converting");
@@ -49,9 +49,13 @@ public class ELKIController {
 			InputStreamReader isr = new InputStreamReader(stderr);
             BufferedReader br = new BufferedReader(isr);
             String line = null;
+            
             System.out.println("<ERROR>");
             while ( (line = br.readLine()) != null)
+            {
                 System.out.println(line);
+                err += line; 
+            }
             System.out.println("</ERROR>");
 			int exitVal = p.waitFor();
 			System.out.println("Process exitValue: " + exitVal);
@@ -63,7 +67,7 @@ public class ELKIController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		return err.length() > 1;
 	}
 	
 }

@@ -295,48 +295,63 @@ public class Main
     		else if(args[0].equals("8"))
     		{
     		 	NNData n = new NNData();
-    		 	//n.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml", 0);
+    		 	n.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\Platshistorik.kml", 0);
 
     		 	//n.parseKML("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\OlofLoc.kml", 0);
     		 	
-    		 	//n.coordCullByBox(57, 11, 2, 8);
+    		 	n.coordCullByBox(57, 11, 2, 8);
     		 	File f = new File(".");
 				String pathToProj = f.getAbsolutePath().substring(0, f.getAbsolutePath().length()-2);
 				
 				
-    		 	File data = new File("data");
-    		 	for(File fs : data.listFiles())
-    		 	{
-    		 		System.out.println("User: "+ fs.getName());
-    		 		n.parsGeoEntry(fs.getAbsolutePath());
-	    		 	System.out.println("Amount of Entries: " +n.getQuerry().size());
+    		 	//File data = new File("data");
+    		 	//for(File fs : data.listFiles())
+    		 	//{
+    		 		//System.out.println("User: "+ fs.getName());
+    		 		//n.parsGeoEntry(fs.getAbsolutePath());
+	    		 	
+					System.out.println("Amount of Entries: " +n.getQuerry().size());
+	    		 	int size1 = n.getQuerry().size();
 	    		 	if(n.getQuerry().size() != 0)
 	    		 	{
 	    		 		double dist1 = 0;
-		    		 	for(DatabaseLocation d : n.getQuerry())
+		    		 	/*for(DatabaseLocation d : n.getQuerry())
 		    		 	{
 		    		 		dist1 += Utils.distDB(d);
-		    		 	}
+		    		 	}*/
 		    		 	System.out.println("Dist before Distance culling: "+ dist1);
 		    		 	
-		    		 	n.coordCullBySpeed(25);;
+		    		 	n.coordCullBySpeed(25);
+		    		 	//n.coordCullByDist();
 		    		 	System.out.println("Amount of Entries after dist cull: " +n.getQuerry().size());
+		    		 	int size2 = n.getQuerry().size();
 		    		 	double dist2 = 0;
-		    		 	for(DatabaseLocation d : n.getQuerry())
+		    		 	/*for(DatabaseLocation d : n.getQuerry())
 		    		 	{
 		    		 		dist2 += Utils.distDB(d);
-		    		 	}
+		    		 	}*/
 		    		 	System.out.println("Dist after Distance culling: "+ dist2);
 		    		
 		    		 	Date date = new Date();
 		    		 	String tempName = "ELKIClusters" + date.getTime();
 		    		 	n.exportAsCoordsToCSV(pathToProj+File.separator+"coords.csv");
-		    			ELKIController.runElki(tempName);
+		    			boolean er = ELKIController.runElki(tempName);
 		    			ArrayList<ArrayList<DatabaseLocation>> clusters = n.importFromElkiClustering(tempName+File.separator);
 		    			System.out.println("Amount of Clusters " + (clusters.size()-1));
 		    		 	
-	    		 	}
+	    		 	
+		    		 	/*try {
+		    				BufferedWriter bw = new BufferedWriter(new FileWriter("resultofNoclustering.txt", true));
+		    				bw.write(fs.getName()+ "\t" + size1 + "\t" + dist1 +"\t"+  size2+"\t" + dist2 +"\t"+ (clusters.size()-1)+"\t" + er +"\n");
+		    				bw.close();
+		    			} catch (IOException e) {
+		    				// TODO Auto-generated catch block
+		    				e.printStackTrace();
+		    			}*/
+	    		 	//}
 	    		 }
+    		 	
+    		 	
     		}
     		else if(args[0].equals("9"))
     		{

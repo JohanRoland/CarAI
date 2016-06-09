@@ -95,7 +95,7 @@
 	    <artifactId>encog-core</artifactId>
 	    <version>3.3.0</version>
     </dependency>
-<!--<dependency>
+<!--  <dependency>
     	<groupId>org.opencv</groupId>
     	<artifactId>opencv</artifactId>
     	<version>3.1</version>
