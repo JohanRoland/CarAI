@@ -206,7 +206,7 @@
       e.preventDefault();   
       var s = document.forms["inform"]["in"].value;
       printMsg(s);
-      //sendUtteranceToTDM(s);
+      sendUtteranceToTDM(s);
       document.forms["inform"]["in"].value = "";
       
     }); 
