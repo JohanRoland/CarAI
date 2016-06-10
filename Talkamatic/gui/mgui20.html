@@ -1,10 +1,21 @@
 <html>
-    <header>
+    <head>
+	<title>CARAI</title>
+	<meta name="viewport" content="width=device-width, initial-scale=0.4, maximum-scale=0.4, user-scalable=no" />
+	<meta name="apple-mobile-web-app-title" content="CARAI" />
+	<meta name="HandheldFriendly" content="true" />
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="mobile-web-app-capable" content="yes">
         <script src="./gui_files/jquery.min.js"></script>
         <script src="./script.js"></script>
         <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
         <link href='https://fonts.googleapis.com/css?family=Roboto:400,500' rel='stylesheet' type='text/css'>
-        <style>
+	<link rel="manifest" href="manifest.json">   
+	<link rel="icon" sizes="192x192" href="launcher-icon.png">     
+    </head>	
+    <header>
+	
+	<style>
             ::-webkit-scrollbar { 
                 display: none; 
             }
@@ -85,9 +96,9 @@
               position: static;
               top: 252px;
               bottom:0px; 
-              width: 100%;
+              width: calc(100% - 6px);
               //height: 100% ;
-              height: calc(100% - 252px);
+              height: calc(100% - 258px);
               border-radius: 10px;
               background-color: #0a0a0a;
               border: solid 3px rgba(255, 255, 255, 0.1);
@@ -96,7 +107,7 @@
             .contentContainer {
               position:absolute; 
               bottom:100px;
-              width:100%;
+              width:calc(100% - 6px);
               overflow: auto;
               max-height:calc(100% - 392px);
             }
@@ -105,14 +116,14 @@
               position:relative;
               bottom:0;
               //height:324px;
-              width:100%;
+              width:calc(100% - 6px);
                 
             }
             
             .text-field {
               position: absolute;
               bottom:0;
-              width: 100%;
+              width: calc(100% - 6px);
               height: 70px;
               object-fit: contain;
               background-color: #191919;

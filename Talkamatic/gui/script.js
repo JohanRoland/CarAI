@@ -4,7 +4,7 @@
 
   function connectToTDM()
   {
-    ws = new WebSocket("ws://localhost:8888/tdm_gui"); 
+    ws = new WebSocket("ws://192.168.1.53:8888/tdm_gui"); 
     ws.onopen = function () {
       connectedOn();
     };
@@ -64,7 +64,7 @@
  
   function connectInput()
   {
-    nrws = new WebSocket("ws://192.168.1.127:1880/gui");
+    nrws = new WebSocket("ws://192.168.1.135:1880/gui");
  
     nrws.onmessage = function(evt) {
       m = JSON.parse(evt.data)
@@ -196,7 +196,7 @@
   }
   
   $(document).ready(function() {
-    //connect();
+    connect();
   });
 
   
