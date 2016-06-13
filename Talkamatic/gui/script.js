@@ -64,7 +64,7 @@
  
   function connectInput()
   {
-    nrws = new WebSocket("ws://192.168.1.135:1880/gui");
+    nrws = new WebSocket("ws://192.168.1.130:1880/gui");
  
     nrws.onmessage = function(evt) {
       m = JSON.parse(evt.data)

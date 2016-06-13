@@ -6,6 +6,8 @@
 	<meta name="HandheldFriendly" content="true" />
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<link rel="apple-touch-icon" href="launcher-icon.png">
         <script src="./gui_files/jquery.min.js"></script>
         <script src="./script.js"></script>
         <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
@@ -29,9 +31,11 @@
               outline:none;
             }
             p {
-              margin:0; 
+              margin:0;
             }
-            
+						.background {
+							height:100%;
+						}
             .page-head {
                 text-align:center;
             
@@ -46,7 +50,7 @@
               object-fit: contain;
               font-family: "Open Sans";
               font-weight: bold;
-              font-size:100px;
+              font-size:200px;
               color:#FFFFFF;
               text-align:center;
             }
@@ -75,7 +79,7 @@
               position:relative;
               /*top:222px;
               left:328px;*/
-              width:860px;
+              width:80%;
               margin:auto;
 	      margin-top;25px;
             }
@@ -88,7 +92,7 @@
               padding-bottom:11px;
               background-color:transparent;
               font-family: "Open Sans";
-              font-size: 26px;
+              font-size: 50px;
               color: #ffffff;
               border-color: #ffffff;
             }
@@ -99,7 +103,7 @@
               bottom:0px; 
               width: calc(100% - 6px);
               //height: 100% ;
-              height: calc(100% - 258px);
+              height: calc(100% - 537px);
               border-radius: 10px;
               background-color: #0a0a0a;
               border: solid 3px rgba(255, 255, 255, 0.1);
@@ -107,10 +111,11 @@
             
             .contentContainer {
               position:absolute; 
-              bottom:100px;
+              bottom:160px;
               width:calc(100% - 6px);
               overflow: auto;
-              max-height:calc(100% - 392px);
+              max-height:calc(100% - 537px);
+							font-size:50px;
             }
             
             .contentArea {
@@ -125,30 +130,33 @@
               position: absolute;
               bottom:0;
               width: calc(100% - 6px);
-              height: 70px;
+              height: 140px;
               object-fit: contain;
               background-color: #191919;
+							font-size:50px;
             }
             
             .mic-button {
               position: absolute;
               left:10px;
               bottom:10px;
-              width: 80px;
-              height: 80px;
+              width: 160px;
+              height: 160px;
               object-fit: contain;
               background-color: #000000;
               background:url(content/mic-icon-inactive.svg);
-              border: none;
+              background-repeat:no-repeat;
+							background-size: 160px 160px;
+							border: none;
             }
             
             .input-form{
               position:absolute;
               bottom:20px;
-              left:113.5px;
+              left:173.5px;
               margin:0;
               width: 80%;
-              height: 34px;
+              height: 80px;
               
             }
             
@@ -160,6 +168,7 @@
               opacity: 0.3;
               color: #ffffff;
               width:100%;
+							font-size:50px;
             }
             
             .convo {
@@ -176,14 +185,13 @@
               background-color: #1A1A1A;
               width: 50%;
               float:left;
-              
             }
             
             .convo p {
               margin:0;
               opacity:1.0;
               font-family: "Open Sans";
-              font-size: 19px;
+              font-size: 50px;
               text-align: right;
               color: #50e3c2;
             }
@@ -210,7 +218,7 @@
               margin:0;
               opacity:1.0;
               font-family: "Open Sans";
-              font-size: 19px;
+              font-size: 50px;
               color: #ffffff;
             }
             
