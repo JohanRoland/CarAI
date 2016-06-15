@@ -37,6 +37,7 @@ import utils.MqttTime;
 import utils.Tuple;
 import utils.Utils;
 import displayData.PointsPlotter;
+import speechrecognition.Watson; 
 
 public class Main
 {
@@ -47,20 +48,23 @@ public class Main
     	//MqttTime mt = MqttTime.getInstance();
     	//Analyze.analyzeLearningData();
     	//System.exit(0);
+    	
     	if(args.length > 0)
     	{
     		if(args[0].equals("1"))
     		{
-    			System.out.println("FaceRecog Debug");
-    			FaceRecognition f = new FaceRecognition();
-    			f.start(true);
+    			System.out.println("Main Mode");
+    			Watson mic = new Watson();
+    			FaceMQTT f = new FaceMQTT();
+    			CarInterface cf = new CarInterface();
+    			
     		}
     		else if(args[0].equals("2"))
     		{
     			//System.out.println("FaceRecognition debug");
-    			
-    			FaceMQTT f = new FaceMQTT();
-    			CarInterface cf = new CarInterface();
+    			System.out.println("FaceRecog Debug");
+    			FaceRecognition f = new FaceRecognition();
+    			f.start(true);
     			
     			
     		}

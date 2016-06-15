@@ -95,15 +95,20 @@
 	    <artifactId>encog-core</artifactId>
 	    <version>3.3.0</version>
     </dependency>
-    <dependency>
+  <dependency>
     	<groupId>org.opencv</groupId>
     	<artifactId>opencv</artifactId>
     	<version>3.1</version>
-	  </dependency>
+	  </dependency> 
     <dependency>
 	  	<groupId>mysql</groupId>
 	  	<artifactId>mysql-connector-java</artifactId>
 	  	<version>5.1.38</version>
+	</dependency>
+	<dependency>
+      <groupId>com.ibm.watson.developer_cloud</groupId>
+      <artifactId>java-sdk</artifactId>
+      <version>2.9.0</version>
 	</dependency>
   </dependencies>
 </project>
