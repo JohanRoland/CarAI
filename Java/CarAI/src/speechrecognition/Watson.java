@@ -3,8 +3,6 @@ package speechrecognition;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -30,16 +28,13 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import com.ibm.watson.developer_cloud.speech_to_text.v1.RecognizeOptions;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.SpeechToText;
-import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechModel;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechResults;
-import com.ibm.watson.developer_cloud.speech_to_text.v1.websocket.BaseRecognizeDelegate;
 
-import facerecognition.FaceRecognition;
 import interfaces.MQTTInterface;
 
 public class Watson implements MQTTInterface {
 
-	int THRESHOLD  = 300;
+	int THRESHOLD  = 55;
 	SpeechToText service;
 	RecognizeOptions options;
 	
@@ -60,8 +55,8 @@ public class Watson implements MQTTInterface {
 		
 		service.setEndPoint("https://stream.watsonplatform.net/speech-to-text/api");
 
-		options = new RecognizeOptions().contentType("audio/wav")
-		  .continuous(false).interimResults(true);
+		options = new RecognizeOptions().contentType("audio/wav").timestamps(true).wordAlternativesThreshold(0.9);
+		 // .continuous(false).interimResults(false);
 		
 		format = new AudioFormat(44100.0f, 16, 2, true, true);
 		DataLine.Info info = new DataLine.Info(TargetDataLine.class, 
@@ -124,7 +119,7 @@ public class Watson implements MQTTInterface {
 			    // Save this chunk of data.
 			    out.write(data, 0, numBytesRead);
 			    
-			    boolean silent = calculateRMSLevel(data) < 55;
+			    boolean silent = calculateRMSLevel(data) < THRESHOLD;
 			    if ( silent && snd_started)
 			    {
 			    	num_silent += 1;
@@ -134,18 +129,19 @@ public class Watson implements MQTTInterface {
 			    	snd_started = true;
 			    }
 			    
-			    if(snd_started && num_silent > 10)
+			    if(snd_started && num_silent > 15)
 			    {
 			    	break;
 			    }
 			    i++;
+			    System.out.println(num_silent);
 			    
 			}
 			
 			msg = new MqttMessage("{\"ptt\":\"off\"}".getBytes());
 			msg.setQos(qos);
 		 	client.publish("talkamatic/pttevent", msg);
-			
+			microphone.close();
 		    InputStream is = new ByteArrayInputStream(out.toByteArray());
 		    
 			AudioInputStream ais = new AudioInputStream(is, format, out.toByteArray().length); 
@@ -153,6 +149,21 @@ public class Watson implements MQTTInterface {
                 ais
                ,AudioFileFormat.Type.WAVE
                ,new File("audio-file.wav"));
+			
+			
+			
+			SpeechResults results = service.recognize(new File("audio-file.wav"), options);
+			System.out.println(results);
+			String result = results.getResults().get(0).getAlternatives().get(0).getTranscript();
+    		msg = new MqttMessage(result.getBytes());
+			msg.setQos(qos);
+		 	try {
+				client.publish("talkamatic/pttevent", msg);
+			} catch (MqttException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			/*
 			
 			service.recognizeUsingWebSockets(new FileInputStream("audio-file.wav"),
 			  options, new BaseRecognizeDelegate()
@@ -182,7 +193,7 @@ public class Watson implements MQTTInterface {
 			      e.printStackTrace();
 			    }
 			  }
-			);
+			);*/
 		} catch (LineUnavailableException | IOException | MqttException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
