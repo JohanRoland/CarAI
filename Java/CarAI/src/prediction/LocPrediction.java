@@ -630,10 +630,12 @@ public class LocPrediction {
 						bw.write("\n Failed to train id: " + id +  ". Using standardLerning (mode 1) at time: "+ System.currentTimeMillis());
 						bw.close();
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
+
 						e1.printStackTrace();
 					}
-					System.out.println("Network FAIL ID: " + id);
+
+					throw new Error("Failed in standard lerning, network FAIL ID: " + id);
+
 				}
 				break;
 			case 2:
@@ -652,7 +654,8 @@ public class LocPrediction {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-					System.out.println("Network FAIL ID: " + id);
+
+					throw new Error("Failed in hyperParamLerning, network FAIL ID: " + id);
 				}
 				//nd.saveAsCSV(".//temp.txt");
 				//saveNetwork(saveFile);
@@ -673,7 +676,7 @@ public class LocPrediction {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-					System.out.println("Network FAIL ID: " + id);
+					throw new Error("Failed in hyperParamLerning, network FAIL ID: " + id);
 				}
 				break;
 			case 4:
@@ -686,6 +689,7 @@ public class LocPrediction {
 					bw = new BufferedWriter(new FileWriter("logFile.txt", true));
 					bw.write("\n Failed to load temp.txt (mode 4). At time: "+ System.currentTimeMillis());
 					bw.close();
+					throw new Error("\n Failed to load temp.txt (mode 4). At time: "+ System.currentTimeMillis());
 				}
 				break;
 			case 5:
@@ -697,6 +701,7 @@ public class LocPrediction {
 						bw = new BufferedWriter(new FileWriter("logFile.txt", true));
 						bw.write("\n Failed test (mode 5) "+ System.currentTimeMillis());
 						bw.close();
+						throw new Error("\n Failed test (mode 5) "+ System.currentTimeMillis());
 					}
 					/*
 					hyperParamLernTestLoad("output.txt", "testSaveFile.eg");
