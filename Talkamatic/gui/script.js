@@ -76,7 +76,10 @@
       {
         pttOff();
       }
-
+      else if( m.input)
+      {
+        printMsg(m.input);
+      }
     };
 
   }
@@ -151,12 +154,17 @@
   }
   function pttOn()
   { 
-    $('.mic-button').css("background","url(content/mic-icon.svg)");
+    $('.mic-button').css("background","url(content/mic-icon.svg)");	
+    $('.mic-button').css("background-repeat","no-repeat");
+    $('.mic-button').css("background-size", "160px 160px");
     //$('#mic-button').prop('disabled',true);
   }
   function pttOff()
   {
     $('.mic-button').css("background","url(content/mic-icon-inactive.svg)");
+    $('.mic-button').css("background-repeat","no-repeat");
+    $('.mic-button').css("background-size", "160px 160px");
+
     //$('#mic-button').prop('disabled',false);
   }
 
@@ -205,7 +213,7 @@
    $(".input-form").submit(function(e) {
       e.preventDefault();   
       var s = document.forms["inform"]["in"].value;
-      printMsg(s);
+      //printMsg(s);
       sendUtteranceToTDM(s);
       document.forms["inform"]["in"].value = "";
       

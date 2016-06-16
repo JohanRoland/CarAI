@@ -160,7 +160,7 @@ public class Watson implements MQTTInterface {
 	    		msg = new MqttMessage(result.getBytes());
 				msg.setQos(qos);
 			 	try {
-					client.publish("talkamatic/pttevent", msg);
+					client.publish("talkamatic/input", msg);
 				} catch (MqttException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -286,3 +286,4 @@ public class Watson implements MQTTInterface {
 	}
 	
 }
+
