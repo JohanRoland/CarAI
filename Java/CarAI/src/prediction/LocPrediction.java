@@ -613,7 +613,7 @@ public class LocPrediction {
 		
 		
 		BufferedWriter bw;		
-		if(/*nd.importFromDB(id, -1)>25*/true)
+		if(nd.importFromDB(id, -1) > 25)
 		{
 			switch(mode)
 			{
