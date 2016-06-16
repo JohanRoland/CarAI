@@ -597,13 +597,14 @@ public class LocPrediction {
 		
 	
 	}
-	private LocPrediction(int id, String tempFile, String saveFile, int mode) throws Exception
+	private LocPrediction(int id, String tempFile, String saveFile, int mode) throws UserNotLoaded
 	{
 		mqttTime = MqttTime.getInstance();
 		predictedLoc = new Tuple<Double,Double>(0.0,0.0);
 		format = new CSVFormat('.',' ');
 		
 		nd = new NNData();
+		
 		
 		//nd.parseGPX("D:\\Programming projects\\NIB\\CarAI\\Java\\CarAI\\20160204.gpx");
 		
@@ -634,7 +635,7 @@ public class LocPrediction {
 						e1.printStackTrace();
 					}
 
-					throw new Error("Failed in standard lerning, network FAIL ID: " + id);
+					throw new UserNotLoaded("Failed in standard lerning, network FAIL ID: " + id);
 
 				}
 				break;
@@ -655,7 +656,7 @@ public class LocPrediction {
 						e1.printStackTrace();
 					}
 
-					throw new Error("Failed in hyperParamLerning, network FAIL ID: " + id);
+					throw new UserNotLoaded("Failed in hyperParamLerning, network FAIL ID: " + id);
 				}
 				//nd.saveAsCSV(".//temp.txt");
 				//saveNetwork(saveFile);
@@ -676,7 +677,7 @@ public class LocPrediction {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-					throw new Error("Failed in hyperParamLerning, network FAIL ID: " + id);
+					throw new UserNotLoaded("Failed in hyperParamLerning, network FAIL ID: " + id);
 				}
 				break;
 			case 4:
@@ -686,82 +687,34 @@ public class LocPrediction {
 				}
 				catch(Error e)
 				{
-					bw = new BufferedWriter(new FileWriter("logFile.txt", true));
-					bw.write("\n Failed to load temp.txt (mode 4). At time: "+ System.currentTimeMillis());
-					bw.close();
+					try {
+						bw = new BufferedWriter(new FileWriter("logFile.txt", true));
+						bw.write("\n Failed to load temp.txt (mode 4). At time: "+ System.currentTimeMillis());
+						bw.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					throw new Error("\n Failed to load temp.txt (mode 4). At time: "+ System.currentTimeMillis());
 				}
 				break;
 			case 5:
-					final int maxClust=22;
-					try{
-						hyperParamLernTestTrain("output.txt", "testSaveFile.eg");
-					}catch(Error e)
-					{
+				final int maxClust=22;
+				try{
+					hyperParamLernTestTrain("output.txt", "testSaveFile.eg");
+				}catch(Error e)
+				{
+					try {
 						bw = new BufferedWriter(new FileWriter("logFile.txt", true));
 						bw.write("\n Failed test (mode 5) "+ System.currentTimeMillis());
 						bw.close();
-						throw new Error("\n Failed test (mode 5) "+ System.currentTimeMillis());
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
 					}
-					/*
-					hyperParamLernTestLoad("output.txt", "testSaveFile.eg");
-					
-					String[] line = new String[4];
-					MLData input = helper.allocateInputVector();
-					
-					try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(".//testResult2.txt"),"utf-8")))
-					{
-						for(int prevClust=1; prevClust<=maxClust; prevClust++)
-						{
-							for(int currClust=1; currClust<=maxClust; currClust++)
-							{
-								writer.write("--------------- " +prevClust + " -> " + currClust + " ---------------\n");
-								line[0] = ""+prevClust;
-								line[0] = ""+currClust;
-								for(int dayOfWeek=1;dayOfWeek<=7;dayOfWeek++)
-								{
-									double minSertanty=1;
-									double maxSertanty=0;
-									
-									int lastPrediction=-1;
-									for(int hour = 0; hour<24; hour++)
-									{
-										for(int minute=0; minute<60 ; minute++)
-										{
-											
-											line[1] = ""+dayOfWeek;
-											line[2] = ""+(hour*60+minute);
-											
-											helper.normalizeInputVector(line,input.getData(),false);
-											MLData output = bestMethod.compute(input);
-											
-											String res = helper.denormalizeOutputVectorToString(output)[0];
-											
-											double maxSer=getMaxDoubleFromList(output.getData());
-											if(minSertanty>maxSer)
-											{
-												minSertanty=maxSer;
-											}
-											if(maxSertanty<maxSer)
-											{
-												maxSertanty=maxSer;
-											}
-											
-											
-											int predictedClust = Integer.parseInt(res);
-											if(predictedClust!=lastPrediction)
-											{
-												lastPrediction=predictedClust;
-												writer.write("dayOfWeek: " + dayOfWeek +" hour: " + hour +" minute: " +minute+ " clust: "+predictedClust+"\n");
-											}
-										}
-									}
-								}
-							}
-						}
-					}					
-					*/
 
+					throw new UserNotLoaded("\n Failed test (mode 5) "+ System.currentTimeMillis());
+				}
 				break;
 			default:
 				throw new Error("Unimplemented network mode");
@@ -778,7 +731,7 @@ public class LocPrediction {
 				e1.printStackTrace();
 			}
 			
-			throw new Exception("No traning data available");
+			throw new UserNotLoaded("No traning data available");
 		}
 	}
 	double getMaxDoubleFromList(double[] in)
@@ -806,7 +759,7 @@ public class LocPrediction {
 	 * @return
 	 * @throws Exception
 	 */
-	static public LocPrediction getInstance(int userID, String tempFile, String saveFile,int mode) throws Exception
+	static public LocPrediction getInstance(int userID, String tempFile, String saveFile,int mode) throws UserNotLoaded
 	{
 		if(instanceMap == null)
 		{
@@ -1028,4 +981,18 @@ public class LocPrediction {
 				}
 			}
 	}
+
+public class UserNotLoaded extends Exception {
+
+	public UserNotLoaded(String string) {
+		super(string);
+	}
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+}
+
 }
