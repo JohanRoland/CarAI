@@ -102,7 +102,7 @@ public class User {
 	
 	public void setNotLoaded()
 	{
-		networkLoaded = true; 
+		networkLoaded = false; 
 	}
 	
 	public boolean isLoaded()
