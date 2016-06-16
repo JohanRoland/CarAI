@@ -773,7 +773,7 @@ public class LocPrediction {
 				e1.printStackTrace();
 			}
 			
-			//throw new Exception("No traning data available");
+			throw new Exception("No traning data available");
 		}
 	}
 	double getMaxDoubleFromList(double[] in)
