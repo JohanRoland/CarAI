@@ -4,7 +4,7 @@
 
   function connectToTDM()
   {
-    ws = new WebSocket("ws://localhost:8888/tdm_gui"); 
+    ws = new WebSocket("ws://192.168.1.53:8888/tdm_gui"); 
     ws.onopen = function () {
       connectedOn();
     };
@@ -64,7 +64,7 @@
  
   function connectInput()
   {
-    nrws = new WebSocket("ws://192.168.1.127:1880/gui");
+    nrws = new WebSocket("ws://192.168.1.130:1880/gui");
  
     nrws.onmessage = function(evt) {
       m = JSON.parse(evt.data)
@@ -76,7 +76,10 @@
       {
         pttOff();
       }
-
+      else if( m.input)
+      {
+        printMsg(m.input);
+      }
     };
 
   }
@@ -151,12 +154,17 @@
   }
   function pttOn()
   { 
-    $('.mic-button').css("background","url(content/mic-icon.svg)");
+    $('.mic-button').css("background","url(content/mic-icon.svg)");	
+    $('.mic-button').css("background-repeat","no-repeat");
+    $('.mic-button').css("background-size", "160px 160px");
     //$('#mic-button').prop('disabled',true);
   }
   function pttOff()
   {
     $('.mic-button').css("background","url(content/mic-icon-inactive.svg)");
+    $('.mic-button').css("background-repeat","no-repeat");
+    $('.mic-button').css("background-size", "160px 160px");
+
     //$('#mic-button').prop('disabled',false);
   }
 
@@ -196,7 +204,7 @@
   }
   
   $(document).ready(function() {
-    //connect();
+    connect();
   });
 
   
@@ -205,8 +213,8 @@
    $(".input-form").submit(function(e) {
       e.preventDefault();   
       var s = document.forms["inform"]["in"].value;
-      printMsg(s);
-      //sendUtteranceToTDM(s);
+      //printMsg(s);
+      sendUtteranceToTDM(s);
       document.forms["inform"]["in"].value = "";
       
     }); 

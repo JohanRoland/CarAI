@@ -33,7 +33,7 @@ import utils.JSONCAR;
 @SuppressWarnings("unused")
 public class FaceRecognition
 {
-	int eyedetect = 1;
+	int eyedetect = 0;
 	
 	Window win; 
 	CascadeClassifier face_cascade;
@@ -329,9 +329,9 @@ public class FaceRecognition
 		
 			Imgproc.putText(frame, textBox, new Point(pos_x,pos_y), 0, 1.0, new Scalar(0,255,0));
 			
-			cv.parsePerson(nameString, new DecimalFormat("#.##").format(conf[0]), center, new Point(frame.cols()/2,frame.rows()/2));
+			cv.parsePerson2(nameString, new DecimalFormat("#.##").format(conf[0]), center, new Point(frame.cols()/2,frame.rows()/2));
 			
-			String tempPath = pathToTemp+cv.getPos(center, new Point(frame.cols()/2,frame.rows()/2))+File.separator+"t"+counter+".jpg";
+			String tempPath = pathToTemp+cv.getPos2(center, new Point(frame.cols()/2,frame.rows()/2))+File.separator+"t"+counter+".jpg";
 			Imgcodecs.imwrite(tempPath,face_resized); 
 			
     		
@@ -742,6 +742,24 @@ public class FaceRecognition
     		}
     	}
     	
+    	public void parsePerson2(String name,String conf,Point p, Point imgCenter)
+    	{
+    		if(p.x > imgCenter.x)
+    		{
+				emptyName(name);
+				String[] temp ={name,conf} ;
+				internal[DRIVER] = temp;
+
+    		}
+    		else
+    		{
+				emptyName(name);
+				String[] temp ={name,conf} ;
+				internal[PASSENGER] = temp;
+			}
+    		
+    	}
+    	
     	
     	public String getPos(Point p,Point imgCenter)
     	{
@@ -766,6 +784,18 @@ public class FaceRecognition
     			{
     				return "Backseat1";
     			}
+    		}
+    	}
+    	
+    	public String getPos2(Point p,Point imgCenter)
+    	{
+    		if(p.x > imgCenter.x)
+    		{
+    			return "Driver";
+    		}
+    		else
+    		{
+				return "Passenger";
     		}
     	}
     	

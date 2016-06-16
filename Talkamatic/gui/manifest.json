@@ -1,0 +1,14 @@
+{
+  "name": "CARAI",
+  "start_url": "mgui20.html",
+  "display": "standalone",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "launcher-icon.png",
+      "sizes": "36x36",
+      "type": "image/png",
+      "density": 0.75
+    }
+  ]
+}
