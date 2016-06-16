@@ -130,6 +130,7 @@ public class CarInterface implements MQTTInterface
 				{
 					try
 					{
+						
 						lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID(),"coords.csv", "networkExport.eg",2);
 					}
 					catch (UserNotLoaded e)
