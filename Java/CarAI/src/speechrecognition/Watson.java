@@ -154,14 +154,17 @@ public class Watson implements MQTTInterface {
 			
 			SpeechResults results = service.recognize(new File("audio-file.wav"), options);
 			System.out.println(results);
-			String result = results.getResults().get(0).getAlternatives().get(0).getTranscript();
-    		msg = new MqttMessage(result.getBytes());
-			msg.setQos(qos);
-		 	try {
-				client.publish("talkamatic/pttevent", msg);
-			} catch (MqttException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if(!results.getResults().isEmpty())
+			{
+				String result = results.getResults().get(0).getAlternatives().get(0).getTranscript();
+	    		msg = new MqttMessage(result.getBytes());
+				msg.setQos(qos);
+			 	try {
+					client.publish("talkamatic/pttevent", msg);
+				} catch (MqttException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			/*
 			
@@ -263,7 +266,7 @@ public class Watson implements MQTTInterface {
 	{
 		@Override
 		public void connectionLost(Throwable arg0) {
-			System.out.println("Connection to Mqtt Server lost in Face detection");
+			System.out.println("Connection to Mqtt Server lost in speech recognition");
 			arg0.printStackTrace();
 		}
 
