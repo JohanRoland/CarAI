@@ -23,6 +23,7 @@ public class User {
 	
 	//User variables
 	private int userID;
+	private boolean networkLoaded;
 	String userName;
 	ArrayList<String> imgPaths;
 	String imgPath;
@@ -32,7 +33,7 @@ public class User {
 	private User(int id)
 	{
 		sc = ServerConnection.getInstance();
-		
+		networkLoaded = true;
 		if(id != -1 && id != 0)
 		{
 			importFromDB(""+id);
@@ -97,6 +98,16 @@ public class User {
 				getAllUserImgs(file.getAbsolutePath(),files);
 			}
 		}
+	}
+	
+	public void setNotLoaded()
+	{
+		networkLoaded = true; 
+	}
+	
+	public boolean isLoaded()
+	{
+		return networkLoaded;
 	}
 	
 	public int getUserID()
