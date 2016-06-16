@@ -67,59 +67,10 @@ public class Main
     		else if(args[0].equals("3"))
     		{
     			System.out.println("Schedule debug");
-    		    //	Scheduler s = new Scheduler();
-
-    			try {
-    				/*
-    				BufferedWriter bw2;
-					try {
-						bw2 = new BufferedWriter(new FileWriter("logFile.txt", true));
-						bw2.write("User \t Net 1 \t\t  Net 2  \t\t Net 3\n"
-								+ "\t training error \t validation error\t training error \t validation error\t training error \t validation error");
-						bw2.close();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-    				for(int i=1; i<182;i++)
-        			{
-    					if(i!=2)
-    					{
-    						BufferedWriter bw;
-    						try {
-    							bw = new BufferedWriter(new FileWriter("logFile.txt", true));
-    							bw.write(i+"\t");
-    							bw.close();
-    						} catch (IOException e) {
-    							// TODO Auto-generated catch block
-    							e.printStackTrace();
-    						}
-
-    						
-		    				LocPrediction lp = LocPrediction.getInstance(1, "coords.csv", "networkExport.eg",5);
-		        			LocPrediction.clearInstance(1);
-		        			
-		        			LocPrediction lp2 = LocPrediction.getInstance(1, "coords.csv", "networkExport.eg",5);      			
-		        			LocPrediction.clearInstance(1);
-		        			*/
-		        			LocPrediction lp3 = LocPrediction.getInstance(1, "coords.csv", "networkExport.eg",5);
-		        			LocPrediction.clearInstance(1);
-    						/*
-    						try {
-    						 
-    							bw = new BufferedWriter(new FileWriter("logFile.txt", true));
-    							bw.write("\n");
-    							bw.close();
-    						} catch (IOException e) {
-    							// TODO Auto-generated catch block
-    							e.printStackTrace();
-    						}
-    						
-    					}
-    					
-        			}
-    				*/
+    			try{
+        			LocPrediction lp = LocPrediction.getInstance(1, "coords.csv", "networkExport.eg",5);
+        			
+        			LocPrediction.clearInstance(1);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

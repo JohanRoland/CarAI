@@ -319,8 +319,8 @@ public class LocPrediction {
 		//EncogUtility.evaluate(bestMethod, model.getValidationDataset());
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter("logFile.txt", true));
-			bw.write(EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\t");
-			bw.write(EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\t");
+			bw.write("\n Network: hyperParamLerning \t Traning error: " + EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\t");
+			bw.write("Validation error: " + EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\t");
 			bw.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -504,8 +504,8 @@ public class LocPrediction {
 		BufferedWriter bw;
 		try {
 			bw = new BufferedWriter(new FileWriter("logFile.txt", true));
-			bw.write(EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\t");
-			bw.write(EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\t");
+			bw.write("\n Network: standardLearning \t Traning error: " + EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\t");
+			bw.write("Validation error: " + EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\t");
 			bw.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -580,8 +580,8 @@ public class LocPrediction {
 
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter("logFile.txt", true));
-			bw.write(EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\t");
-			bw.write(EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\t");
+			bw.write("\n Network: customLearning \t Traning error: " + EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset())+"\t");
+			bw.write("Validation error: " + EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset())+"\t");
 			bw.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -627,7 +627,7 @@ public class LocPrediction {
 
 					try {
 						bw = new BufferedWriter(new FileWriter("logFile.txt", true));
-						bw.write("\t\t");
+						bw.write("\n Failed to train id: " + id +  ". Using standardLerning (mode 1) at time: "+ System.currentTimeMillis());
 						bw.close();
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
@@ -643,9 +643,10 @@ public class LocPrediction {
 				}
 				catch(EncogError e)
 				{
+
 					try {
 						bw = new BufferedWriter(new FileWriter("logFile.txt", true));
-						bw.write("\t\t");
+						bw.write("\n Failed to train id: " + id +  ". Using hyperParamLerning (mode 2) at time: "+ System.currentTimeMillis());
 						bw.close();
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
@@ -663,9 +664,10 @@ public class LocPrediction {
 				}
 				catch(EncogError e)
 				{
+
 					try {
 						bw = new BufferedWriter(new FileWriter("logFile.txt", true));
-						bw.write("\t\t");
+						bw.write("\n Failed to train id: " + id +  ". Using customLearning (mode 3) at time: "+ System.currentTimeMillis());
 						bw.close();
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
@@ -676,11 +678,26 @@ public class LocPrediction {
 				break;
 			case 4:
 				nd.loadFromCSV(".//temp.txt");
-				loadNetwork(saveFile,"coords.csv", 1);
+				try{
+					loadNetwork(saveFile,tempFile, 1);
+				}
+				catch(Error e)
+				{
+					bw = new BufferedWriter(new FileWriter("logFile.txt", true));
+					bw.write("\n Failed to load temp.txt (mode 4). At time: "+ System.currentTimeMillis());
+					bw.close();
+				}
 				break;
 			case 5:
 					final int maxClust=22;
-					hyperParamLernTestTrain("output.txt", "testSaveFile.eg");
+					try{
+						hyperParamLernTestTrain("output.txt", "testSaveFile.eg");
+					}catch(Error e)
+					{
+						bw = new BufferedWriter(new FileWriter("logFile.txt", true));
+						bw.write("\n Failed test (mode 5) "+ System.currentTimeMillis());
+						bw.close();
+					}
 					/*
 					hyperParamLernTestLoad("output.txt", "testSaveFile.eg");
 					
