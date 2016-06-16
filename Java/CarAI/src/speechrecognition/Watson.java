@@ -129,12 +129,17 @@ public class Watson implements MQTTInterface {
 			    	snd_started = true;
 			    }
 			    
+			    if(!snd_started)
+			    {
+			    	out = new ByteArrayOutputStream();
+			    }
+			    	
 			    if(snd_started && num_silent > 15)
 			    {
 			    	break;
 			    }
 			    i++;
-			    System.out.println(num_silent);
+			    //System.out.println(num_silent);
 			    
 			}
 			
