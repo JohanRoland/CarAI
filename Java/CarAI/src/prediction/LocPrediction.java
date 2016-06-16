@@ -521,6 +521,7 @@ public class LocPrediction {
 		System.out.println(helper.toString());
 		System.out.println("Final model: " + bestMethod);
 	}
+	
 	private void customLearning(String tempFile)
 	{
 		mqttTime = MqttTime.getInstance();
@@ -613,7 +614,7 @@ public class LocPrediction {
 		
 		
 		BufferedWriter bw;		
-		if(/*nd.importFromDB(id, -1)>25*/true)
+		if(nd.importFromDB(id, -1) > 25)
 		{
 			switch(mode)
 			{
