@@ -14,6 +14,7 @@ import com.google.gson.*;
 
 import interfaces.MQTTInterface;
 import prediction.LocPrediction;
+import prediction.LocPrediction.UserNotLoaded;
 import predictorG.PredictorG;
 import utils.JSONCAR;
 import utils.Tuple;
@@ -95,19 +96,46 @@ public class CarInterface implements MQTTInterface
 				
 				if(car.getUser("DRIVER").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID(),"coords.csv", "networkExport.eg",2);
+					try {
+						lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID(),"coords.csv", "networkExport.eg",2);
+					}
+					catch (UserNotLoaded e)
+					{
+						car.getUser("DRIVER").setNotLoaded();
+					}
 				}
 				if(car.getUser("PASSENGER").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("PASSENGER").getUserID(),"coords.csv", "networkExport.eg",2);
+					try
+					{
+						lp = LocPrediction.getInstance(car.getUser("PASSENGER").getUserID(),"coords.csv", "networkExport.eg",2);
+					}
+					catch (UserNotLoaded e)
+					{
+						car.getUser("PASSENGER").setNotLoaded();
+					}
 				}
 				if(car.getUser("BACKSEAT0").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("BACKSEAT0").getUserID(),"coords.csv", "networkExport.eg",2);
+					try 
+					{
+						lp = LocPrediction.getInstance(car.getUser("BACKSEAT0").getUserID(),"coords.csv", "networkExport.eg",2);
+					}
+					catch (UserNotLoaded e)
+					{
+						car.getUser("BACKSEAT0").setNotLoaded();
+					}
 				}
 				if(car.getUser("BACKSEAT1").userExists())
 				{
-					lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID(),"coords.csv", "networkExport.eg",2);
+					try
+					{
+						lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID(),"coords.csv", "networkExport.eg",2);
+					}
+					catch (UserNotLoaded e)
+					{
+						car.getUser("BACKSEAT1").setNotLoaded();
+					}
 				}
 				
 			}
@@ -115,25 +143,25 @@ public class CarInterface implements MQTTInterface
 			if(arg0.equals(desttopic))
 			{
 				Gson gs = new Gson();
-				if(car.getUser("DRIVER").userExists())
+				if(car.getUser("DRIVER").userExists() && car.getUser("DRIVER").isLoaded())
 				{
 					lp = LocPrediction.getInstance(car.getUser("DRIVER").getUserID(),"coords.csv", "networkExport.eg",2);
 					ArrayList<double[]> pred = lp.predict();
 					client.publish("carai/car/driverPred", new MqttMessage(gs.toJson(pred).getBytes()));//("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
-				if(car.getUser("PASSENGER").userExists())
+				if(car.getUser("PASSENGER").userExists() && car.getUser("PASSENGER").isLoaded())
 				{
 					lp = LocPrediction.getInstance(car.getUser("PASSENGER").getUserID(),"coords.csv", "networkExport.eg",2);
 					ArrayList<double[]> pred = lp.predict();
 					client.publish("carai/car/passPred", new MqttMessage(gs.toJson(pred).getBytes()));//("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
-				if(car.getUser("BACKSEAT0").userExists())
+				if(car.getUser("BACKSEAT0").userExists() && car.getUser("BACKSEAT0").isLoaded())
 				{
 					lp = LocPrediction.getInstance(car.getUser("BACKSEAT0").getUserID(),"coords.csv", "networkExport.eg",2);
 					ArrayList<double[]> pred= lp.predict();
 					client.publish("carai/car/back0Pred", new MqttMessage(gs.toJson(pred).getBytes()));//("{\"lat\":\""+pred.fst()+"\",\"lon\":\""+pred.snd() +"\"}").getBytes()));
 				}
-				if(car.getUser("BACKSEAT1").userExists())
+				if(car.getUser("BACKSEAT1").userExists() && car.getUser("BACKSEAT1").isLoaded())
 				{
 					lp = LocPrediction.getInstance(car.getUser("BACKSEAT1").getUserID(),"coords.csv", "networkExport.eg",2);
 					ArrayList<double[]> pred= lp.predict();

@@ -72,12 +72,21 @@ public class Main
     		{
     			System.out.println("Schedule debug");
     			try{
-        			LocPrediction lp = LocPrediction.getInstance(1, "coords.csv", "networkExport.eg",5);
+        			LocPrediction lp = LocPrediction.getInstance(2, "coords.csv", "networkExport.eg",5);
         			
         			LocPrediction.clearInstance(1);
 				} catch (Exception e) {
+					
+				}
+    			
+    			
+    			try {
+					System.in.read();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+    			
     		}
     		else if(args[0].equals("4"))
     		{
